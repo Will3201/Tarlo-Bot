@@ -1,23 +1,35 @@
 import time
 import asyncio
+import threading
 from PIL import Image, ImageDraw, ImageFont
 import requests
 from io import BytesIO
 from telegram import Bot
+from flask import Flask
 
 # --- CONFIGURAZIONE PERSONALE ---
 TELEGRAM_TOKEN = "INSERISCI_QUI_IL_TUO_TOKEN_BOTFATHER"
-CANALE_CHAT_ID = "@iltarlodelrisparmio"  # Username del tuo canale Telegram
-AMAZON_TAG = "iltarlodelrisp-21"          # Il tuo tag Amazon
+CANALE_CHAT_ID = "@iltarlodelrisparmio"  
+AMAZON_TAG = "iltarlodelrisp-21"          
 
 # Parametri di filtro e categorie mirate
-SCONTO_MINIMO = 20  # Sconto minimo del 20%
- CATEGORIE_ACCETTATE = ["casa", "elettrodomestici", "consumabili", "igiene e pulizia"]
+SCONTO_MINIMO = 20  
+CATEGORIE_ACCETTATE = ["casa", "elettrodomestici", "consumabili", "igiene e pulizia"]
 
 bot = Bot(token=TELEGRAM_TOKEN)
 
+# --- MINI SERVER WEB PER IL PIANO FREE DI RENDER ---
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Il Tarlo del Risparmio Bot è attivo e online!"
+
+def run_flask():
+    app.run(host="0.0.0.0", port=10000)
+# --------------------------------------------------
+
 def crea_immagine_offerta(prodotto):
-    """Compila la tua immagine base con la foto del prodotto e i prezzi"""
     try:
         template = Image.open("template.png").convert("RGBA")
     except:
@@ -34,7 +46,6 @@ def crea_immagine_offerta(prodotto):
         font_prezzo_1 = ImageFont.load_default()
         font_prezzo_2 = ImageFont.load_default()
 
-    # Scarica e incolla la foto del prodotto nel riquadro bianco a sinistra
     try:
         response = requests.get(prodotto['immagine_url'])
         img_prodotto = Image.open(BytesIO(response.content)).convert("RGBA")
@@ -43,14 +54,9 @@ def crea_immagine_offerta(prodotto):
     except Exception as e:
         print(f"Errore immagine prodotto: {e}")
 
-    # Scrive il titolo in alto a destra
     titolo_brevi = prodotto['titolo'][:50] + ("..." if len(prodotto['titolo']) > 50 else "")
     draw.text((605, 250), titolo_brevi, fill="white", font=font_titolo)
-
-    # Scrive il prezzo scontato nel box arancione
     draw.text((660, 685), str(prodotto['prezzo_attuale']), fill="white", font=font_prezzo_1)
-
-    # Scrive il prezzo pieno barrato nel box bianco sotto
     draw.text((800, 830), str(prodotto['prezzo_precedente']), fill="#333333", font=font_prezzo_2)
     draw.line([(790, 845), (940, 845)], fill="red", width=4)
 
@@ -59,7 +65,6 @@ def crea_immagine_offerta(prodotto):
     return percorso_finale
 
 def simula_ricerca_offerte():
-    """Simulatore di offerte per le categorie casa, elettrodomestici e scorta/consumabili"""
     return [
         {
             "titolo": "Detersivo Lavatrice Liquido 100 Lavaggi + Carta Igienica Scorta",
@@ -95,7 +100,7 @@ async def invia_offerta(prodotto):
         )
 
 async def main():
-    print("Il Tarlo del Risparmio - Bot avviato!")
+    print("Il Tarlo del Risparmio - Bot avviato con Web Server integrato!")
     inviati = set()
     
     while True:
@@ -106,10 +111,16 @@ async def main():
                     if off["asin"] not in inviati:
                         await invia_offerta(off)
                         inviati.add(off["asin"])
-            await asyncio.sleep(1800) # Controlla ogni 30 minuti
+            await asyncio.sleep(1800) 
         except Exception as e:
             print(f"Errore nel ciclo: {e}")
             await asyncio.sleep(60)
 
 if __name__ == "__main__":
+    # Avvia Flask in un thread separato così non blocca il bot di Telegram
+    t = threading.Thread(target=run_flask)
+    t.daemon = True
+    t.start()
+    
+    # Avvia il loop principale del bot
     asyncio.run(main())
