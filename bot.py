@@ -4,18 +4,15 @@ import threading
 import textwrap
 from PIL import Image, ImageDraw, ImageFont
 import requests
+from bs4 import BeautifulSoup
 from io import BytesIO
 from telegram import Bot
 from flask import Flask
 
 # --- CONFIGURAZIONE PERSONALE ---
-TELEGRAM_TOKEN = "8670212259:AAFn_21_abtz4vL4WQ5TpekYby-hCnAjzeU"
-CANALE_CHAT_ID = "@TarloDelRisparmio"  
+TELEGRAM_TOKEN = "INSERISCI_IL_TUO_TOKEN_TELEGRAM"
+CANALE_CHAT_ID = "@iltarlodelrisparmio"  
 AMAZON_TAG = "iltarlodelrisp-21"          
-
-# Parametri di filtro e categorie mirate
-SCONTO_MINIMO = 15  
-CATEGORIE_ACCETTATE = ["casa", "elettrodomestici", "consumabili", "igiene e pulizia", "salute e cura della persona"]
 
 bot = Bot(token=TELEGRAM_TOKEN)
 
@@ -24,7 +21,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "Il Tarlo del Risparmio Bot è attivo e online!"
+    return "Il Tarlo del Risparmio - Bot Automatico Gratuito attivo e online!"
 
 def run_flask():
     app.run(host="0.0.0.0", port=10000)
@@ -48,9 +45,9 @@ def crea_immagine_offerta(prodotto):
         font_prezzo_1 = ImageFont.load_default()
         font_prezzo_2 = ImageFont.load_default()
 
-    # Scarica la foto del prodotto aggirando il blocco di Amazon con gli Headers
+    # Scarica la foto del prodotto reale da Amazon
     try:
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'}
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'}
         response = requests.get(prodotto['immagine_url'], headers=headers)
         img_prodotto = Image.open(BytesIO(response.content)).convert("RGBA")
         img_prodotto = img_prodotto.resize((460, 460))
@@ -78,19 +75,71 @@ def crea_immagine_offerta(prodotto):
     template.convert("RGB").save(percorso_finale)
     return percorso_finale
 
-def simula_ricerca_offerte():
-    # Prodotto di test reale con ASIN e immagine funzionanti su Amazon Italia
-    return [
-        {
-            "titolo": "Dash Pods Detersivo Lavatrice, 54 Lavaggi, Pods All in 1 Pods Regular",
-            "categoria": "Consumabili",
-            "sconto": 25,
-            "asin": "B0BT7V2P2Q",
-            "prezzo_attuale": "18,99€",
-            "prezzo_precedente": "25,99€",
-            "immagine_url": "https://m.media-amazon.com/images/I/71XgG9sWc1L._AC_SL1500_.jpg"
+def cerca_offerte_automatiche():
+    offerte_trovate = []
+    try:
+        # Pagina delle offerte del giorno di Amazon Italia
+        url = "https://www.amazon.it/gp/goldbox"
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+            'Accept-Language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7'
         }
-    ]
+        
+        response = requests.get(url, headers=headers)
+        if response.status_code != 200:
+            print(f"Errore di connessione ad Amazon: Status {response.status_code}")
+            return []
+            
+        soup = BeautifulSoup(response.text, 'html.parser')
+        
+        # Cerca i blocchi delle offerte nella pagina (la struttura di Amazon può variare, prendiamo i box generici)
+        items = soup.select('.Grid-child') or soup.select('.DealGridItem-module__dealItemStyle')
+        
+        for item in items[:10]: # Analizza i primi 10 elementi
+            try:
+                # Estrae il titolo
+                title_elem = item.select_string('a.a-link-normal') or item.select_one('.a-size-base')
+                if not title_elem:
+                    continue
+                titolo = title_elem.get_text(strip=True)
+                
+                # Estrae il link e l'ASIN
+                link_elem = item.select_one('a.a-link-normal')
+                if not link_elem or 'href' not in link_elem.attrs:
+                    continue
+                href = link_elem['href']
+                
+                if "/dp/" in href:
+                    asin = href.split("/dp/")[1].split("/")[0].split("?")[0]
+                else:
+                    continue
+                
+                # Estrae l'immagine
+                img_elem = item.select_one('img')
+                img_url = img_elem['src'] if img_elem and 'src' in img_elem.attrs else ""
+                
+                # Estrae il prezzo
+                price_elem = item.select_one('.a-price .a-offscreen')
+                prezzo_attuale = price_elem.get_text(strip=True) if price_elem else "0,00€"
+                
+                # Per sicurezza sui dati minimi, se abbiamo trovato un ASIN valido aggiungiamo l'offerta
+                if len(asin) == 10 and img_url:
+                    offerte_trovate.append({
+                        "titolo": titolo[:80], # Tronca se troppo lungo
+                        "categoria": "Casa",
+                        "sconto": 20, # Valore indicativo di default
+                        "asin": asin,
+                        "prezzo_attuale": prezzo_attuale,
+                        "prezzo_precedente": "Valore stimato", # Da calcolare o mostrare
+                        "immagine_url": img_url
+                    })
+            except Exception as inner_e:
+                continue
+                
+    except Exception as e:
+        print(f"Errore nello scraping automatico: {e}")
+        
+    return offerte_trovate
 
 async def invia_offerta(prodotto):
     link_affiliato = f"https://www.amazon.it/dp/{prodotto['asin']}?tag={AMAZON_TAG}"
@@ -99,8 +148,8 @@ async def invia_offerta(prodotto):
     didascalia = (
         f"🐜 **Il Tarlo ha colpito ancora!**\n\n"
         f"📦 **{prodotto['titolo']}**\n"
-        f"📉 Sconto bomba: **-{prodotto['sconto']}%**\n"
-        f"💰 Crollo prezzo: ~~{prodotto['prezzo_precedente']}~~ ➔ **{prodotto['prezzo_attuale']}**\n\n"
+        f"📉 Offerta lampo selezionata per te!\n"
+        f"💰 Prezzo: **{prodotto['prezzo_attuale']}**\n\n"
         f"👉 [ACQUISTA SUBITO IN OFFERTA]({link_affiliato})\n\n"
         f"In qualità di Affiliato Amazon ricevo un guadagno dagli acquisti idonei.\n"
         f"#IlTarloDelRisparmio #Casa #{prodotto['categoria']}"
@@ -115,22 +164,24 @@ async def invia_offerta(prodotto):
         )
 
 async def main():
-    print("Il Tarlo del Risparmio - Bot avviato con Web Server integrato!")
+    print("Il Tarlo del Risparmio - Bot Automatico (Gratuito) avviato!")
     inviati = set()
     
     while True:
         try:
-            offerte = simula_ricerca_offerte()
+            offerte = cerca_offerte_automatiche()
             for off in offerte:
-                if off["categoria"].lower() in CATEGORIE_ACCETTATE and off["sconto"] >= SCONTO_MINIMO:
-                    if off["asin"] not in inviati:
-                        await invia_offerta(off)
-                        inviati.add(off["asin"])
-            # Rimetti 1800 (30 minuti) dopo aver fatto i test, ora è a 10 secondi
-            await asyncio.sleep(10) 
+                if off["asin"] not in inviati:
+                    await invia_offerta(off)
+                    inviati.add(off["asin"])
+                    await asyncio.sleep(60) # Pausa tra un invio e l'altro
+            
+            # Controlla nuove offerte ogni 1 ora (3600 secondi)
+            await asyncio.sleep(3600) 
+            
         except Exception as e:
-            print(f"Errore nel ciclo: {e}")
-            await asyncio.sleep(60)
+            print(f"Errore nel ciclo principale: {e}")
+            await asyncio.sleep(300)
 
 if __name__ == "__main__":
     t = threading.Thread(target=run_flask)
@@ -138,3 +189,4 @@ if __name__ == "__main__":
     t.start()
     
     asyncio.run(main())
+    
