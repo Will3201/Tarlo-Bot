@@ -177,7 +177,7 @@ async def main():
                     await asyncio.sleep(60) # Pausa tra un invio e l'altro
             
             # Controlla nuove offerte ogni 1 ora (3600 secondi)
-            await asyncio.sleep(3600) 
+            await asyncio.sleep(60) 
             
         except Exception as e:
             print(f"Errore nel ciclo principale: {e}")
