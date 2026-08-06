@@ -1,4 +1,0 @@
-python-telegram-bot==21.11.1
-Flask==3.1.1
-Pillow==11.3.0
-requests==2.32.4
