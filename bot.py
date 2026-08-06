@@ -13,9 +13,9 @@ from telegram import Bot
 # ============================================================
 # MODIFICA SOLO QUESTE RIGHE
 # ============================================================
-TELEGRAM_TOKEN = "INCOLLA_QUI_IL_TOKEN_BOTFATHER"
-CANALE_CHAT_ID = "@iltarlodelrisparmio"
-AMAZON_TAG = "iltarlodelrisp-21"
+TELEGRAM_TOKEN = "8670212259:AAFn_21_abtz4vL4WQ5TpekYby-hCnAjzeU"
+CANALE_CHAT_ID = "@TarloDelRisparmio"
+AMAZON_TAG = "tarlodelrispa-21"
 INTERVALLO_MINUTI = 30
 # ============================================================
 
