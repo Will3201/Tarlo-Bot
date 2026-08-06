@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: il-tarlo-del-risparmio
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 4 bot:app
+    envVars:
+      - key: TELEGRAM_TOKEN
+        sync: false
+      - key: CANALE_CHAT_ID
+        value: "@iltarlodelrisparmio"
+      - key: AMAZON_TAG
+        value: "iltarlodelrisp-21"
+      - key: PUBLISH_INTERVAL_MINUTES
+        value: "30"
+      - key: ADMIN_SECRET
+        generateValue: true

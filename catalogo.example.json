@@ -1,0 +1,11 @@
+[
+  {
+    "titolo": "INSERISCI IL NOME REALE DEL PRODOTTO",
+    "categoria": "Casa",
+    "sconto": 25,
+    "asin": "B000000000",
+    "prezzo_attuale": "18,99 €",
+    "prezzo_precedente": "25,99 €",
+    "immagine_url": "https://URL-DELLA-IMMAGINE-AUTORIZZATA.jpg"
+  }
+]
