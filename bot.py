@@ -1,7 +1,7 @@
 import time
 import asyncio
 import threading
-textwrap
+import textwrap
 from PIL import Image, ImageDraw, ImageFont
 import requests
 from io import BytesIO
