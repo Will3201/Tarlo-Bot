@@ -8,7 +8,7 @@ from telegram import Bot
 from flask import Flask
 
 # --- CONFIGURAZIONE PERSONALE ---
-TELEGRAM_TOKEN = "INSERISCI_QUI_IL_TUO_TOKEN_BOTFATHER"
+TELEGRAM_TOKEN = "8670212259:AAFn_21_abtz4vL4WQ5TpekYby-hCnAjzeU"
 CANALE_CHAT_ID = "@iltarlodelrisparmio"  
 AMAZON_TAG = "iltarlodelrisp-21"          
 
