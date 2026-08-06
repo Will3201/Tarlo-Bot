@@ -111,7 +111,7 @@ async def main():
                     if off["asin"] not in inviati:
                         await invia_offerta(off)
                         inviati.add(off["asin"])
-            await asyncio.sleep(1800) 
+            await asyncio.sleep(10) 
         except Exception as e:
             print(f"Errore nel ciclo: {e}")
             await asyncio.sleep(60)
