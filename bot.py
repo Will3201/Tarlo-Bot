@@ -25,7 +25,6 @@ def home():
 def run_flask():
     app.run(host="0.0.0.0", port=10000)
 # --------------------------------------------------
-
 def crea_immagine_offerta(prodotto):
     try:
         template = Image.open("template.png").convert("RGBA")
