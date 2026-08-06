@@ -28,38 +28,60 @@ def home():
 def run_flask():
     app.run(host="0.0.0.0", port=10000)
 # --------------------------------------------------
+import textwrap
 
 def crea_immagine_offerta(prodotto):
     try:
         template = Image.open("template.png").convert("RGBA")
-    except:
-        template = Image.new("RGBA", (1000, 1000), "#0B3B24")
+    except Exception as e:
+        print(f"ERRORE: Impossibile aprire template.png: {e}")
+        template = Image.new("RGBA", (1254, 1254), "#0B3B24")
     
     draw = ImageDraw.Draw(template)
     
+    # Caricamento font dimensionati per il 1254x1254
     try:
-        font_titolo = ImageFont.truetype("arialbd.ttf", 36)
-        font_prezzo_1 = ImageFont.truetype("arialbd.ttf", 55)
-        font_prezzo_2 = ImageFont.truetype("arial.ttf", 30)
+        font_titolo = ImageFont.truetype("arialbd.ttf", 42)
+        font_prezzo_1 = ImageFont.truetype("arialbd.ttf", 68)
+        font_prezzo_2 = ImageFont.truetype("arial.ttf", 38)
     except:
         font_titolo = ImageFont.load_default()
         font_prezzo_1 = ImageFont.load_default()
         font_prezzo_2 = ImageFont.load_default()
 
+    # 1. SCARICA E INCOLLA LA FOTO NEL RIQUADRO BIANCO A SINISTRA (1254x1254)
     try:
         response = requests.get(prodotto['immagine_url'])
         img_prodotto = Image.open(BytesIO(response.content)).convert("RGBA")
-        img_prodotto = img_prodotto.resize((420, 420))
-        template.paste(img_prodotto, (75, 230), img_prodotto)
+        
+        # Ridimensiona l'immagine per farla entrare perfettamente nel box bianco
+        img_prodotto = img_prodotto.resize((460, 460))
+        
+        # Coordinate X e Y precise per il riquadro bianco a sinistra
+        template.paste(img_prodotto, (95, 290), img_prodotto)
     except Exception as e:
-        print(f"Errore immagine prodotto: {e}")
+        print(f"Errore caricamento immagine prodotto: {e}")
 
-    titolo_brevi = prodotto['titolo'][:50] + ("..." if len(prodotto['titolo']) > 50 else "")
-    draw.text((605, 250), titolo_brevi, fill="white", font=font_titolo)
-    draw.text((660, 685), str(prodotto['prezzo_attuale']), fill="white", font=font_prezzo_1)
-    draw.text((800, 830), str(prodotto['prezzo_precedente']), fill="#333333", font=font_prezzo_2)
-    draw.line([(790, 845), (940, 845)], fill="red", width=4)
+    # 2. SCRIVE IL TITOLO (Area verde in alto a destra, con a capo automatico)
+    # Calcola le righe in base alla larghezza dello spazio disponibile
+    titolo_testo = prodotto['titolo']
+    linee_titolo = textwrap.wrap(titolo_testo, width=28) # Circa 28 caratteri per riga
+    
+    y_testo = 310
+    for linea in linee_titolo[:3]: # Stampa massimo 3 righe per sicurezza
+        draw.text((610, y_testo), linea, fill="white", font=font_titolo)
+        y_testo += 52 # Spaziatura verticale tra una riga e l'altra
 
+    # 3. SCRIVE IL PREZZO SCONTATO (Nel box arancione in basso a destra)
+    draw.text((670, 725), str(prodotto['prezzo_attuale']), fill="white", font=font_prezzo_1)
+
+    # 4. SCRIVE IL PREZZO PIENO BARRATO (Nel box bianco sotto "INVECE DI")
+    draw.text((830, 895), str(prodotto['prezzo_precedente']), fill="#333333", font=font_prezzo_2)
+    
+    # Linea rossa barrata calibrata sulla lunghezza del prezzo vecchio
+    draw.line([(820, 915), (1000, 915)], fill="red", width=5)
+
+    # Salva l'immagine finale pronta per Telegram
     percorso_finale = "offerta_finale.png"
     template.convert("RGB").save(percorso_finale)
     return percorso_finale
