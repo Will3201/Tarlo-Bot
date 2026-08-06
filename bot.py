@@ -196,7 +196,7 @@ def crea_immagine_offerta(prodotto):
         prodotto.get("sottotitolo", "")
     ).strip()
 
-    box_titolo = (885, 365, 1435, 540)
+    box_titolo = (900, 380, 1445, 555)
 
     font_titolo = carica_font(58, True)
     righe = spezza_testo(
@@ -240,7 +240,7 @@ def crea_immagine_offerta(prodotto):
 
     # Sottotitolo nella striscia verde vuota sotto.
     if sottotitolo:
-        box_sottotitolo = (885, 535, 1435, 590)
+        box_sottotitolo = (900, 545, 1434, 605)
 
         font_sottotitolo = carica_font(31, True)
 
@@ -275,7 +275,7 @@ def crea_immagine_offerta(prodotto):
         prodotto.get("prezzo_attuale", "")
     ).replace("€", "").strip()
 
-    box_prezzo = (1065, 1050, 1435, 1155)
+    box_prezzo = (1080, 1055, 1445, 1165)
     font_prezzo = carica_font(76, True)
 
     while (
@@ -308,7 +308,7 @@ def crea_immagine_offerta(prodotto):
         prodotto.get("prezzo_precedente", "")
     ).replace("€", "").strip()
 
-    box_vecchio = (1210, 1215, 1435, 1285)
+    box_vecchio = (1220, 1218, 1445, 1288)
     font_vecchio = carica_font(42, True)
 
     while (
