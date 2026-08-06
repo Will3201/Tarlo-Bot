@@ -9,11 +9,11 @@ from flask import Flask
 
 # --- CONFIGURAZIONE PERSONALE ---
 TELEGRAM_TOKEN = "8670212259:AAFn_21_abtz4vL4WQ5TpekYby-hCnAjzeU"
-CANALE_CHAT_ID = "@iltarlodelrisparmio"  
+CANALE_CHAT_ID = "@TarloDelRisparmio"  
 AMAZON_TAG = "iltarlodelrisp-21"          
 
 # Parametri di filtro e categorie mirate
-SCONTO_MINIMO = 20  
+SCONTO_MINIMO = 25  
 CATEGORIE_ACCETTATE = ["casa", "elettrodomestici", "consumabili", "igiene e pulizia"]
 
 bot = Bot(token=TELEGRAM_TOKEN)
