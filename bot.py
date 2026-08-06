@@ -1,6 +1,7 @@
 import time
 import asyncio
 import threading
+textwrap
 from PIL import Image, ImageDraw, ImageFont
 import requests
 from io import BytesIO
@@ -13,8 +14,8 @@ CANALE_CHAT_ID = "@TarloDelRisparmio"
 AMAZON_TAG = "iltarlodelrisp-21"          
 
 # Parametri di filtro e categorie mirate
-SCONTO_MINIMO = 25  
-CATEGORIE_ACCETTATE = ["casa", "elettrodomestici", "consumabili", "igiene e pulizia"]
+SCONTO_MINIMO = 15  
+CATEGORIE_ACCETTATE = ["casa", "elettrodomestici", "consumabili", "igiene e pulizia", "salute e cura della persona"]
 
 bot = Bot(token=TELEGRAM_TOKEN)
 
@@ -28,7 +29,6 @@ def home():
 def run_flask():
     app.run(host="0.0.0.0", port=10000)
 # --------------------------------------------------
-import textwrap
 
 def crea_immagine_offerta(prodotto):
     try:
@@ -39,7 +39,6 @@ def crea_immagine_offerta(prodotto):
     
     draw = ImageDraw.Draw(template)
     
-    # Caricamento font dimensionati per il 1254x1254
     try:
         font_titolo = ImageFont.truetype("arialbd.ttf", 42)
         font_prezzo_1 = ImageFont.truetype("arialbd.ttf", 68)
@@ -49,53 +48,47 @@ def crea_immagine_offerta(prodotto):
         font_prezzo_1 = ImageFont.load_default()
         font_prezzo_2 = ImageFont.load_default()
 
-    # 1. SCARICA E INCOLLA LA FOTO NEL RIQUADRO BIANCO A SINISTRA (1254x1254)
+    # Scarica la foto del prodotto aggirando il blocco di Amazon con gli Headers
     try:
-        response = requests.get(prodotto['immagine_url'])
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'}
+        response = requests.get(prodotto['immagine_url'], headers=headers)
         img_prodotto = Image.open(BytesIO(response.content)).convert("RGBA")
-        
-        # Ridimensiona l'immagine per farla entrare perfettamente nel box bianco
         img_prodotto = img_prodotto.resize((460, 460))
-        
-        # Coordinate X e Y precise per il riquadro bianco a sinistra
         template.paste(img_prodotto, (95, 290), img_prodotto)
     except Exception as e:
         print(f"Errore caricamento immagine prodotto: {e}")
 
-    # 2. SCRIVE IL TITOLO (Area verde in alto a destra, con a capo automatico)
-    # Calcola le righe in base alla larghezza dello spazio disponibile
+    # Scrive il titolo con a capo automatico
     titolo_testo = prodotto['titolo']
-    linee_titolo = textwrap.wrap(titolo_testo, width=28) # Circa 28 caratteri per riga
+    linee_titolo = textwrap.wrap(titolo_testo, width=28)
     
     y_testo = 310
-    for linea in linee_titolo[:3]: # Stampa massimo 3 righe per sicurezza
+    for linea in linee_titolo[:3]:
         draw.text((610, y_testo), linea, fill="white", font=font_titolo)
-        y_testo += 52 # Spaziatura verticale tra una riga e l'altra
+        y_testo += 52
 
-    # 3. SCRIVE IL PREZZO SCONTATO (Nel box arancione in basso a destra)
+    # Scrive il prezzo scontato nel box arancione
     draw.text((670, 725), str(prodotto['prezzo_attuale']), fill="white", font=font_prezzo_1)
 
-    # 4. SCRIVE IL PREZZO PIENO BARRATO (Nel box bianco sotto "INVECE DI")
+    # Scrive il prezzo pieno barrato
     draw.text((830, 895), str(prodotto['prezzo_precedente']), fill="#333333", font=font_prezzo_2)
-    
-    # Linea rossa barrata calibrata sulla lunghezza del prezzo vecchio
     draw.line([(820, 915), (1000, 915)], fill="red", width=5)
 
-    # Salva l'immagine finale pronta per Telegram
     percorso_finale = "offerta_finale.png"
     template.convert("RGB").save(percorso_finale)
     return percorso_finale
 
 def simula_ricerca_offerte():
+    # Prodotto di test reale con ASIN e immagine funzionanti su Amazon Italia
     return [
         {
-            "titolo": "Detersivo Lavatrice Liquido 100 Lavaggi + Carta Igienica Scorta",
+            "titolo": "Dash Pods Detersivo Lavatrice, 54 Lavaggi, Pods All in 1 Pods Regular",
             "categoria": "Consumabili",
-            "sconto": 30,
-            "asin": "B07XYZ1234",
-            "prezzo_attuale": "14,99€",
-            "prezzo_precedente": "21,99€",
-            "immagine_url": "https://m.media-amazon.com/images/I/71s5834e2bL._AC_SL1500_.jpg"
+            "sconto": 25,
+            "asin": "B0BT7V2P2Q",
+            "prezzo_attuale": "18,99€",
+            "prezzo_precedente": "25,99€",
+            "immagine_url": "https://m.media-amazon.com/images/I/71XgG9sWc1L._AC_SL1500_.jpg"
         }
     ]
 
@@ -133,16 +126,15 @@ async def main():
                     if off["asin"] not in inviati:
                         await invia_offerta(off)
                         inviati.add(off["asin"])
+            # Rimetti 1800 (30 minuti) dopo aver fatto i test, ora è a 10 secondi
             await asyncio.sleep(10) 
         except Exception as e:
             print(f"Errore nel ciclo: {e}")
             await asyncio.sleep(60)
 
 if __name__ == "__main__":
-    # Avvia Flask in un thread separato così non blocca il bot di Telegram
     t = threading.Thread(target=run_flask)
     t.daemon = True
     t.start()
     
-    # Avvia il loop principale del bot
     asyncio.run(main())
