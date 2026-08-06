@@ -1,7 +1,7 @@
 # CONFIGURAZIONE DEL BOT
 # IMPORTANTE: usa un repository GitHub PRIVATO.
 
-TELEGRAM_TOKEN = "INCOLLA_QUI_IL_TOKEN_BOTFATHER"
-CANALE_CHAT_ID = "@iltarlodelrisparmio"
-AMAZON_TAG = "iltarlodelrisp-21"
-ADMIN_SECRET = "scegli-una-password"
+TELEGRAM_TOKEN = "8670212259:AAFn_21_abtz4vL4WQ5TpekYby-hCnAjzeU"
+CANALE_CHAT_ID = "@TarloDelRisparmio"
+AMAZON_TAG = "tarlodelrispa-21"
+ADMIN_SECRET = "Caccamolle12*"
