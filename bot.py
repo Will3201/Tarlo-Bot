@@ -18,17 +18,17 @@ from telethon import TelegramClient, events
 # ============================================================
 # CONFIGURAZIONE
 # ============================================================
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "TUO_TELEGRAM_TOKEN")
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "8670212259:AAFn_21_abtz4vL4WQ5TpekYby-hCnAjzeU")
 CANALE_CHAT_ID = os.getenv("CANALE_CHAT_ID", "@TarloDelRisparmio")
 AMAZON_TAG = os.getenv("AMAZON_TAG", "tarlodelrispa-21")
-INTERVALLO_MINUTI = int(os.getenv("INTERVALLO_MINUTI", "30"))
+INTERVALLO_MINUTI = int(os.getenv("INTERVALLO_MINUTI", "5"))
 
 # Credenziali Client Telegram (da my.telegram.org per il canale spia)
-TELEGRAM_API_ID = int(os.getenv("TELEGRAM_API_ID", "1234567"))
-TELEGRAM_API_HASH = os.getenv("TELEGRAM_API_HASH", "TUO_API_HASH")
+TELEGRAM_API_ID = int(os.getenv("TELEGRAM_API_ID", "31134748"))
+TELEGRAM_API_HASH = os.getenv("TELEGRAM_API_HASH", "ba4265cff56d0687c6c5171b47f76e02")
 
 # Canali Telegram da spiare (username o ID)
-CANALI_SPIA = ["offertedeltag", "scontiamolo"] 
+CANALI_SPIA = ["sparky_offerte", "AstroHouse_Casa_Cucina", "ultimaofferta" "offerte5" ] 
 
 BASE_DIR = Path(__file__).resolve().parent
 TEMPLATE_PATH = BASE_DIR / "template.png"
