@@ -4,3 +4,5 @@ Pillow
 requests
 beautifulsoup4
 telethon
+moviepy
+text
