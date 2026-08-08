@@ -150,37 +150,48 @@ def scarica_dettagli_amazon(asin):
 # CANALE SPIA (TELETHON USERBOT WITH STRING SESSION)
 # ============================================================
 async def avvia_canale_spia():
-    session_string = os.getenv("TELEGRAM_SESSION_STRING", "")
+    session_string = os.getenv("TELEGRAM_SESSION_STRING", "").strip()
     
-    if session_string:
-        client = TelegramClient(StringSession(session_string), TELEGRAM_API_ID, TELEGRAM_API_HASH)
-    else:
-        session_file = str(BASE_DIR / "session_spia.session")
-        client = TelegramClient(session_file, TELEGRAM_API_ID, TELEGRAM_API_HASH)
+    if not session_string:
+        print("[ERRORE SPIA] TELEGRAM_SESSION_STRING mancante o non configurata su Render!")
+        return
+
+    client = TelegramClient(StringSession(session_string), TELEGRAM_API_ID, TELEGRAM_API_HASH)
     
-    @client.on(events.NewMessage(chats=CANALI_SPIA))
-    async def gestisci_nuovo_messaggio(event):
-        testo = event.message.text or ""
-        urls = re.findall(r'https?://[^\s]+', testo)
-        
-        if event.message.buttons:
-            for row in event.message.buttons:
-                for btn in row:
-                    if btn.url:
-                        urls.append(btn.url)
+    try:
+        await client.connect()
 
-        for url in urls:
-            asin = estrai_asin(url)
-            if asin:
-                print(f"[SPIA] Intercettato ASIN: {asin}")
-                prodotto = await asyncio.to_thread(scarica_dettagli_amazon, asin)
-                if prodotto:
-                    aggiungi_prodotto_db(prodotto)
-                    print(f"[SPIA] Aggiunto al DB: {prodotto['titolo']}")
-                break
+        if not await client.is_user_authorized():
+            print("[ERRORE SPIA] La TELEGRAM_SESSION_STRING non è valida o è scaduta!")
+            await client.disconnect()
+            return
 
-    await client.start()
-    await client.run_until_disconnected()
+        print("[SPIA] Connesso con successo ai canali Telegram!")
+
+        @client.on(events.NewMessage(chats=CANALI_SPIA))
+        async def gestisci_nuovo_messaggio(event):
+            testo = event.message.text or ""
+            urls = re.findall(r'https?://[^\s]+', testo)
+            
+            if event.message.buttons:
+                for row in event.message.buttons:
+                    for btn in row:
+                        if btn.url:
+                            urls.append(btn.url)
+
+            for url in urls:
+                asin = estrai_asin(url)
+                if asin:
+                    print(f"[SPIA] Intercettato ASIN: {asin}")
+                    prodotto = await asyncio.to_thread(scarica_dettagli_amazon, asin)
+                    if prodotto:
+                        aggiungi_prodotto_db(prodotto)
+                        print(f"[SPIA] Aggiunto al DB: {prodotto['titolo']}")
+                    break
+
+        await client.run_until_disconnected()
+    except Exception as e:
+        print(f"[ERRORE SPIA]: {e}")
 
 # ============================================================
 # FUNZIONI GRAFICHE PILLOW
