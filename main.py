@@ -153,51 +153,65 @@ def scarica_dettagli_amazon(asin):
         if not prezzo_attuale:
             return None
 
-        # 2. Prezzo Precedente / Listino
+        # 2. Controllo percentuale sconto esplicita (es. -38%)
+        sconto_diretto = 0
+        sconto_elem = soup.find("span", class_=re.compile(r"savingsPercentage|savingPriceOverride"))
+        if sconto_elem:
+            m_sc = re.search(r'(\d+)%', sconto_elem.get_text())
+            if m_sc:
+                sconto_diretto = int(m_sc.group(1))
+
+        # 3. Prezzo Precedente / Listino (escludendo prezzi unitari /100 ml)
         prezzo_precedente = None
         
-        # Cerca elementi a-text-price o basisPrice
         for elem in soup.find_all("span", class_=re.compile(r"a-text-price|basisPrice|a-color-secondary")):
-            if "a-price-whole" in elem.get("class", []):
+            txt_full = elem.get_text().lower()
+            
+            # Scarta se contiene indicazioni di prezzo per unità di misura
+            if "a-price-whole" in elem.get("class", []) or "/" in txt_full or "100" in txt_full and "ml" in txt_full:
                 continue
+            
             off_span = elem.find("span", {"class": "a-offscreen"})
             txt = off_span.get_text() if off_span else elem.get_text()
-            m = re.search(r'(\d+[\.,]\d{2})', txt)
-            if m:
-                val = m.group(1).replace('.', ',')
-                if val != prezzo_attuale:
-                    prezzo_precedente = val
-                    break
+            
+            if "/" not in txt:
+                m = re.search(r'(\d+[\.,]\d{2})', txt)
+                if m:
+                    val = m.group(1).replace('.', ',')
+                    if val != prezzo_attuale:
+                        prezzo_precedente = val
+                        break
 
-        # Fallback 1: Cerca "Prezzo consigliato" o "Prezzo più basso" nel codice HTML
+        # Fallback 1: Cerca "Prezzo consigliato" o "Prezzo di listino"
         if not prezzo_precedente:
             m = re.search(r'(?:Prezzo consigliato|Prezzo di listino|Prezzo precedente):\s*.*?(\d+[\.,]\d{2})', res.text, re.IGNORECASE)
             if m and m.group(1).replace('.', ',') != prezzo_attuale:
                 prezzo_precedente = m.group(1).replace('.', ',')
 
-        # Fallback 2: Cerca basisPrice nei dati JSON interni
-        if not prezzo_precedente:
-            m = re.search(r'"basisPrice"\s*:\s*\{\s*"amount"\s*:\s*([\d\.]+)', res.text)
-            if m:
-                val = f"{float(m.group(1)):.2f}".replace('.', ',')
-                if val != prezzo_attuale:
-                    prezzo_precedente = val
+        # Fallback 2: Calcolo da sconto diretto se presente
+        if not prezzo_precedente and sconto_diretto > 0:
+            try:
+                p_att = float(prezzo_attuale.replace(".", "").replace(",", "."))
+                p_prec_calc = p_att / (1 - (sconto_diretto / 100))
+                prezzo_precedente = f"{p_prec_calc:.2f}".replace('.', ',')
+            except Exception:
+                pass
 
         if not prezzo_precedente:
             prezzo_precedente = prezzo_attuale
 
-        # 3. Calcolo Sconto
+        # 4. Calcolo Sconto Finale
         try:
             p_att = float(prezzo_attuale.replace(".", "").replace(",", "."))
             p_prec = float(prezzo_precedente.replace(".", "").replace(",", "."))
             if p_prec > p_att:
                 sconto = int(round(((p_prec - p_att) / p_prec) * 100))
             else:
-                sconto = 0
+                sconto = sconto_diretto
         except Exception:
-            sconto = 0
+            sconto = sconto_diretto
 
-        # 4. Immagine
+        # 5. Immagine
         img_elem = soup.find("img", {"id": "landingImage"})
         img_url = img_elem["src"] if img_elem else ""
 
@@ -365,7 +379,7 @@ def crea_immagine_offerta(prodotto):
 
     # Prezzo Precedente (se scontato)
     p_prec = str(prodotto.get("prezzo_precedente", "")).replace("€", "").strip()
-    if p_prec != p_att:
+    if sconto > 0 and p_prec != p_att:
         f_prec = carica_font(40, grassetto=True)
         centra_testo(draw, p_prec, (1225, 1214, 1442, 1286), f_prec, "#143D2D")
 
@@ -395,12 +409,19 @@ async def invia_offerta(prodotto):
     link = f"https://www.amazon.it/dp/{prodotto['asin']}?tag={AMAZON_TAG}"
     foto = crea_immagine_offerta(prodotto)
 
+    if prodotto['sconto'] > 0 and prodotto['prezzo_precedente'] != prodotto['prezzo_attuale']:
+        info_prezzo = (
+            f"📉 Sconto: <b>-{prodotto['sconto']}%</b>\n"
+            f"💰 <s>{html.escape(str(prodotto['prezzo_precedente']))} €</s> "
+            f"➜ <b>{html.escape(str(prodotto['prezzo_attuale']))} €</b>"
+        )
+    else:
+        info_prezzo = f"💰 Prezzo speciale: <b>{html.escape(str(prodotto['prezzo_attuale']))} €</b>"
+
     didascalia = (
         "🐜 <b>Il Tarlo ha colpito ancora!</b>\n\n"
         f"📦 <b>{html.escape(str(prodotto['titolo']))}</b>\n"
-        f"📉 Sconto: <b>-{prodotto['sconto']}%</b>\n"
-        f"💰 <s>{html.escape(str(prodotto['prezzo_precedente']))} €</s> "
-        f"➜ <b>{html.escape(str(prodotto['prezzo_attuale']))} €</b>\n\n"
+        f"{info_prezzo}\n\n"
         f'👉 <a href="{html.escape(link, quote=True)}">ACQUISTA SUBITO IN OFFERTA</a>\n\n'
         "#IlTarloDelRisparmio"
     )
@@ -441,3 +462,4 @@ async def main():
 if __name__ == "__main__":
     threading.Thread(target=run_flask, daemon=True).start()
     asyncio.run(main())
+    
