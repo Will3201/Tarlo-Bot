@@ -27,7 +27,6 @@ INTERVALLO_MINUTI = int(os.getenv("INTERVALLO_MINUTI", "5"))
 TELEGRAM_API_ID = int(os.getenv("TELEGRAM_API_ID", "31134748"))
 TELEGRAM_API_HASH = os.getenv("TELEGRAM_API_HASH", "ba4265cff56d0687c6c5171b47f76e02")
 
-# I tuoi canali spia originali
 CANALI_SPIA = [
     "sparky_offerte",
     "AstroHouse_Casa_Cucina",
@@ -63,33 +62,28 @@ def init_db():
         conn.commit()
 
 def prodotto_inviato_recentemente(asin, ore=24):
-    """Controlla se il prodotto è attualmente in coda o se è stato già inviato nelle ultime 'ore' (24h)."""
     with sqlite3.connect(DB_PATH) as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT inviato_il FROM prodotti WHERE asin = ?", (asin,))
         row = cursor.fetchone()
         
         if not row:
-            return False  # Mai visto prima
+            return False
             
         inviato_il = row[0]
         if inviato_il is None:
-            return True  # È già in coda di attesa per la pubblicazione
+            return True
             
-        # Controlla se è stato inviato nelle ultime 24 ore
         if isinstance(inviato_il, str):
             inviato_dt = datetime.fromisoformat(inviato_il)
         else:
             inviato_dt = inviato_il
             
-        if datetime.now() - inviato_dt < timedelta(hours=ore):
-            return True  # Inviato di recente (meno di 24 ore fa)
-            
-        return False  # Passate più di 24 ore, può essere ripubblicato
+        return datetime.now() - inviato_dt < timedelta(hours=ore)
 
 def aggiungi_prodotto_db(p):
     if prodotto_inviato_recentemente(p["asin"], ore=24):
-        print(f"[DB] ASIN {p['asin']} già inviato nelle ultime 24h o già in coda, ignorato.")
+        print(f"[DB] ASIN {p['asin']} già inviato nelle ultime 24h o in coda, ignorato.")
         return False
 
     with sqlite3.connect(DB_PATH) as conn:
@@ -119,7 +113,7 @@ def segna_inviato(asin):
         conn.commit()
 
 # ============================================================
-# SCRAPER AMAZON
+# SCRAPER AMAZON AVANZATO PER PREZZI E SCONTI
 # ============================================================
 def estrai_asin(testo):
     match = re.search(r'/(?:dp|gp/product)/([A-Z0-9]{10})', testo)
@@ -130,8 +124,9 @@ def estrai_asin(testo):
 def scarica_dettagli_amazon(asin):
     url = f"https://www.amazon.it/dp/{asin}"
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-        "Accept-Language": "it-IT,it;q=0.9"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+        "Accept-Language": "it-IT,it;q=0.9",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
     }
     
     try:
@@ -146,28 +141,65 @@ def scarica_dettagli_amazon(asin):
             return None
         titolo = titolo_elem.get_text().strip()
 
+        # 1. Prezzo Attuale
+        prezzo_attuale = None
         prezzo_elem = soup.find("span", {"class": "a-price-whole"})
         frazione_elem = soup.find("span", {"class": "a-price-fraction"})
-        if not prezzo_elem:
+        if prezzo_elem:
+            p_w = re.sub(r'[^\d]', '', prezzo_elem.get_text())
+            p_f = frazione_elem.get_text().strip() if frazione_elem else "00"
+            prezzo_attuale = f"{p_w},{p_f}"
+
+        if not prezzo_attuale:
             return None
-        prezzo_attuale = f"{prezzo_elem.get_text().strip().replace(',', '')},{frazione_elem.get_text().strip() if frazione_elem else '00'}"
 
-        vecchio_elem = soup.find("span", {"class": "a-price a-text-price"})
-        prezzo_precedente = prezzo_attuale
-        if vecchio_elem:
-            v_span = vecchio_elem.find("span", {"class": "a-offscreen"})
-            if v_span:
-                prezzo_precedente = v_span.get_text().replace("€", "").strip()
+        # 2. Prezzo Precedente / Listino
+        prezzo_precedente = None
+        
+        # Cerca elementi a-text-price o basisPrice
+        for elem in soup.find_all("span", class_=re.compile(r"a-text-price|basisPrice|a-color-secondary")):
+            if "a-price-whole" in elem.get("class", []):
+                continue
+            off_span = elem.find("span", {"class": "a-offscreen"})
+            txt = off_span.get_text() if off_span else elem.get_text()
+            m = re.search(r'(\d+[\.,]\d{2})', txt)
+            if m:
+                val = m.group(1).replace('.', ',')
+                if val != prezzo_attuale:
+                    prezzo_precedente = val
+                    break
 
+        # Fallback 1: Cerca "Prezzo consigliato" o "Prezzo più basso" nel codice HTML
+        if not prezzo_precedente:
+            m = re.search(r'(?:Prezzo consigliato|Prezzo di listino|Prezzo precedente):\s*.*?(\d+[\.,]\d{2})', res.text, re.IGNORECASE)
+            if m and m.group(1).replace('.', ',') != prezzo_attuale:
+                prezzo_precedente = m.group(1).replace('.', ',')
+
+        # Fallback 2: Cerca basisPrice nei dati JSON interni
+        if not prezzo_precedente:
+            m = re.search(r'"basisPrice"\s*:\s*\{\s*"amount"\s*:\s*([\d\.]+)', res.text)
+            if m:
+                val = f"{float(m.group(1)):.2f}".replace('.', ',')
+                if val != prezzo_attuale:
+                    prezzo_precedente = val
+
+        if not prezzo_precedente:
+            prezzo_precedente = prezzo_attuale
+
+        # 3. Calcolo Sconto
+        try:
+            p_att = float(prezzo_attuale.replace(".", "").replace(",", "."))
+            p_prec = float(prezzo_precedente.replace(".", "").replace(",", "."))
+            if p_prec > p_att:
+                sconto = int(round(((p_prec - p_att) / p_prec) * 100))
+            else:
+                sconto = 0
+        except Exception:
+            sconto = 0
+
+        # 4. Immagine
         img_elem = soup.find("img", {"id": "landingImage"})
         img_url = img_elem["src"] if img_elem else ""
-
-        try:
-            p_att = float(prezzo_attuale.replace(",", "."))
-            p_prec = float(prezzo_precedente.replace(",", "."))
-            sconto = int(((p_prec - p_att) / p_prec) * 100) if p_prec > p_att else 0
-        except ValueError:
-            sconto = 0
 
         return {
             "asin": asin,
@@ -188,7 +220,7 @@ async def avvia_canale_spia():
     session_string = os.getenv("TELEGRAM_SESSION_STRING", "").strip()
     
     if not session_string:
-        print("[ERRORE SPIA] TELEGRAM_SESSION_STRING mancante o non configurata su Render!")
+        print("[ERRORE SPIA] TELEGRAM_SESSION_STRING mancante!")
         return
 
     client = TelegramClient(StringSession(session_string), TELEGRAM_API_ID, TELEGRAM_API_HASH)
@@ -197,7 +229,7 @@ async def avvia_canale_spia():
         await client.connect()
 
         if not await client.is_user_authorized():
-            print("[ERRORE SPIA] La TELEGRAM_SESSION_STRING non è valida o è scaduta!")
+            print("[ERRORE SPIA] TELEGRAM_SESSION_STRING non valida!")
             await client.disconnect()
             return
 
@@ -206,15 +238,11 @@ async def avvia_canale_spia():
             try:
                 entity = await client.get_entity(canale)
                 canali_validi.append(entity)
-                print(f"[SPIA] Canale agganciato: @{canale}")
             except Exception as e:
-                print(f"[SPIA WARNING] Errore nell'aggancio a @{canale}: {e}")
+                print(f"[SPIA WARNING] Errore su @{canale}: {e}")
 
         if not canali_validi:
-            print("[ERRORE SPIA] Nessun canale spia valido trovato nella lista!")
             return
-
-        print(f"[SPIA] Connesso con successo a {len(canali_validi)} canali Telegram!")
 
         @client.on(events.NewMessage(chats=canali_validi))
         async def gestisci_nuovo_messaggio(event):
@@ -231,14 +259,11 @@ async def avvia_canale_spia():
                 asin = estrai_asin(url)
                 if asin:
                     if prodotto_inviato_recentemente(asin, ore=24):
-                        print(f"[SPIA] ASIN {asin} inviato nelle ultime 24h, salto.")
                         break
 
-                    print(f"[SPIA] Intercettato NUOVO ASIN: {asin}")
                     prodotto = await asyncio.to_thread(scarica_dettagli_amazon, asin)
                     if prodotto:
-                        if aggiungi_prodotto_db(prodotto):
-                            print(f"[SPIA] Aggiunto al DB: {prodotto['titolo']}")
+                        aggiungi_prodotto_db(prodotto)
                     break
 
         await client.run_until_disconnected()
@@ -295,6 +320,7 @@ def crea_immagine_offerta(prodotto):
     template = Image.open(TEMPLATE_PATH).convert("RGBA").resize((1536, 1536), Image.Resampling.LANCZOS)
     draw = ImageDraw.Draw(template)
 
+    # Inserimento Immagine Prodotto
     try:
         foto = scarica_immagine(str(prodotto.get("immagine_url", "")))
         if foto:
@@ -303,6 +329,13 @@ def crea_immagine_offerta(prodotto):
     except Exception as e:
         print(f"Errore caricamento immagine prodotto: {e}")
 
+    # Badge Sconto Top-Left
+    sconto = prodotto.get("sconto", 0)
+    if sconto > 0:
+        f_badge = carica_font(46, grassetto=True)
+        centra_testo(draw, f"-{sconto}%", (160, 245, 290, 315), f_badge, "#FFFFFF")
+
+    # Titolo
     titolo = str(prodotto.get("titolo", "")).strip()
     box_titolo = (885, 355, 1450, 600)
     w_box, h_box = box_titolo[2] - box_titolo[0], box_titolo[3] - box_titolo[1]
@@ -325,17 +358,20 @@ def crea_immagine_offerta(prodotto):
         draw.text((box_titolo[0] + (w_box - w_riga) // 2, y_t), riga, fill="white", font=font_t)
         y_t += int(dim * 1.12)
 
+    # Prezzo Attuale
     p_att = str(prodotto.get("prezzo_attuale", "")).replace("€", "").strip()
     f_att = carica_font(76, grassetto=True)
     centra_testo(draw, p_att, (1078, 1048, 1438, 1158), f_att, "#0D4B35")
 
+    # Prezzo Precedente (se scontato)
     p_prec = str(prodotto.get("prezzo_precedente", "")).replace("€", "").strip()
-    f_prec = carica_font(40, grassetto=True)
-    centra_testo(draw, p_prec, (1225, 1214, 1442, 1286), f_prec, "#143D2D")
+    if p_prec != p_att:
+        f_prec = carica_font(40, grassetto=True)
+        centra_testo(draw, p_prec, (1225, 1214, 1442, 1286), f_prec, "#143D2D")
 
-    bbox_v = draw.textbbox((0, 0), p_prec, font=f_prec)
-    w_v = bbox_v[2] - bbox_v[0]
-    draw.line((1333 - w_v // 2 - 7, 1250, 1333 + w_v // 2 + 7, 1250), fill="#E23B27", width=6)
+        bbox_v = draw.textbbox((0, 0), p_prec, font=f_prec)
+        w_v = bbox_v[2] - bbox_v[0]
+        draw.line((1333 - w_v // 2 - 7, 1250, 1333 + w_v // 2 + 7, 1250), fill="#E23B27", width=6)
 
     template.convert("RGB").save(OUTPUT_PATH, "PNG", optimize=True)
     return OUTPUT_PATH
@@ -388,10 +424,8 @@ async def ciclo_pubblicazione():
                 print(f"[PUBBLICAZIONE] Invio: {prodotto['titolo']}")
                 await invia_offerta(prodotto)
                 segna_inviato(prodotto["asin"])
-                print(f"[PUBBLICAZIONE] Inviato ASIN: {prodotto['asin']}. Bloccato per le prossime 24 ore.")
                 await asyncio.sleep(INTERVALLO_MINUTI * 60)
             else:
-                print("[PUBBLICAZIONE] Nessun nuovo prodotto in coda. Attendo 2 minuti...")
                 await asyncio.sleep(120)
         except Exception as e:
             print(f"[ERRORE LOOP]: {e}")
@@ -407,4 +441,3 @@ async def main():
 if __name__ == "__main__":
     threading.Thread(target=run_flask, daemon=True).start()
     asyncio.run(main())
-    
