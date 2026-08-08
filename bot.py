@@ -1,364 +1,207 @@
 import asyncio
 import html
 import os
+import re
+import sqlite3
 import threading
+from datetime import datetime, timedelta
 from io import BytesIO
 from pathlib import Path
 
 import requests
+from bs4 import BeautifulSoup
 from flask import Flask
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 from telegram import Bot
+from telethon import TelegramClient, events
 
 # ============================================================
 # CONFIGURAZIONE
 # ============================================================
-TELEGRAM_TOKEN = "8670212259:AAFn_21_abtz4vL4WQ5TpekYby-hCnAjzeU"
-CANALE_CHAT_ID = "@TarloDelRisparmio"
-AMAZON_TAG = "tarlodelrispa-21"
-INTERVALLO_MINUTI = 30
-# ============================================================
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "TUO_TELEGRAM_TOKEN")
+CANALE_CHAT_ID = os.getenv("CANALE_CHAT_ID", "@TarloDelRisparmio")
+AMAZON_TAG = os.getenv("AMAZON_TAG", "tarlodelrispa-21")
+INTERVALLO_MINUTI = int(os.getenv("INTERVALLO_MINUTI", "30"))
+
+# Credenziali Client Telegram (da my.telegram.org per il canale spia)
+TELEGRAM_API_ID = int(os.getenv("TELEGRAM_API_ID", "1234567"))
+TELEGRAM_API_HASH = os.getenv("TELEGRAM_API_HASH", "TUO_API_HASH")
+
+# Canali Telegram da spiare (username o ID)
+CANALI_SPIA = ["offertedeltag", "scontiamolo"] 
 
 BASE_DIR = Path(__file__).resolve().parent
 TEMPLATE_PATH = BASE_DIR / "template.png"
 OUTPUT_PATH = BASE_DIR / "offerta_finale.png"
+DB_PATH = BASE_DIR / "offerte.db"
 
 bot = Bot(token=TELEGRAM_TOKEN)
 app = Flask(__name__)
 
+# ============================================================
+# GESTIONE DATABASE SQLITE
+# ============================================================
+def init_db():
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.cursor().execute("""
+            CREATE TABLE IF NOT EXISTS prodotti (
+                asin TEXT PRIMARY KEY,
+                titolo TEXT,
+                sconto INTEGER,
+                prezzo_attuale TEXT,
+                prezzo_precedente TEXT,
+                immagine_url TEXT,
+                inserito_il DATETIME,
+                inviato_il DATETIME
+            )
+        """)
+        conn.commit()
 
+def aggiungi_prodotto_db(p):
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.cursor().execute("""
+            INSERT OR IGNORE INTO prodotti 
+            (asin, titolo, sconto, prezzo_attuale, prezzo_precedente, immagine_url, inserito_il)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (
+            p["asin"], p["titolo"], p.get("sconto", 0),
+            p["prezzo_attuale"], p["prezzo_precedente"],
+            p["immagine_url"], datetime.now()
+        ))
+        conn.commit()
+
+def ottieni_prossimo_prodotto():
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM prodotti WHERE inviato_il IS NULL ORDER BY inserito_il ASC LIMIT 1")
+        row = cursor.fetchone()
+        return dict(row) if row else None
+
+def segna_inviato(asin):
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.cursor().execute("UPDATE prodotti SET inviato_il = ? WHERE asin = ?", (datetime.now(), asin))
+        conn.commit()
+
+# ============================================================
+# SCRAPER AMAZON
+# ============================================================
+def estrai_asin(testo):
+    """Trova un ASIN Amazon (es. B0BT7V2P2Q) all'interno di un testo o link."""
+    match = re.search(r'/(?:dp|gp/product)/([A-Z0-9]{10})', testo)
+    if not match:
+        match = re.search(r'\b(B[0-9A-Z]{9})\b', testo)
+    return match.group(1) if match else None
+
+def scarica_dettagli_amazon(asin):
+    """Effettua lo scraping della pagina prodotto di Amazon dato un ASIN."""
+    url = f"https://www.amazon.it/dp/{asin}"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Accept-Language": "it-IT,it;q=0.9"
+    }
+    
+    res = requests.get(url, headers=headers, timeout=10)
+    if res.status_code != 200:
+        return None
+        
+    soup = BeautifulSoup(res.text, "html.parser")
+    
+    # Titolo
+    titolo_elem = soup.find("span", {"id": "productTitle"})
+    if not titolo_elem:
+        return None
+    titolo = titolo_elem.get_text().strip()
+
+    # Prezzo attuale
+    prezzo_elem = soup.find("span", {"class": "a-price-whole"})
+    frazione_elem = soup.find("span", {"class": "a-price-fraction"})
+    if not prezzo_elem:
+        return None
+    prezzo_attuale = f"{prezzo_elem.get_text().strip().replace(',', '')},{frazione_elem.get_text().strip() if frazione_elem else '00'}"
+
+    # Prezzo precedente
+    vecchio_elem = soup.find("span", {"class": "a-price a-text-price"})
+    prezzo_precedente = prezzo_attuale
+    if vecchio_elem:
+        v_span = vecchio_elem.find("span", {"class": "a-offscreen"})
+        if v_span:
+            prezzo_precedente = v_span.get_text().replace("€", "").strip()
+
+    # Immagine
+    img_elem = soup.find("img", {"id": "landingImage"})
+    img_url = img_elem["src"] if img_elem else ""
+
+    # Sconto stimato
+    try:
+        p_att = float(prezzo_attuale.replace(",", "."))
+        p_prec = float(prezzo_precedente.replace(",", "."))
+        sconto = int(((p_prec - p_att) / p_prec) * 100) if p_prec > p_att else 0
+    except ValueError:
+        sconto = 0
+
+    return {
+        "asin": asin,
+        "titolo": titolo,
+        "prezzo_attuale": prezzo_attuale,
+        "prezzo_precedente": prezzo_precedente,
+        "sconto": sconto,
+        "immagine_url": img_url
+    }
+
+# ============================================================
+# CANALE SPIA (TELETHON USERBOT)
+# ============================================================
+async def avvia_canale_spia():
+    client = TelegramClient("session_spia", TELEGRAM_API_ID, TELEGRAM_API_HASH)
+    
+    @client.on(events.NewMessage(chats=CANALI_SPIA))
+    async def gestisci_nuovo_messaggio(event):
+        testo = event.message.text or ""
+        
+        # Cerca link visibili o nascosti nei pulsanti/ipertesti
+        urls = re.findall(r'https?://[^\s]+', testo)
+        if event.message.buttons:
+            for row in event.message.buttons:
+                for btn in row:
+                    if btn.url:
+                        urls.append(btn.url)
+
+        for url in urls:
+            asin = estrai_asin(url)
+            if asin:
+                print(f"[SPIA] Intercettato ASIN: {asin}")
+                # Esegue lo scraping in un thread separato per non bloccare l'event loop
+                prodotto = await asyncio.to_thread(scarica_dettagli_amazon, asin)
+                if prodotto:
+                    aggiungi_prodotto_db(prodotto)
+                    print(f"[SPIA] Aggiunto al DB: {prodotto['titolo']}")
+                break
+
+    await client.start()
+    await client.run_until_disconnected()
+
+# ============================================================
+# GENERAZIONE IMMAGINE & FLASK SERVER
+# ============================================================
 @app.route("/")
 def home():
-    return "Il Tarlo del Risparmio è attivo!"
-
+    return "Tarlo del Risparmio - Bot Attivo"
 
 @app.route("/health")
 def health():
-    return {
-        "status": "ok",
-        "template": TEMPLATE_PATH.exists(),
-        "canale": CANALE_CHAT_ID,
-    }
-
+    return {"status": "ok"}
 
 def run_flask():
     port = int(os.environ.get("PORT", "10000"))
     app.run(host="0.0.0.0", port=port)
 
-
-def carica_font(dimensione, grassetto=False):
-    percorsi = [
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
-        if grassetto
-        else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-        "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf"
-        if grassetto
-        else "/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf",
-    ]
-
-    for percorso in percorsi:
-        if Path(percorso).exists():
-            return ImageFont.truetype(percorso, dimensione)
-
-    return ImageFont.load_default()
-
-
-def spezza_testo(draw, testo, font, larghezza_massima):
-    parole = str(testo).split()
-    righe = []
-    riga = ""
-
-    for parola in parole:
-        prova = f"{riga} {parola}".strip()
-        larghezza = draw.textbbox((0, 0), prova, font=font)[2]
-
-        if larghezza <= larghezza_massima:
-            riga = prova
-        else:
-            if riga:
-                righe.append(riga)
-            riga = parola
-
-    if riga:
-        righe.append(riga)
-
-    return righe
-
-
-def scarica_immagine(url):
-    if not url:
-        return None
-
-    headers = {
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 Chrome/124 Safari/537.36"
-        )
-    }
-
-    risposta = requests.get(url, headers=headers, timeout=20)
-    risposta.raise_for_status()
-
-    tipo = risposta.headers.get("content-type", "")
-    if "image" not in tipo.lower():
-        raise ValueError(f"L'indirizzo non restituisce un'immagine: {tipo}")
-
-    return Image.open(BytesIO(risposta.content)).convert("RGBA")
-
-
-def centra_testo(draw, testo, box, font, colore):
-    x1, y1, x2, y2 = box
-    bbox = draw.textbbox((0, 0), testo, font=font)
-
-    larghezza = bbox[2] - bbox[0]
-    altezza = bbox[3] - bbox[1]
-
-    x = x1 + ((x2 - x1) - larghezza) // 2
-    y = y1 + ((y2 - y1) - altezza) // 2 - bbox[1]
-
-    draw.text((x, y), testo, fill=colore, font=font)
-
-
-def crea_immagine_offerta(prodotto):
-    if not TEMPLATE_PATH.exists():
-        raise FileNotFoundError(
-            f"template.png non trovato: {TEMPLATE_PATH}"
-        )
-
-    template = Image.open(TEMPLATE_PATH).convert("RGBA")
-    template = template.resize(
-        (1536, 1536),
-        Image.Resampling.LANCZOS,
-    )
-
-    draw = ImageDraw.Draw(template)
-
-    # ========================================================
-    # 1. IMMAGINE PRODOTTO
-    # ========================================================
-    try:
-        foto = scarica_immagine(
-            str(prodotto.get("immagine_url", ""))
-        )
-
-        if foto:
-            foto = ImageOps.contain(
-                foto,
-                (690, 850),
-                method=Image.Resampling.LANCZOS,
-            )
-
-            x = 425 - foto.width // 2
-            y = 805 - foto.height // 2
-
-            template.alpha_composite(foto, (x, y))
-
-    except Exception as errore:
-        print(f"Errore immagine prodotto: {errore}")
-
-        messaggio = "IMMAGINE\nNON DISPONIBILE"
-        font_errore = carica_font(48, True)
-
-        bbox = draw.multiline_textbbox(
-            (0, 0),
-            messaggio,
-            font=font_errore,
-            spacing=10,
-            align="center",
-        )
-
-        larghezza = bbox[2] - bbox[0]
-        altezza = bbox[3] - bbox[1]
-
-        draw.multiline_text(
-            (
-                425 - larghezza // 2,
-                805 - altezza // 2,
-            ),
-            messaggio,
-            fill="#777777",
-            font=font_errore,
-            spacing=10,
-            align="center",
-        )
-
-    # ========================================================
-    # 2. TITOLO CENTRATO ORIZZONTALMENTE E VERTICALMENTE
-    # Nessun sottotitolo
-    # ========================================================
-    titolo = str(prodotto.get("titolo", "")).strip()
-
-    box_titolo = (885, 355, 1450, 600)
-    larghezza_box = box_titolo[2] - box_titolo[0]
-    altezza_box = box_titolo[3] - box_titolo[1]
-
-    dimensione = 62
-
-    while dimensione >= 30:
-        font_titolo = carica_font(dimensione, True)
-        righe = spezza_testo(
-            draw,
-            titolo,
-            font_titolo,
-            larghezza_box - 30,
-        )
-
-        altezza_riga = int(dimensione * 1.12)
-        altezza_totale = len(righe) * altezza_riga
-
-        if len(righe) <= 4 and altezza_totale <= altezza_box - 20:
-            break
-
-        dimensione -= 2
-
-    righe = righe[:4]
-    altezza_totale = len(righe) * altezza_riga
-    y = box_titolo[1] + (altezza_box - altezza_totale) // 2
-
-    for riga in righe:
-        bbox = draw.textbbox((0, 0), riga, font=font_titolo)
-        larghezza_riga = bbox[2] - bbox[0]
-        x = box_titolo[0] + (larghezza_box - larghezza_riga) // 2
-
-        draw.text(
-            (x, y),
-            riga,
-            fill="white",
-            font=font_titolo,
-        )
-
-        y += altezza_riga
-
-    # ========================================================
-    # 3. PREZZO ATTUALE
-    # ========================================================
-    prezzo_attuale = str(
-        prodotto.get("prezzo_attuale", "")
-    ).replace("€", "").strip()
-
-    box_prezzo = (1078, 1048, 1438, 1158)
-    font_prezzo = carica_font(76, True)
-
-    while (
-        draw.textbbox(
-            (0, 0),
-            prezzo_attuale,
-            font=font_prezzo,
-        )[2]
-        > box_prezzo[2] - box_prezzo[0] - 20
-        and font_prezzo.size > 40
-    ):
-        font_prezzo = carica_font(
-            font_prezzo.size - 2,
-            True,
-        )
-
-    centra_testo(
-        draw,
-        prezzo_attuale,
-        box_prezzo,
-        font_prezzo,
-        "#0D4B35",
-    )
-
-    # ========================================================
-    # 4. PREZZO PRECEDENTE
-    # ========================================================
-    prezzo_precedente = str(
-        prodotto.get("prezzo_precedente", "")
-    ).replace("€", "").strip()
-
-    box_vecchio = (1225, 1214, 1442, 1286)
-    font_vecchio = carica_font(40, True)
-
-    while (
-        draw.textbbox(
-            (0, 0),
-            prezzo_precedente,
-            font=font_vecchio,
-        )[2]
-        > box_vecchio[2] - box_vecchio[0] - 10
-        and font_vecchio.size > 28
-    ):
-        font_vecchio = carica_font(
-            font_vecchio.size - 1,
-            True,
-        )
-
-    centra_testo(
-        draw,
-        prezzo_precedente,
-        box_vecchio,
-        font_vecchio,
-        "#143D2D",
-    )
-
-    bbox_vecchio = draw.textbbox(
-        (0, 0),
-        prezzo_precedente,
-        font=font_vecchio,
-    )
-
-    larghezza_vecchio = bbox_vecchio[2] - bbox_vecchio[0]
-    centro_x = (box_vecchio[0] + box_vecchio[2]) // 2
-    linea_y = (box_vecchio[1] + box_vecchio[3]) // 2
-
-    draw.line(
-        (
-            centro_x - larghezza_vecchio // 2 - 7,
-            linea_y,
-            centro_x + larghezza_vecchio // 2 + 7,
-            linea_y,
-        ),
-        fill="#E23B27",
-        width=6,
-    )
-
-    template.convert("RGB").save(
-        OUTPUT_PATH,
-        "PNG",
-        optimize=True,
-    )
-
-    return OUTPUT_PATH
-
-
-def ottieni_catalogo_reale():
-    return [
-        {
-            "titolo": "Dash Pods Detersivo Lavatrice, 54 Lavaggi",
-            "categoria": "Casa",
-            "sconto": 25,
-            "asin": "B0BT7V2P2Q",
-            "prezzo_attuale": "18,99",
-            "prezzo_precedente": "25,99",
-            "immagine_url": (
-                "https://m.media-amazon.com/images/I/"
-                "71XgG9sWc1L._AC_SL1500_.jpg"
-            ),
-        },
-        {
-            "titolo": "Fairy Platinum Plus, 84 Capsule Lavastoviglie",
-            "categoria": "Casa",
-            "sconto": 30,
-            "asin": "B08XN3Z699",
-            "prezzo_attuale": "21,99",
-            "prezzo_precedente": "31,49",
-            "immagine_url": (
-                "https://m.media-amazon.com/images/I/"
-                "81q2Kx5yS2L._AC_SL1500_.jpg"
-            ),
-        },
-    ]
-
+# [Qui vanno le tue funzioni di ausilio grafica: carica_font, spezza_testo, scarica_immagine, centra_testo, crea_immagine_offerta]
+# ... (Mantenere le funzioni Pillow già implementate nel codice precedente) ...
 
 async def invia_offerta(prodotto):
-    link = (
-        f"https://www.amazon.it/dp/{prodotto['asin']}"
-        f"?tag={AMAZON_TAG}"
-    )
-
-    foto = crea_immagine_offerta(prodotto)
+    link = f"https://www.amazon.it/dp/{prodotto['asin']}?tag={AMAZON_TAG}"
+    foto = crea_immagine_offerta(prodotto) # Funzione Pillow
 
     didascalia = (
         "🐜 <b>Il Tarlo ha colpito ancora!</b>\n\n"
@@ -366,10 +209,7 @@ async def invia_offerta(prodotto):
         f"📉 Sconto: <b>-{prodotto['sconto']}%</b>\n"
         f"💰 <s>{html.escape(str(prodotto['prezzo_precedente']))} €</s> "
         f"➜ <b>{html.escape(str(prodotto['prezzo_attuale']))} €</b>\n\n"
-        f'👉 <a href="{html.escape(link, quote=True)}">'
-        "ACQUISTA SUBITO IN OFFERTA</a>\n\n"
-        "In qualità di Affiliato Amazon ricevo un guadagno "
-        "dagli acquisti idonei.\n"
+        f'👉 <a href="{html.escape(link, quote=True)}">ACQUISTA SUBITO IN OFFERTA</a>\n\n'
         "#IlTarloDelRisparmio"
     )
 
@@ -381,45 +221,33 @@ async def invia_offerta(prodotto):
             parse_mode="HTML",
         )
 
-
-async def main():
-    print("Bot avviato. Pubblico subito la prima offerta.")
-
-    catalogo = ottieni_catalogo_reale()
-    indice = 0
-
+# ============================================================
+# MAIN LOOP
+# ============================================================
+async def ciclo_pubblicazione():
     while True:
         try:
-            prodotto = catalogo[indice]
-
-            print(f"Pubblicazione: {prodotto['titolo']}")
-
-            await invia_offerta(prodotto)
-
-            indice = (indice + 1) % len(catalogo)
-
-            print(
-                f"Offerta inviata. Prossima tra "
-                f"{INTERVALLO_MINUTI} minuti."
-            )
-
-            await asyncio.sleep(
-                INTERVALLO_MINUTI * 60
-            )
-
-        except Exception as errore:
-            print(
-                f"ERRORE: {type(errore).__name__}: {errore}"
-            )
-
+            prodotto = ottieni_prossimo_prodotto()
+            if prodotto:
+                print(f"[PUBBLICAZIONE] Invio: {prodotto['titolo']}")
+                await invia_offerta(prodotto)
+                segna_inviato(prodotto["asin"])
+                await asyncio.sleep(INTERVALLO_MINUTI * 60)
+            else:
+                print("[PUBBLICAZIONE] Nessun prodotto in coda. Attendo 2 minuti...")
+                await asyncio.sleep(120)
+        except Exception as e:
+            print(f"[ERRORE LOOP]: {e}")
             await asyncio.sleep(60)
 
-
-if __name__ == "__main__":
-    server = threading.Thread(
-        target=run_flask,
-        daemon=True,
+async def main():
+    init_db()
+    # Avvia in parallelo il Canale Spia e il Loop di Pubblicazione
+    await asyncio.gather(
+        avvia_canale_spia(),
+        ciclo_pubblicazione()
     )
 
-    server.start()
+if __name__ == "__main__":
+    threading.Thread(target=run_flask, daemon=True).start()
     asyncio.run(main())
