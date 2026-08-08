@@ -113,7 +113,7 @@ def segna_inviato(asin):
         conn.commit()
 
 # ============================================================
-# SCRAPER AMAZON AVANZATO PER PREZZI E SCONTI
+# SCRAPER AMAZON AVANZATO CON FILTRO PREZZO UNITARIO
 # ============================================================
 def estrai_asin(testo):
     match = re.search(r'/(?:dp|gp/product)/([A-Z0-9]{10})', testo)
@@ -153,65 +153,59 @@ def scarica_dettagli_amazon(asin):
         if not prezzo_attuale:
             return None
 
-        # 2. Controllo percentuale sconto esplicita (es. -38%)
-        sconto_diretto = 0
-        sconto_elem = soup.find("span", class_=re.compile(r"savingsPercentage|savingPriceOverride"))
-        if sconto_elem:
-            m_sc = re.search(r'(\d+)%', sconto_elem.get_text())
-            if m_sc:
-                sconto_diretto = int(m_sc.group(1))
+        p_att_num = float(prezzo_attuale.replace('.', '').replace(',', '.'))
 
-        # 3. Prezzo Precedente / Listino (escludendo prezzi unitari /100 ml)
+        # 2. Cerca Prezzo Precedente (Must be > Prezzo Attuale)
         prezzo_precedente = None
         
-        for elem in soup.find_all("span", class_=re.compile(r"a-text-price|basisPrice|a-color-secondary")):
-            txt_full = elem.get_text().lower()
+        # Cerca i tag contenenti i prezzi barrati ufficiali
+        elementi_strike = soup.find_all("span", attrs={"data-a-strike": "true"})
+        if not elementi_strike:
+            elementi_strike = soup.find_all("span", class_=re.compile(r"a-text-price|basisPrice|a-text-strike"))
+
+        for elem in elementi_strike:
+            txt = elem.get_text().lower()
             
-            # Scarta se contiene indicazioni di prezzo per unità di misura
-            if "a-price-whole" in elem.get("class", []) or "/" in txt_full or "100" in txt_full and "ml" in txt_full:
+            # Escludi prezzi per unità/dose/peso/volume
+            if "/" in txt or "unità" in txt or "unit" in txt or "100ml" in txt or "kg" in txt:
                 continue
             
-            off_span = elem.find("span", {"class": "a-offscreen"})
-            txt = off_span.get_text() if off_span else elem.get_text()
-            
-            if "/" not in txt:
-                m = re.search(r'(\d+[\.,]\d{2})', txt)
-                if m:
-                    val = m.group(1).replace('.', ',')
-                    if val != prezzo_attuale:
-                        prezzo_precedente = val
+            m = re.search(r'(\d+[\.,]\d{2})', txt)
+            if m:
+                val_str = m.group(1).replace('.', ',')
+                try:
+                    val_num = float(val_str.replace('.', '').replace(',', '.'))
+                    # Il prezzo precedente DEVE essere maggiore di quello attuale
+                    if val_num > p_att_num:
+                        prezzo_precedente = val_str
                         break
+                except ValueError:
+                    continue
 
-        # Fallback 1: Cerca "Prezzo consigliato" o "Prezzo di listino"
+        # Fallback: Cerca diciture esplicite ("Prezzo consigliato", "Prezzo di listino")
         if not prezzo_precedente:
-            m = re.search(r'(?:Prezzo consigliato|Prezzo di listino|Prezzo precedente):\s*.*?(\d+[\.,]\d{2})', res.text, re.IGNORECASE)
-            if m and m.group(1).replace('.', ',') != prezzo_attuale:
-                prezzo_precedente = m.group(1).replace('.', ',')
+            m_list = re.findall(r'(?:Prezzo consigliato|Prezzo di listino|Prezzo precedente):\s*.*?(\d+[\.,]\d{2})', res.text, re.IGNORECASE)
+            for val_str in m_list:
+                try:
+                    val_num = float(val_str.replace('.', '').replace(',', '.'))
+                    if val_num > p_att_num:
+                        prezzo_precedente = val_str.replace('.', ',')
+                        break
+                except ValueError:
+                    continue
 
-        # Fallback 2: Calcolo da sconto diretto se presente
-        if not prezzo_precedente and sconto_diretto > 0:
+        # 3. Calcolo dello Sconto
+        if prezzo_precedente:
             try:
-                p_att = float(prezzo_attuale.replace(".", "").replace(",", "."))
-                p_prec_calc = p_att / (1 - (sconto_diretto / 100))
-                prezzo_precedente = f"{p_prec_calc:.2f}".replace('.', ',')
+                p_prec_num = float(prezzo_precedente.replace('.', '').replace(',', '.'))
+                sconto = int(round(((p_prec_num - p_att_num) / p_prec_num) * 100))
             except Exception:
-                pass
-
-        if not prezzo_precedente:
+                sconto = 0
+        else:
             prezzo_precedente = prezzo_attuale
+            sconto = 0
 
-        # 4. Calcolo Sconto Finale
-        try:
-            p_att = float(prezzo_attuale.replace(".", "").replace(",", "."))
-            p_prec = float(prezzo_precedente.replace(".", "").replace(",", "."))
-            if p_prec > p_att:
-                sconto = int(round(((p_prec - p_att) / p_prec) * 100))
-            else:
-                sconto = sconto_diretto
-        except Exception:
-            sconto = sconto_diretto
-
-        # 5. Immagine
+        # 4. Immagine
         img_elem = soup.find("img", {"id": "landingImage"})
         img_url = img_elem["src"] if img_elem else ""
 
@@ -462,4 +456,4 @@ async def main():
 if __name__ == "__main__":
     threading.Thread(target=run_flask, daemon=True).start()
     asyncio.run(main())
-    
+                                       
