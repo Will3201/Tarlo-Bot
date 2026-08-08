@@ -4,7 +4,7 @@ import os
 import re
 import sqlite3
 import threading
-from datetime import datetime
+from datetime import datetime, timedelta
 from io import BytesIO
 from pathlib import Path
 
@@ -44,7 +44,7 @@ bot = Bot(token=TELEGRAM_TOKEN)
 app = Flask(__name__)
 
 # ============================================================
-# DATABASE SQLITE
+# DATABASE SQLITE CON FILTRO ANTI-DUPLICATI (24 ORE)
 # ============================================================
 def init_db():
     with sqlite3.connect(DB_PATH) as conn:
@@ -62,18 +62,48 @@ def init_db():
         """)
         conn.commit()
 
+def prodotto_inviato_recentemente(asin, ore=24):
+    """Controlla se il prodotto è attualmente in coda o se è stato già inviato nelle ultime 'ore' (24h)."""
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT inviato_il FROM prodotti WHERE asin = ?", (asin,))
+        row = cursor.fetchone()
+        
+        if not row:
+            return False  # Mai visto prima
+            
+        inviato_il = row[0]
+        if inviato_il is None:
+            return True  # È già in coda di attesa per la pubblicazione
+            
+        # Controlla se è stato inviato nelle ultime 24 ore
+        if isinstance(inviato_il, str):
+            inviato_dt = datetime.fromisoformat(inviato_il)
+        else:
+            inviato_dt = inviato_il
+            
+        if datetime.now() - inviato_dt < timedelta(hours=ore):
+            return True  # Inviato di recente (meno di 24 ore fa)
+            
+        return False  # Passate più di 24 ore, può essere ripubblicato
+
 def aggiungi_prodotto_db(p):
+    if prodotto_inviato_recentemente(p["asin"], ore=24):
+        print(f"[DB] ASIN {p['asin']} già inviato nelle ultime 24h o già in coda, ignorato.")
+        return False
+
     with sqlite3.connect(DB_PATH) as conn:
         conn.cursor().execute("""
-            INSERT OR IGNORE INTO prodotti 
-            (asin, titolo, sconto, prezzo_attuale, prezzo_precedente, immagine_url, inserito_il)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT OR REPLACE INTO prodotti 
+            (asin, titolo, sconto, prezzo_attuale, prezzo_precedente, immagine_url, inserito_il, inviato_il)
+            VALUES (?, ?, ?, ?, ?, ?, ?, NULL)
         """, (
             p["asin"], p["titolo"], p.get("sconto", 0),
             p["prezzo_attuale"], p["prezzo_precedente"],
             p["immagine_url"], datetime.now()
         ))
         conn.commit()
+        return True
 
 def ottieni_prossimo_prodotto():
     with sqlite3.connect(DB_PATH) as conn:
@@ -85,7 +115,7 @@ def ottieni_prossimo_prodotto():
 
 def segna_inviato(asin):
     with sqlite3.connect(DB_PATH) as conn:
-        conn.cursor().execute("UPDATE prodotti SET inviato_il = ? WHERE asin = ?", (datetime.now(), asin))
+        conn.cursor().execute("UPDATE prodotti SET inviato_il = ? WHERE asin = ?", (datetime.now().isoformat(), asin))
         conn.commit()
 
 # ============================================================
@@ -152,7 +182,7 @@ def scarica_dettagli_amazon(asin):
         return None
 
 # ============================================================
-# CANALE SPIA (TELETHON USERBOT WITH STRING SESSION)
+# CANALE SPIA
 # ============================================================
 async def avvia_canale_spia():
     session_string = os.getenv("TELEGRAM_SESSION_STRING", "").strip()
@@ -200,11 +230,15 @@ async def avvia_canale_spia():
             for url in urls:
                 asin = estrai_asin(url)
                 if asin:
-                    print(f"[SPIA] Intercettato ASIN: {asin}")
+                    if prodotto_inviato_recentemente(asin, ore=24):
+                        print(f"[SPIA] ASIN {asin} inviato nelle ultime 24h, salto.")
+                        break
+
+                    print(f"[SPIA] Intercettato NUOVO ASIN: {asin}")
                     prodotto = await asyncio.to_thread(scarica_dettagli_amazon, asin)
                     if prodotto:
-                        aggiungi_prodotto_db(prodotto)
-                        print(f"[SPIA] Aggiunto al DB: {prodotto['titolo']}")
+                        if aggiungi_prodotto_db(prodotto):
+                            print(f"[SPIA] Aggiunto al DB: {prodotto['titolo']}")
                     break
 
         await client.run_until_disconnected()
@@ -354,9 +388,10 @@ async def ciclo_pubblicazione():
                 print(f"[PUBBLICAZIONE] Invio: {prodotto['titolo']}")
                 await invia_offerta(prodotto)
                 segna_inviato(prodotto["asin"])
+                print(f"[PUBBLICAZIONE] Inviato ASIN: {prodotto['asin']}. Bloccato per le prossime 24 ore.")
                 await asyncio.sleep(INTERVALLO_MINUTI * 60)
             else:
-                print("[PUBBLICAZIONE] Nessun prodotto in coda. Attendo 2 minuti...")
+                print("[PUBBLICAZIONE] Nessun nuovo prodotto in coda. Attendo 2 minuti...")
                 await asyncio.sleep(120)
         except Exception as e:
             print(f"[ERRORE LOOP]: {e}")
@@ -372,3 +407,4 @@ async def main():
 if __name__ == "__main__":
     threading.Thread(target=run_flask, daemon=True).start()
     asyncio.run(main())
+    
