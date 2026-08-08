@@ -24,6 +24,8 @@ CANALE_CHAT_ID = os.getenv("CANALE_CHAT_ID", "@TarloDelRisparmio")
 AMAZON_TAG = os.getenv("AMAZON_TAG", "tarlodelrispa-21")
 INTERVALLO_MINUTI = int(os.getenv("INTERVALLO_MINUTI", "5"))
 
+WEBHOOK_TIKTOK_URL = os.getenv("WEBHOOK_TIKTOK_URL", "")
+
 TELEGRAM_API_ID = int(os.getenv("TELEGRAM_API_ID", "31134748"))
 TELEGRAM_API_HASH = os.getenv("TELEGRAM_API_HASH", "ba4265cff56d0687c6c5171b47f76e02")
 
@@ -36,7 +38,9 @@ CANALI_SPIA = [
 
 BASE_DIR = Path(__file__).resolve().parent
 TEMPLATE_PATH = BASE_DIR / "template.png"
+TEMPLATE_TIKTOK_PATH = BASE_DIR / "template_tiktok.png"
 OUTPUT_PATH = BASE_DIR / "offerta_finale.png"
+OUTPUT_TIKTOK_PATH = BASE_DIR / "offerta_tiktok.png"
 DB_PATH = BASE_DIR / "offerte.db"
 
 bot = Bot(token=TELEGRAM_TOKEN)
@@ -113,7 +117,7 @@ def segna_inviato(asin):
         conn.commit()
 
 # ============================================================
-# SCRAPER AMAZON AVANZATO CON FILTRO PREZZO UNITARIO
+# SCRAPER AMAZON AVANZATO
 # ============================================================
 def estrai_asin(testo):
     match = re.search(r'/(?:dp|gp/product)/([A-Z0-9]{10})', testo)
@@ -155,18 +159,14 @@ def scarica_dettagli_amazon(asin):
 
         p_att_num = float(prezzo_attuale.replace('.', '').replace(',', '.'))
 
-        # 2. Cerca Prezzo Precedente (Must be > Prezzo Attuale)
+        # 2. Prezzo Precedente (Must be > Prezzo Attuale)
         prezzo_precedente = None
-        
-        # Cerca i tag contenenti i prezzi barrati ufficiali
         elementi_strike = soup.find_all("span", attrs={"data-a-strike": "true"})
         if not elementi_strike:
             elementi_strike = soup.find_all("span", class_=re.compile(r"a-text-price|basisPrice|a-text-strike"))
 
         for elem in elementi_strike:
             txt = elem.get_text().lower()
-            
-            # Escludi prezzi per unità/dose/peso/volume
             if "/" in txt or "unità" in txt or "unit" in txt or "100ml" in txt or "kg" in txt:
                 continue
             
@@ -175,14 +175,12 @@ def scarica_dettagli_amazon(asin):
                 val_str = m.group(1).replace('.', ',')
                 try:
                     val_num = float(val_str.replace('.', '').replace(',', '.'))
-                    # Il prezzo precedente DEVE essere maggiore di quello attuale
                     if val_num > p_att_num:
                         prezzo_precedente = val_str
                         break
                 except ValueError:
                     continue
 
-        # Fallback: Cerca diciture esplicite ("Prezzo consigliato", "Prezzo di listino")
         if not prezzo_precedente:
             m_list = re.findall(r'(?:Prezzo consigliato|Prezzo di listino|Prezzo precedente):\s*.*?(\d+[\.,]\d{2})', res.text, re.IGNORECASE)
             for val_str in m_list:
@@ -194,7 +192,7 @@ def scarica_dettagli_amazon(asin):
                 except ValueError:
                     continue
 
-        # 3. Calcolo dello Sconto
+        # 3. Calcolo Sconto
         if prezzo_precedente:
             try:
                 p_prec_num = float(prezzo_precedente.replace('.', '').replace(',', '.'))
@@ -226,18 +224,14 @@ def scarica_dettagli_amazon(asin):
 # ============================================================
 async def avvia_canale_spia():
     session_string = os.getenv("TELEGRAM_SESSION_STRING", "").strip()
-    
     if not session_string:
-        print("[ERRORE SPIA] TELEGRAM_SESSION_STRING mancante!")
         return
 
     client = TelegramClient(StringSession(session_string), TELEGRAM_API_ID, TELEGRAM_API_HASH)
     
     try:
         await client.connect()
-
         if not await client.is_user_authorized():
-            print("[ERRORE SPIA] TELEGRAM_SESSION_STRING non valida!")
             await client.disconnect()
             return
 
@@ -323,12 +317,11 @@ def centra_testo(draw, testo, box, font, colore):
 
 def crea_immagine_offerta(prodotto):
     if not TEMPLATE_PATH.exists():
-        raise FileNotFoundError("File template.png non trovato nel repository")
+        raise FileNotFoundError("File template.png non trovato")
 
     template = Image.open(TEMPLATE_PATH).convert("RGBA").resize((1536, 1536), Image.Resampling.LANCZOS)
     draw = ImageDraw.Draw(template)
 
-    # Inserimento Immagine Prodotto
     try:
         foto = scarica_immagine(str(prodotto.get("immagine_url", "")))
         if foto:
@@ -337,13 +330,11 @@ def crea_immagine_offerta(prodotto):
     except Exception as e:
         print(f"Errore caricamento immagine prodotto: {e}")
 
-    # Badge Sconto Top-Left
     sconto = prodotto.get("sconto", 0)
     if sconto > 0:
         f_badge = carica_font(46, grassetto=True)
         centra_testo(draw, f"-{sconto}%", (160, 245, 290, 315), f_badge, "#FFFFFF")
 
-    # Titolo
     titolo = str(prodotto.get("titolo", "")).strip()
     box_titolo = (885, 355, 1450, 600)
     w_box, h_box = box_titolo[2] - box_titolo[0], box_titolo[3] - box_titolo[1]
@@ -366,23 +357,119 @@ def crea_immagine_offerta(prodotto):
         draw.text((box_titolo[0] + (w_box - w_riga) // 2, y_t), riga, fill="white", font=font_t)
         y_t += int(dim * 1.12)
 
-    # Prezzo Attuale
     p_att = str(prodotto.get("prezzo_attuale", "")).replace("€", "").strip()
     f_att = carica_font(76, grassetto=True)
     centra_testo(draw, p_att, (1078, 1048, 1438, 1158), f_att, "#0D4B35")
 
-    # Prezzo Precedente (se scontato)
     p_prec = str(prodotto.get("prezzo_precedente", "")).replace("€", "").strip()
     if sconto > 0 and p_prec != p_att:
         f_prec = carica_font(40, grassetto=True)
         centra_testo(draw, p_prec, (1225, 1214, 1442, 1286), f_prec, "#143D2D")
-
         bbox_v = draw.textbbox((0, 0), p_prec, font=f_prec)
         w_v = bbox_v[2] - bbox_v[0]
         draw.line((1333 - w_v // 2 - 7, 1250, 1333 + w_v // 2 + 7, 1250), fill="#E23B27", width=6)
 
     template.convert("RGB").save(OUTPUT_PATH, "PNG", optimize=True)
     return OUTPUT_PATH
+
+# ============================================================
+# CREAZIONE GRAFICA TIKTOK (9:16 - 1080x1920)
+# ============================================================
+def crea_immagine_tiktok(prodotto):
+    if not TEMPLATE_TIKTOK_PATH.exists():
+        print("[TIKTOK] File template_tiktok.png non trovato!")
+        return None
+
+    template = Image.open(TEMPLATE_TIKTOK_PATH).convert("RGBA").resize((1080, 1920), Image.Resampling.LANCZOS)
+    draw = ImageDraw.Draw(template)
+
+    # 1. Immagine Prodotto nel box bianco grande (100, 460, 980, 1280)
+    try:
+        foto = scarica_immagine(str(prodotto.get("immagine_url", "")))
+        if foto:
+            foto = ImageOps.contain(foto, (820, 780), method=Image.Resampling.LANCZOS)
+            template.paste(foto, (540 - foto.width // 2, 870 - foto.height // 2), foto)
+    except Exception as e:
+        print(f"Errore caricamento foto TikTok: {e}")
+
+    # 2. Badge Sconto Top-Left (Tag verde del tarlo)
+    sconto = prodotto.get("sconto", 0)
+    if sconto > 0:
+        f_badge = carica_font(52, grassetto=True)
+        centra_testo(draw, f"-{sconto}%", (215, 130, 385, 205), f_badge, "#FFFFFF")
+
+    # 3. Titolo Prodotto nel box verde scuro (100, 1320, 980, 1460)
+    titolo = str(prodotto.get("titolo", "")).strip()
+    box_titolo = (110, 1325, 970, 1455)
+    w_box, h_box = box_titolo[2] - box_titolo[0], box_titolo[3] - box_titolo[1]
+    dim = 42
+    righe = []
+    
+    while dim >= 22:
+        font_t = carica_font(dim, grassetto=True)
+        righe = spezza_testo(draw, titolo, font_t, w_box - 20)
+        h_riga = int(dim * 1.12)
+        if len(righe) <= 2 and (len(righe) * h_riga) <= h_box - 10:
+            break
+        dim -= 2
+
+    righe = righe[:2]
+    y_t = box_titolo[1] + (h_box - (len(righe) * int(dim * 1.12))) // 2
+    for riga in righe:
+        font_t = carica_font(dim, grassetto=True)
+        w_riga = draw.textbbox((0, 0), riga, font=font_t)[2] - draw.textbbox((0, 0), riga, font=font_t)[0]
+        draw.text((box_titolo[0] + (w_box - w_riga) // 2, y_t), riga, fill="white", font=font_t)
+        y_t += int(dim * 1.12)
+
+    # 4. Prezzo Attuale (Box Arancione Sinistra)
+    p_att = f"{str(prodotto.get('prezzo_attuale', '')).replace('€', '').strip()} €"
+    f_att = carica_font(68, grassetto=True)
+    centra_testo(draw, p_att, (75, 1470, 635, 1720), f_att, "#FFFFFF")
+
+    # 5. Prezzo Precedente (Box Chiaro Destra)
+    p_prec = f"{str(prodotto.get('prezzo_precedente', '')).replace('€', '').strip()} €"
+    if sconto > 0 and p_prec != p_att:
+        f_prec = carica_font(48, grassetto=True)
+        centra_testo(draw, p_prec, (655, 1470, 980, 1720), f_prec, "#333333")
+        
+        # Linea Rossa Sbarrata
+        bbox_v = draw.textbbox((0, 0), p_prec, font=f_prec)
+        w_v = bbox_v[2] - bbox_v[0]
+        centx = 655 + (980 - 655) // 2
+        draw.line((centx - w_v // 2 - 5, 1595, centx + w_v // 2 + 5, 1595), fill="#E23B27", width=6)
+
+    template.convert("RGB").save(OUTPUT_TIKTOK_PATH, "PNG", optimize=True)
+    return OUTPUT_TIKTOK_PATH
+
+# ============================================================
+# INVIO WEBHOOK TIKTOK (MAKE.COM)
+# ============================================================
+def invia_webhook_tiktok(prodotto, foto_tiktok_path):
+    if not WEBHOOK_TIKTOK_URL:
+        return
+
+    link = f"https://www.amazon.it/dp/{prodotto['asin']}?tag={AMAZON_TAG}"
+    
+    data = {
+        "asin": prodotto['asin'],
+        "titolo": prodotto['titolo'],
+        "prezzo_attuale": prodotto['prezzo_attuale'],
+        "prezzo_precedente": prodotto['prezzo_precedente'],
+        "sconto": str(prodotto['sconto']),
+        "link": link,
+        "didascalia": f"🔥 {prodotto['titolo']}\n💰 In offerta a soli {prodotto['prezzo_attuale']}€! Link nei commenti o in bio. #offerta #amazon #sconti"
+    }
+
+    try:
+        with open(foto_tiktok_path, "rb") as f:
+            files = {"file": ("offerta_tiktok.png", f, "image/png")}
+            res = requests.post(WEBHOOK_TIKTOK_URL, data=data, files=files, timeout=15)
+            if res.status_code in [200, 201]:
+                print("[WEBHOOK TIKTOK] Inviato con successo!")
+            else:
+                print(f"[WEBHOOK TIKTOK ERRORE]: {res.status_code} - {res.text}")
+    except Exception as e:
+        print(f"[WEBHOOK TIKTOK ERRORE EXCEPTION]: {e}")
 
 # ============================================================
 # SERVER FLASK & INVIO TELEGRAM
@@ -420,6 +507,7 @@ async def invia_offerta(prodotto):
         "#IlTarloDelRisparmio"
     )
 
+    # 1. Invio su Telegram
     with open(foto, "rb") as file_foto:
         await bot.send_photo(
             chat_id=CANALE_CHAT_ID,
@@ -428,32 +516,9 @@ async def invia_offerta(prodotto):
             parse_mode="HTML",
         )
 
-# ============================================================
-# MAIN LOOP
-# ============================================================
-async def ciclo_pubblicazione():
-    while True:
-        try:
-            prodotto = ottieni_prossimo_prodotto()
-            if prodotto:
-                print(f"[PUBBLICAZIONE] Invio: {prodotto['titolo']}")
-                await invia_offerta(prodotto)
-                segna_inviato(prodotto["asin"])
-                await asyncio.sleep(INTERVALLO_MINUTI * 60)
-            else:
-                await asyncio.sleep(120)
-        except Exception as e:
-            print(f"[ERRORE LOOP]: {e}")
-            await asyncio.sleep(60)
+    # 2. Generazione Grafica e Invio Webhook per TikTok
+    foto_tiktok = crea_immagine_tiktok(prodotto)
+    if foto_tiktok:
+        invia_webhook_tiktok(prodotto, foto_tiktok)
 
-async def main():
-    init_db()
-    await asyncio.gather(
-        avvia_canale_spia(),
-        ciclo_pubblicazione()
-    )
-
-if __name__ == "__main__":
-    threading.Thread(target=run_flask, daemon=True).start()
-    asyncio.run(main())
-                                       
+# ===============================
