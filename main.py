@@ -27,8 +27,19 @@ INTERVALLO_MINUTI = int(os.getenv("INTERVALLO_MINUTI", "5"))
 TELEGRAM_API_ID = int(os.getenv("TELEGRAM_API_ID", "31134748"))
 TELEGRAM_API_HASH = os.getenv("TELEGRAM_API_HASH", "ba4265cff56d0687c6c5171b47f76e02")
 
-# Canali da spiare
-CANALI_SPIA = ["sparky_offerte", "AstroHouse_Casa_Cucina", "ultimaofferta", "offerte5"]
+# Principali canali italiani spia per offerte Amazon
+CANALI_SPIA = [
+    "sparky_offerte",
+    "AstroHouse_Casa_Cucina",
+    "ultimaofferta",
+    "offerte5",
+    "offertedelweb",
+    "scontiamolo",
+    "offerte_tech",
+    "codicisconto",
+    "scontitop",
+    "offertedelgiorno"
+]
 
 BASE_DIR = Path(__file__).resolve().parent
 TEMPLATE_PATH = BASE_DIR / "template.png"
