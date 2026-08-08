@@ -14,9 +14,10 @@ from flask import Flask
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 from telegram import Bot
 from telethon import TelegramClient, events
+from telethon.sessions import StringSession
 
 # ============================================================
-# CONFIGURAZIONE (CREDANZIALI INSERITE)
+# CONFIGURAZIONE
 # ============================================================
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "8670212259:AAFn_21_abtz4vL4WQ5TpekYby-hCnAjzeU")
 CANALE_CHAT_ID = os.getenv("CANALE_CHAT_ID", "@TarloDelRisparmio")
@@ -27,7 +28,7 @@ TELEGRAM_API_ID = int(os.getenv("TELEGRAM_API_ID", "31134748"))
 TELEGRAM_API_HASH = os.getenv("TELEGRAM_API_HASH", "ba4265cff56d0687c6c5171b47f76e02")
 
 # Canali da spiare
-CANALI_SPIA = ["sparky_offerte", "AstroHouse_Casa_Cucina", "ultimaofferta", "offerte5"] 
+CANALI_SPIA = ["sparky_offerte", "AstroHouse_Casa_Cucina", "ultimaofferta", "offerte5"]
 
 BASE_DIR = Path(__file__).resolve().parent
 TEMPLATE_PATH = BASE_DIR / "template.png"
@@ -146,11 +147,16 @@ def scarica_dettagli_amazon(asin):
         return None
 
 # ============================================================
-# CANALE SPIA (TELETHON USERBOT)
+# CANALE SPIA (TELETHON USERBOT WITH STRING SESSION)
 # ============================================================
 async def avvia_canale_spia():
-    session_file = str(BASE_DIR / "session_spia.session")
-    client = TelegramClient(session_file, TELEGRAM_API_ID, TELEGRAM_API_HASH)
+    session_string = os.getenv("TELEGRAM_SESSION_STRING", "")
+    
+    if session_string:
+        client = TelegramClient(StringSession(session_string), TELEGRAM_API_ID, TELEGRAM_API_HASH)
+    else:
+        session_file = str(BASE_DIR / "session_spia.session")
+        client = TelegramClient(session_file, TELEGRAM_API_ID, TELEGRAM_API_HASH)
     
     @client.on(events.NewMessage(chats=CANALI_SPIA))
     async def gestisci_nuovo_messaggio(event):
