@@ -4,7 +4,7 @@ import os
 import re
 import sqlite3
 import threading
-from datetime import datetime, timedelta
+from datetime import datetime
 from io import BytesIO
 from pathlib import Path
 
@@ -27,18 +27,12 @@ INTERVALLO_MINUTI = int(os.getenv("INTERVALLO_MINUTI", "5"))
 TELEGRAM_API_ID = int(os.getenv("TELEGRAM_API_ID", "31134748"))
 TELEGRAM_API_HASH = os.getenv("TELEGRAM_API_HASH", "ba4265cff56d0687c6c5171b47f76e02")
 
-# Principali canali italiani spia per offerte Amazon
+# I tuoi canali spia originali
 CANALI_SPIA = [
     "sparky_offerte",
     "AstroHouse_Casa_Cucina",
     "ultimaofferta",
-    "offerte5",
-    "offertedelweb",
-    "scontiamolo",
-    "offerte_tech",
-    "codicisconto",
-    "scontitop",
-    "offertedelgiorno"
+    "offerte5"
 ]
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -177,9 +171,22 @@ async def avvia_canale_spia():
             await client.disconnect()
             return
 
-        print("[SPIA] Connesso con successo ai canali Telegram!")
+        canali_validi = []
+        for canale in CANALI_SPIA:
+            try:
+                entity = await client.get_entity(canale)
+                canali_validi.append(entity)
+                print(f"[SPIA] Canale agganciato: @{canale}")
+            except Exception as e:
+                print(f"[SPIA WARNING] Errore nell'aggancio a @{canale}: {e}")
 
-        @client.on(events.NewMessage(chats=CANALI_SPIA))
+        if not canali_validi:
+            print("[ERRORE SPIA] Nessun canale spia valido trovato nella lista!")
+            return
+
+        print(f"[SPIA] Connesso con successo a {len(canali_validi)} canali Telegram!")
+
+        @client.on(events.NewMessage(chats=canali_validi))
         async def gestisci_nuovo_messaggio(event):
             testo = event.message.text or ""
             urls = re.findall(r'https?://[^\s]+', testo)
