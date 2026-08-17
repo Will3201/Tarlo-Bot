@@ -499,7 +499,7 @@ async def invia_offerta(prodotto):
     link = f"https://www.amazon.it/dp/{prodotto['asin']}?tag={AMAZON_TAG}"
     foto = crea_immagine_offerta(prodotto)
 
-    # Pre-elaborazione pulita per evitare sintassi errate
+    # Pre-elaborazione stringhe e variabili separate per evitare errori di sintassi
     titolo_esc = html.escape(str(prodotto['titolo']))
     p_att_esc = html.escape(str(prodotto['prezzo_attuale']))
     p_prec_esc = html.escape(str(prodotto['prezzo_precedente']))
@@ -514,8 +514,7 @@ async def invia_offerta(prodotto):
     else:
         info_prezzo = f"💰 Prezzo speciale: <b>{p_att_esc} €</b>"
 
+    link_html = f'<a href="{link_esc}">ACQUISTA SUBITO IN OFFERTA</a>'
+
     didascalia = (
-        "🐜 <b>Il Tarlo ha colpito ancora!</b>\n\n"
-        f"📦 <b>{titolo_esc}</b>\n"
-        f"{info_prezzo}\n\n"
-        f'👉 <a href="{
+        "🐜 <b>Il Tarlo ha colpito ancora!
