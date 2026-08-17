@@ -24,7 +24,10 @@ CANALE_CHAT_ID = os.getenv("CANALE_CHAT_ID", "@TarloDelRisparmio")
 AMAZON_TAG = os.getenv("AMAZON_TAG", "tarlodelrispa-21")
 INTERVALLO_MINUTI = int(os.getenv("INTERVALLO_MINUTI", "5"))
 
-WEBHOOK_TIKTOK_URL = os.getenv("WEBHOOK_TIKTOK_URL", "")
+WEBHOOK_TIKTOK_URL = os.getenv(
+    "WEBHOOK_TIKTOK_URL", 
+    "https://hook.eu1.make.com/sex4ialbchbtuuja1jzdo3yhgzef42dt"
+)
 
 TELEGRAM_API_ID = int(os.getenv("TELEGRAM_API_ID", "31134748"))
 TELEGRAM_API_HASH = os.getenv("TELEGRAM_API_HASH", "ba4265cff56d0687c6c5171b47f76e02")
@@ -225,6 +228,7 @@ def scarica_dettagli_amazon(asin):
 async def avvia_canale_spia():
     session_string = os.getenv("TELEGRAM_SESSION_STRING", "").strip()
     if not session_string:
+        print("[SPIA] TELEGRAM_SESSION_STRING non trovata, canale spia disattivato.")
         return
 
     client = TelegramClient(StringSession(session_string), TELEGRAM_API_ID, TELEGRAM_API_HASH)
@@ -233,6 +237,7 @@ async def avvia_canale_spia():
         await client.connect()
         if not await client.is_user_authorized():
             await client.disconnect()
+            print("[SPIA] Sessione Telegram non autorizzata.")
             return
 
         canali_validi = []
@@ -383,7 +388,7 @@ def crea_immagine_tiktok(prodotto):
     template = Image.open(TEMPLATE_TIKTOK_PATH).convert("RGBA").resize((1080, 1920), Image.Resampling.LANCZOS)
     draw = ImageDraw.Draw(template)
 
-    # 1. Immagine Prodotto nel box bianco grande (100, 460, 980, 1280)
+    # 1. Immagine Prodotto nel box bianco grande
     try:
         foto = scarica_immagine(str(prodotto.get("immagine_url", "")))
         if foto:
@@ -392,13 +397,13 @@ def crea_immagine_tiktok(prodotto):
     except Exception as e:
         print(f"Errore caricamento foto TikTok: {e}")
 
-    # 2. Badge Sconto Top-Left (Tag verde del tarlo)
+    # 2. Badge Sconto
     sconto = prodotto.get("sconto", 0)
     if sconto > 0:
         f_badge = carica_font(52, grassetto=True)
         centra_testo(draw, f"-{sconto}%", (215, 130, 385, 205), f_badge, "#FFFFFF")
 
-    # 3. Titolo Prodotto nel box verde scuro (100, 1320, 980, 1460)
+    # 3. Titolo Prodotto
     titolo = str(prodotto.get("titolo", "")).strip()
     box_titolo = (110, 1325, 970, 1455)
     w_box, h_box = box_titolo[2] - box_titolo[0], box_titolo[3] - box_titolo[1]
@@ -421,18 +426,17 @@ def crea_immagine_tiktok(prodotto):
         draw.text((box_titolo[0] + (w_box - w_riga) // 2, y_t), riga, fill="white", font=font_t)
         y_t += int(dim * 1.12)
 
-    # 4. Prezzo Attuale (Box Arancione Sinistra)
+    # 4. Prezzo Attuale
     p_att = f"{str(prodotto.get('prezzo_attuale', '')).replace('€', '').strip()} €"
     f_att = carica_font(68, grassetto=True)
     centra_testo(draw, p_att, (75, 1470, 635, 1720), f_att, "#FFFFFF")
 
-    # 5. Prezzo Precedente (Box Chiaro Destra)
+    # 5. Prezzo Precedente
     p_prec = f"{str(prodotto.get('prezzo_precedente', '')).replace('€', '').strip()} €"
     if sconto > 0 and p_prec != p_att:
         f_prec = carica_font(48, grassetto=True)
         centra_testo(draw, p_prec, (655, 1470, 980, 1720), f_prec, "#333333")
         
-        # Linea Rossa Sbarrata
         bbox_v = draw.textbbox((0, 0), p_prec, font=f_prec)
         w_v = bbox_v[2] - bbox_v[0]
         centx = 655 + (980 - 655) // 2
@@ -519,6 +523,4 @@ async def invia_offerta(prodotto):
     # 2. Generazione Grafica e Invio Webhook per TikTok
     foto_tiktok = crea_immagine_tiktok(prodotto)
     if foto_tiktok:
-        invia_webhook_tiktok(prodotto, foto_tiktok)
-
-# ===============================
+        invia_webhook_tiktok(prodotto, f
