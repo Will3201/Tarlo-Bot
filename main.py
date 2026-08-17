@@ -25,8 +25,7 @@ CANALE_CHAT_ID = os.getenv("CANALE_CHAT_ID", "@TarloDelRisparmio")
 AMAZON_TAG = os.getenv("AMAZON_TAG", "tarlodelrispa-21")
 INTERVALLO_MINUTI = int(os.getenv("INTERVALLO_MINUTI", "5"))
 
-BUFFER_ACCESS_TOKEN = os.getenv("BUFFER_ACCESS_TOKEN", "")
-BUFFER_PROFILE_ID = os.getenv("BUFFER_PROFILE_ID", "")
+MAKE_WEBHOOK_URL = os.getenv("MAKE_WEBHOOK_URL", "")
 RENDER_EXTERNAL_URL = os.getenv("RENDER_EXTERNAL_URL", "https://tarlo-bot.onrender.com")
 
 TELEGRAM_API_ID = int(os.getenv("TELEGRAM_API_ID", "31134748"))
@@ -121,7 +120,7 @@ def segna_inviato(asin):
         conn.commit()
 
 # ============================================================
-# SCRAPER AMAZON
+# SCRAPER AMAZON (CON SUPPORTO COUPON)
 # ============================================================
 def estrai_asin(testo):
     match = re.search(r'/(?:dp|gp/product)/([A-Z0-9]{10})', testo)
@@ -171,32 +170,54 @@ def scarica_dettagli_amazon(asin):
             return None
 
         p_att_num = float(prezzo_attuale.replace('.', '').replace(',', '.'))
+        prezzo_precedente = prezzo_attuale
+        sconto = 0
+        ha_coupon = False
+        valore_coupon = ""
 
-        prezzo_precedente = None
-        candidati_prec = []
+        # --- RILEVAMENTO COUPON AMAZON ---
+        coupon_elem = soup.find(id=re.compile(r'coupon', re.I)) or soup.find(class_=re.compile(r'coupon', re.I))
+        if coupon_elem:
+            testo_coupon = coupon_elem.get_text()
+            m_perc = re.search(r'(\d+)\s*%', testo_coupon)
+            m_euro = re.search(r'(\d+[\.,]?\d*)\s*€', testo_coupon)
+            
+            if m_perc:
+                perc_coupon = int(m_perc.group(1))
+                sconto = perc_coupon
+                prezzo_precedente = prezzo_attuale
+                p_scontato = p_att_num * (1 - (perc_coupon / 100.0))
+                prezzo_attuale = f"{p_scontato:.2f}".replace('.', ',')
+                ha_coupon = True
+                valore_coupon = f"{perc_coupon}%"
+            elif m_euro:
+                euro_coupon = float(m_euro.group(1).replace(',', '.'))
+                p_scontato = max(0, p_att_num - euro_coupon)
+                sconto = int(round((euro_coupon / p_att_num) * 100))
+                prezzo_precedente = prezzo_attuale
+                prezzo_attuale = f"{p_scontato:.2f}".replace('.', ',')
+                ha_coupon = True
+                valore_coupon = f"{m_euro.group(1)}€"
 
-        for elem in soup.find_all("span", class_=re.compile(r"a-text-price|basisPrice|a-color-secondary|a-size-small")):
-            off = elem.find("span", class_="a-offscreen")
-            t = off.get_text() if off else elem.get_text()
-            m = re.search(r'(\d+[\.,]\d{2})', t)
-            if m:
-                try:
-                    v = float(m.group(1).replace('.', '').replace(',', '.'))
-                    if v > p_att_num:
-                        candidati_prec.append((v, m.group(1).replace('.', ',')))
-                except ValueError:
-                    pass
+        if not ha_coupon:
+            candidati_prec = []
+            for elem in soup.find_all("span", class_=re.compile(r"a-text-price|basisPrice|a-color-secondary|a-size-small")):
+                off = elem.find("span", class_="a-offscreen")
+                t = off.get_text() if off else elem.get_text()
+                m = re.search(r'(\d+[\.,]\d{2})', t)
+                if m:
+                    try:
+                        v = float(m.group(1).replace('.', '').replace(',', '.'))
+                        if v > p_att_num:
+                            candidati_prec.append((v, m.group(1).replace('.', ',')))
+                    except ValueError:
+                        pass
 
-        if candidati_prec:
-            candidati_prec.sort(key=lambda x: x[0], reverse=True)
-            prezzo_precedente = candidati_prec[0][1]
-
-        if prezzo_precedente:
-            p_prec_num = float(prezzo_precedente.replace('.', '').replace(',', '.'))
-            sconto = int(round(((p_prec_num - p_att_num) / p_prec_num) * 100))
-        else:
-            prezzo_precedente = prezzo_attuale
-            sconto = 0
+            if candidati_prec:
+                candidati_prec.sort(key=lambda x: x[0], reverse=True)
+                prezzo_precedente = candidati_prec[0][1]
+                p_prec_num = candidati_prec[0][0]
+                sconto = int(round(((p_prec_num - p_att_num) / p_prec_num) * 100))
 
         img_elem = soup.find("img", {"id": "landingImage"}) or soup.find("img", {"id": "imgBlkFront"})
         img_url = img_elem["src"] if img_elem else ""
@@ -207,7 +228,9 @@ def scarica_dettagli_amazon(asin):
             "prezzo_attuale": prezzo_attuale,
             "prezzo_precedente": prezzo_precedente,
             "sconto": sconto,
-            "immagine_url": img_url
+            "immagine_url": img_url,
+            "ha_coupon": ha_coupon,
+            "valore_coupon": valore_coupon
         }
     except Exception as e:
         print(f"[ERRORE SCRAPING ASIN {asin}]: {e}")
@@ -365,7 +388,7 @@ def crea_immagine_offerta(prodotto):
     centra_testo(draw, p_att, (1078, 1048, 1438, 1158), f_att, "#0D4B35")
 
     p_prec = str(prodotto.get("prezzo_precedente", "")).replace("€", "").strip()
-    if sconto > 0 and p_prec != p_att:
+    if (sconto > 0 or prodotto.get("ha_coupon")) and p_prec != p_att:
         f_prec = carica_font(40, grassetto=True)
         centra_testo(draw, p_prec, (1225, 1214, 1442, 1286), f_prec, "#143D2D")
         bbox_v = draw.textbbox((0, 0), p_prec, font=f_prec)
@@ -431,7 +454,7 @@ def crea_immagine_tiktok(prodotto):
     centra_testo(draw, p_att, (75, 1470, 635, 1720), f_att, "#FFFFFF")
 
     p_prec = f"{str(prodotto.get('prezzo_precedente', '')).replace('€', '').strip()} €"
-    if sconto > 0 and p_prec != p_att:
+    if (sconto > 0 or prodotto.get("ha_coupon")) and p_prec != p_att:
         f_prec = carica_font(48, grassetto=True)
         centra_testo(draw, p_prec, (655, 1470, 980, 1720), f_prec, "#333333")
         bbox_v = draw.textbbox((0, 0), p_prec, font=f_prec)
@@ -443,7 +466,7 @@ def crea_immagine_tiktok(prodotto):
     return OUTPUT_TIKTOK_PATH
 
 # ============================================================
-# FLASK & CHIAMATA DIRETTA API BUFFER
+# FLASK & INTEGRAZIONE MAKE.COM WEBHOOK
 # ============================================================
 @app.route("/")
 def home(): 
@@ -463,34 +486,40 @@ def run_flask():
     port = int(os.environ.get("PORT", "10000"))
     app.run(host="0.0.0.0", port=port, use_reloader=False)
 
-def invia_a_buffer(prodotto):
-    if not BUFFER_ACCESS_TOKEN or not BUFFER_PROFILE_ID:
-        print("[BUFFER WARNING] Variabili BUFFER_ACCESS_TOKEN o BUFFER_PROFILE_ID non impostate.")
+def invia_a_make(prodotto):
+    if not MAKE_WEBHOOK_URL:
+        print("[MAKE WARNING] Variabile MAKE_WEBHOOK_URL non impostata su Render.")
         return
 
     url_imm_pubblica = f"{RENDER_EXTERNAL_URL.rstrip('/')}/media/tiktok.png"
-    didascalia = f"🔥 {prodotto['titolo']}\n💰 In offerta a {prodotto['prezzo_attuale']}€!\n\nLink in bio! #offerte #amazon #sconti"
-
-    headers = {
-        "Authorization": f"Bearer {BUFFER_ACCESS_TOKEN}"
-    }
+    link_affiliato = f"https://www.amazon.it/dp/{prodotto['asin']}?tag={AMAZON_TAG}"
+    
+    if prodotto.get("ha_coupon"):
+        testo_social = f"🔥 {prodotto['titolo']}\n🎟️ Applica Coupon {prodotto['valore_coupon']} in pagina!\n💰 Prezzo finale: {prodotto['prezzo_attuale']}€ (invece di {prodotto['prezzo_precedente']}€)\n\nLink in bio! #offerte #amazon #sconti"
+    else:
+        testo_social = f"🔥 {prodotto['titolo']}\n💰 In offerta a soli {prodotto['prezzo_attuale']}€!\n\nLink in bio! #offerte #amazon #sconti"
 
     payload = {
-        "profile_ids[]": [BUFFER_PROFILE_ID],
-        "text": didascalia,
-        "media[photo]": url_imm_pubblica,
-        "now": "true"
+        "asin": prodotto["asin"],
+        "titolo": prodotto["titolo"],
+        "prezzo_attuale": prodotto["prezzo_attuale"],
+        "prezzo_precedente": prodotto["prezzo_precedente"],
+        "sconto": prodotto.get("sconto", 0),
+        "ha_coupon": prodotto.get("ha_coupon", False),
+        "valore_coupon": prodotto.get("valore_coupon", ""),
+        "immagine_url": url_imm_pubblica,
+        "link_amazon": link_affiliato,
+        "testo_social": testo_social
     }
 
     try:
-        res = requests.post("https://api.bufferapp.com/1/updates/create.json", headers=headers, data=payload, timeout=20)
-        dati = res.json()
-        if res.status_code == 200 and dati.get("success"):
-            print(f"[BUFFER API] Inviato con successo a Buffer per ASIN: {prodotto['asin']}")
+        res = requests.post(MAKE_WEBHOOK_URL, json=payload, timeout=15)
+        if res.status_code in (200, 201, 202):
+            print(f"[MAKE WEBHOOK] Inviato con successo per ASIN: {prodotto['asin']}")
         else:
-            print(f"[BUFFER API ERRORE]: Risposta: {dati}")
+            print(f"[MAKE WEBHOOK ERRORE] Status {res.status_code}: {res.text}")
     except Exception as e:
-        print(f"[BUFFER API EXCEPTION]: {e}")
+        print(f"[MAKE WEBHOOK EXCEPTION]: {e}")
 
 async def invia_offerta(prodotto):
     link = f"https://www.amazon.it/dp/{prodotto['asin']}?tag={AMAZON_TAG}"
@@ -502,7 +531,13 @@ async def invia_offerta(prodotto):
     link_esc = html.escape(link, quote=True)
     sconto_val = prodotto['sconto']
 
-    if sconto_val > 0 and prodotto['prezzo_precedente'] != prodotto['prezzo_attuale']:
+    if prodotto.get("ha_coupon"):
+        info_prezzo = (
+            f"🎟️ <b>COUPON IN PAGINA: {prodotto['valore_coupon']}</b>\n"
+            f"💰 Prezzo pieno: <s>{p_prec_esc} €</s>\n"
+            f"🔥 Prezzo finale con Coupon: <b>{p_att_esc} €</b>"
+        )
+    elif sconto_val > 0 and prodotto['prezzo_precedente'] != prodotto['prezzo_attuale']:
         info_prezzo = f"📉 Sconto: <b>-{sconto_val}%</b>\n💰 <s>{p_prec_esc} €</s> ➜ <b>{p_att_esc} €</b>"
     else:
         info_prezzo = f"💰 Prezzo speciale: <b>{p_att_esc} €</b>"
@@ -520,6 +555,43 @@ async def invia_offerta(prodotto):
 
     foto_tiktok = crea_immagine_tiktok(prodotto)
     if foto_tiktok:
-        invia_a_buffer(prodotto)
+        invia_a_make(prodotto)
 
-# ==================================================
+# ============================================================
+# MAIN LOOP
+# ============================================================
+async def loop_invio_offerte():
+    print("[BOT] Ciclo di invio offerte avviato.")
+    while True:
+        try:
+            prodotto = ottieni_prossimo_prodotto()
+            if prodotto:
+                print(f"[BOT] Invio offerta ASIN: {prodotto['asin']}")
+                segna_inviato(prodotto['asin'])
+                await invia_offerta(prodotto)
+        except Exception as e:
+            print(f"[ERRORE CICLO INVIO]: {e}")
+        
+        await asyncio.sleep(INTERVALLO_MINUTI * 60)
+
+async def main_async():
+    init_db()
+    await asyncio.gather(
+        avvia_canale_spia(),
+        loop_invio_offerte(),
+        return_exceptions=True
+    )
+
+if __name__ == "__main__":
+    def start_async_loop():
+        try:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            loop.run_until_complete(main_async())
+        except Exception as e:
+            print(f"[ERRORE LOOP ASYNC]: {e}")
+
+    async_thread = threading.Thread(target=start_async_loop, daemon=True)
+    async_thread.start()
+
+    run_flask()
