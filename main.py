@@ -104,6 +104,7 @@ def aggiungi_prodotto_db(p):
             p["immagine_url"], datetime.now()
         ))
         conn.commit()
+        print(f"[DB] Prodotto aggiunto correttamente: {p['asin']}")
         return True
 
 def ottieni_prossimo_prodotto():
@@ -120,7 +121,7 @@ def segna_inviato(asin):
         conn.commit()
 
 # ============================================================
-# SCRAPER AMAZON AVANZATO
+# SCRAPER AMAZON
 # ============================================================
 def estrai_asin(testo):
     match = re.search(r'/(?:dp|gp/product)/([A-Z0-9]{10})', testo)
@@ -162,7 +163,7 @@ def scarica_dettagli_amazon(asin):
 
         p_att_num = float(prezzo_attuale.replace('.', '').replace(',', '.'))
 
-        # 2. Prezzo Precedente (Must be > Prezzo Attuale)
+        # 2. Prezzo Precedente
         prezzo_precedente = None
         elementi_strike = soup.find_all("span", attrs={"data-a-strike": "true"})
         if not elementi_strike:
@@ -379,9 +380,6 @@ def crea_immagine_offerta(prodotto):
     template.convert("RGB").save(OUTPUT_PATH, "PNG", optimize=True)
     return OUTPUT_PATH
 
-# ============================================================
-# CREAZIONE GRAFICA TIKTOK (9:16 - 1080x1920)
-# ============================================================
 def crea_immagine_tiktok(prodotto):
     if not TEMPLATE_TIKTOK_PATH.exists():
         print("[TIKTOK] File template_tiktok.png non trovato!")
@@ -443,7 +441,7 @@ def crea_immagine_tiktok(prodotto):
     return OUTPUT_TIKTOK_PATH
 
 # ============================================================
-# INVIO WEBHOOK TIKTOK (MAKE.COM)
+# INVIO WEBHOOK TIKTOK
 # ============================================================
 def invia_webhook_tiktok(prodotto, foto_tiktok_path):
     if not WEBHOOK_TIKTOK_URL:
@@ -521,4 +519,8 @@ async def invia_offerta(prodotto):
         invia_webhook_tiktok(prodotto, foto_tiktok)
 
 # ============================================================
-# CICLO DI INVIO PERIODICO E AVVIO GENERA
+# CICLO DI INVIO PERIODICO E AVVIO GENERALE
+# ============================================================
+async def loop_invio_offerte():
+    print("[BOT] Ciclo di invio offerte avviato.")
+  
