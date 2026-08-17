@@ -22,9 +22,20 @@ from telethon.sessions import StringSession
 # CONFIGURAZIONE
 # ============================================================
 
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-CANALE_CHAT_ID = os.getenv("CANALE_CHAT_ID", "@TarloDelRisparmio")
-AMAZON_TAG = os.getenv("AMAZON_TAG", "tarlodelrispa-21")
+TELEGRAM_TOKEN = os.getenv(
+    "TELEGRAM_TOKEN",
+    "8670212259:AAFn_21_abtz4vL4WQ5TpekYby-hCnAjzeU"
+)
+
+CANALE_CHAT_ID = os.getenv(
+    "CANALE_CHAT_ID",
+    "@TarloDelRisparmio"
+)
+
+AMAZON_TAG = os.getenv(
+    "AMAZON_TAG",
+    "tarlodelrispa-21"
+)
 
 INTERVALLO_MINUTI = int(
     os.getenv("INTERVALLO_MINUTI", "5")
@@ -32,16 +43,16 @@ INTERVALLO_MINUTI = int(
 
 WEBHOOK_TIKTOK_URL = os.getenv(
     "WEBHOOK_TIKTOK_URL",
-    ""
+    "https://hook.eu1.make.com/sex4ialbchbtuuja1jzdo3yhgzef42dt"
 )
 
 TELEGRAM_API_ID = int(
-    os.getenv("TELEGRAM_API_ID", "0")
+    os.getenv("TELEGRAM_API_ID", "31134748")
 )
 
 TELEGRAM_API_HASH = os.getenv(
     "TELEGRAM_API_HASH",
-    ""
+    "ba4265cff56d0687c6c5171b47f76e02"
 )
 
 TELEGRAM_SESSION_STRING = os.getenv(
@@ -54,7 +65,7 @@ CANALI_SPIA = [
     "sparky_offerte",
     "AstroHouse_Casa_Cucina",
     "ultimaofferta",
-    "offerte5",
+    "offerte5"
 ]
 
 
@@ -69,24 +80,17 @@ OUTPUT_TIKTOK_PATH = BASE_DIR / "offerta_tiktok.png"
 DB_PATH = BASE_DIR / "offerte.db"
 
 
-if not TELEGRAM_TOKEN:
-    raise RuntimeError(
-        "Variabile TELEGRAM_TOKEN non configurata."
-    )
-
-
 bot = Bot(token=TELEGRAM_TOKEN)
 app = Flask(__name__)
 
 
 # ============================================================
-# DATABASE SQLITE
+# DATABASE
 # ============================================================
 
 def init_db():
     with sqlite3.connect(DB_PATH) as conn:
-        conn.execute(
-            """
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS prodotti (
                 asin TEXT PRIMARY KEY,
                 titolo TEXT,
@@ -97,10 +101,11 @@ def init_db():
                 inserito_il TEXT,
                 inviato_il TEXT
             )
-            """
-        )
+        """)
 
         conn.commit()
+
+    print("[DB] Database inizializzato.")
 
 
 def prodotto_inviato_recentemente(asin, ore=24):
@@ -109,64 +114,47 @@ def prodotto_inviato_recentemente(asin, ore=24):
             cursor = conn.cursor()
 
             cursor.execute(
-                """
-                SELECT inviato_il
-                FROM prodotti
-                WHERE asin = ?
-                """,
-                (asin,),
+                "SELECT inviato_il FROM prodotti WHERE asin = ?",
+                (asin,)
             )
 
             row = cursor.fetchone()
 
-            if not row:
-                return False
+        if not row:
+            return False
 
-            inviato_il = row[0]
+        inviato_il = row[0]
 
-            # Se è presente nel DB ma non ancora inviato,
-            # lo consideriamo già in coda.
-            if inviato_il is None:
-                return True
+        # Se esiste ma inviato_il è NULL,
+        # significa che è già in coda.
+        if inviato_il is None:
+            return True
 
-            inviato_dt = datetime.fromisoformat(
-                inviato_il
-            )
+        inviato_dt = datetime.fromisoformat(inviato_il)
 
-            return (
-                datetime.now() - inviato_dt
-                < timedelta(hours=ore)
-            )
-
-    except Exception as e:
-        print(
-            f"[DB ERRORE CONTROLLO DUPLICATO] "
-            f"{asin}: {e}"
+        return (
+            datetime.now() - inviato_dt
+            < timedelta(hours=ore)
         )
 
+    except Exception as e:
+        print(f"[DB] Errore controllo duplicato {asin}: {e}")
         return False
 
 
 def aggiungi_prodotto_db(prodotto):
     asin = prodotto["asin"]
 
-    if prodotto_inviato_recentemente(
-        asin,
-        ore=24,
-    ):
+    if prodotto_inviato_recentemente(asin, 24):
         print(
-            f"[DB] ASIN {asin} già presente "
-            f"o inviato nelle ultime 24 ore."
+            f"[DB] {asin} già presente/inviato recentemente."
         )
-
         return False
 
     try:
         with sqlite3.connect(DB_PATH) as conn:
-            conn.execute(
-                """
-                INSERT OR REPLACE INTO prodotti
-                (
+            conn.execute("""
+                INSERT OR REPLACE INTO prodotti (
                     asin,
                     titolo,
                     sconto,
@@ -177,38 +165,24 @@ def aggiungi_prodotto_db(prodotto):
                     inviato_il
                 )
                 VALUES (?, ?, ?, ?, ?, ?, ?, NULL)
-                """,
-                (
-                    asin,
-                    prodotto["titolo"],
-                    prodotto.get("sconto", 0),
-                    prodotto["prezzo_attuale"],
-                    prodotto["prezzo_precedente"],
-                    prodotto.get(
-                        "immagine_url",
-                        "",
-                    ),
-                    datetime.now().isoformat(),
-                ),
-            )
+            """, (
+                asin,
+                prodotto.get("titolo", ""),
+                int(prodotto.get("sconto", 0) or 0),
+                prodotto.get("prezzo_attuale", ""),
+                prodotto.get("prezzo_precedente", ""),
+                prodotto.get("immagine_url", ""),
+                datetime.now().isoformat()
+            ))
 
             conn.commit()
 
-        print(
-            f"[DB] Prodotto aggiunto in coda: "
-            f"{asin}"
-        )
-
+        print(f"[DB] Prodotto aggiunto in coda: {asin}")
         return True
 
     except Exception as e:
-        print(
-            f"[DB ERRORE AGGIUNTA] "
-            f"{asin}: {e}"
-        )
-
+        print(f"[DB] Errore aggiunta {asin}: {e}")
         traceback.print_exc()
-
         return False
 
 
@@ -219,29 +193,21 @@ def ottieni_prossimo_prodotto():
 
             cursor = conn.cursor()
 
-            cursor.execute(
-                """
+            cursor.execute("""
                 SELECT *
                 FROM prodotti
                 WHERE inviato_il IS NULL
                 ORDER BY inserito_il ASC
                 LIMIT 1
-                """
-            )
+            """)
 
             row = cursor.fetchone()
 
-            return (
-                dict(row)
-                if row
-                else None
-            )
+        return dict(row) if row else None
 
     except Exception as e:
-        print(
-            f"[DB ERRORE LETTURA CODA] {e}"
-        )
-
+        print(f"[DB] Errore lettura coda: {e}")
+        traceback.print_exc()
         return None
 
 
@@ -256,26 +222,21 @@ def segna_inviato(asin):
                 """,
                 (
                     datetime.now().isoformat(),
-                    asin,
-                ),
+                    asin
+                )
             )
 
             conn.commit()
 
-        print(
-            f"[DB] ASIN {asin} segnato "
-            f"come inviato."
-        )
+        print(f"[DB] {asin} segnato come inviato.")
 
     except Exception as e:
-        print(
-            f"[DB ERRORE SEGNA INVIATO] "
-            f"{asin}: {e}"
-        )
+        print(f"[DB] Errore segna_inviato {asin}: {e}")
+        traceback.print_exc()
 
 
 # ============================================================
-# ESTRAZIONE ASIN
+# ASIN
 # ============================================================
 
 def estrai_asin(testo):
@@ -285,7 +246,7 @@ def estrai_asin(testo):
     match = re.search(
         r"/(?:dp|gp/product)/([A-Z0-9]{10})",
         testo,
-        flags=re.IGNORECASE,
+        re.IGNORECASE
     )
 
     if match:
@@ -294,7 +255,7 @@ def estrai_asin(testo):
     match = re.search(
         r"\b(B[0-9A-Z]{9})\b",
         testo,
-        flags=re.IGNORECASE,
+        re.IGNORECASE
     )
 
     if match:
@@ -304,40 +265,30 @@ def estrai_asin(testo):
 
 
 # ============================================================
-# SCRAPER AMAZON
+# PREZZI
 # ============================================================
 
-def converti_prezzo_testo(testo):
+def estrai_prezzo(testo):
     if not testo:
         return None
 
-    testo = testo.replace(
-        "\xa0",
-        " ",
-    )
+    testo = testo.replace("\xa0", " ")
 
     match = re.search(
-        r"(\d{1,4}(?:[.\s]\d{3})*,\d{2})",
-        testo,
+        r"(\d{1,4}(?:\.\d{3})*,\d{2})",
+        testo
     )
 
     if not match:
         match = re.search(
             r"(\d+[.,]\d{2})",
-            testo,
+            testo
         )
 
     if not match:
         return None
 
-    valore = match.group(1)
-
-    valore = valore.replace(
-        " ",
-        "",
-    )
-
-    return valore
+    return match.group(1).strip()
 
 
 def prezzo_float(prezzo):
@@ -359,55 +310,44 @@ def prezzo_float(prezzo):
         return None
 
 
+# ============================================================
+# SCRAPER AMAZON
+# ============================================================
+
 def scarica_dettagli_amazon(asin):
-    url = (
-        f"https://www.amazon.it/dp/{asin}"
-    )
+    url = f"https://www.amazon.it/dp/{asin}"
 
     headers = {
         "User-Agent": (
-            "Mozilla/5.0 "
-            "(Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 "
-            "(KHTML, like Gecko) "
-            "Chrome/126.0.0.0 "
-            "Safari/537.36"
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/126.0.0.0 Safari/537.36"
         ),
-        "Accept-Language": (
-            "it-IT,it;q=0.9,en;q=0.7"
-        ),
+        "Accept-Language": "it-IT,it;q=0.9,en;q=0.7",
         "Accept": (
-            "text/html,"
-            "application/xhtml+xml,"
-            "application/xml;q=0.9,"
-            "image/avif,"
-            "image/webp,"
-            "*/*;q=0.8"
-        ),
-        "Connection": "keep-alive",
+            "text/html,application/xhtml+xml,"
+            "application/xml;q=0.9,image/webp,*/*;q=0.8"
+        )
     }
 
     try:
         response = requests.get(
             url,
             headers=headers,
-            timeout=20,
+            timeout=20
         )
 
         if response.status_code != 200:
             print(
-                f"[AMAZON] HTTP "
-                f"{response.status_code} "
+                f"[AMAZON] HTTP {response.status_code} "
                 f"per {asin}"
             )
-
             return None
 
         soup = BeautifulSoup(
             response.text,
-            "html.parser",
+            "html.parser"
         )
-
 
         # ----------------------------------------------------
         # TITOLO
@@ -415,25 +355,19 @@ def scarica_dettagli_amazon(asin):
 
         titolo_elem = soup.find(
             "span",
-            id="productTitle",
+            id="productTitle"
         )
 
         if not titolo_elem:
             print(
-                f"[AMAZON] Titolo non trovato "
-                f"per {asin}"
+                f"[AMAZON] Titolo non trovato per {asin}"
             )
-
             return None
 
-        titolo = (
-            titolo_elem
-            .get_text(
-                " ",
-                strip=True,
-            )
+        titolo = titolo_elem.get_text(
+            " ",
+            strip=True
         )
-
 
         # ----------------------------------------------------
         # PREZZO ATTUALE
@@ -442,81 +376,65 @@ def scarica_dettagli_amazon(asin):
         prezzo_attuale = None
 
         selettori_prezzo = [
-            "#corePrice_feature_div "
-            ".a-price .a-offscreen",
-
-            "#corePriceDisplay_desktop_feature_div "
-            ".a-price .a-offscreen",
-
+            "#corePrice_feature_div .a-price .a-offscreen",
+            "#corePriceDisplay_desktop_feature_div .a-price .a-offscreen",
             ".priceToPay .a-offscreen",
-
             ".apexPriceToPay .a-offscreen",
-
-            ".a-price .a-offscreen",
+            ".a-price .a-offscreen"
         ]
 
         for selettore in selettori_prezzo:
-            elemento = soup.select_one(
-                selettore
+            elemento = soup.select_one(selettore)
+
+            if not elemento:
+                continue
+
+            prezzo = estrai_prezzo(
+                elemento.get_text(" ", strip=True)
             )
 
-            if elemento:
-                prezzo_attuale = (
-                    converti_prezzo_testo(
-                        elemento.get_text(
-                            " ",
-                            strip=True,
-                        )
-                    )
-                )
+            if prezzo:
+                prezzo_attuale = prezzo
+                break
 
-                if prezzo_attuale:
-                    break
-
-
+        # Fallback whole + fraction
         if not prezzo_attuale:
             whole = soup.find(
                 "span",
-                class_="a-price-whole",
+                class_="a-price-whole"
             )
 
             fraction = soup.find(
                 "span",
-                class_="a-price-fraction",
+                class_="a-price-fraction"
             )
 
             if whole:
                 parte_intera = re.sub(
                     r"[^\d]",
                     "",
-                    whole.get_text(),
+                    whole.get_text()
                 )
 
-                parte_decimale = (
-                    re.sub(
+                if fraction:
+                    parte_decimale = re.sub(
                         r"[^\d]",
                         "",
-                        fraction.get_text(),
+                        fraction.get_text()
                     )
-                    if fraction
-                    else "00"
-                )
+                else:
+                    parte_decimale = "00"
 
                 if parte_intera:
                     prezzo_attuale = (
-                        f"{parte_intera},"
-                        f"{parte_decimale}"
+                        f"{parte_intera},{parte_decimale}"
                     )
-
 
         if not prezzo_attuale:
             print(
-                f"[AMAZON] Prezzo attuale "
-                f"non trovato per {asin}"
+                f"[AMAZON] Prezzo non trovato per {asin}"
             )
-
             return None
-
 
         prezzo_attuale_num = prezzo_float(
             prezzo_attuale
@@ -525,169 +443,95 @@ def scarica_dettagli_amazon(asin):
         if prezzo_attuale_num is None:
             return None
 
-
         # ----------------------------------------------------
         # PREZZO PRECEDENTE
         # ----------------------------------------------------
 
-        candidati_prec = []
+        candidati = []
 
-        selettori_prec = [
+        selettori_precedenti = [
             ".basisPrice .a-offscreen",
-
             ".a-text-price .a-offscreen",
-
-            ".a-price.a-text-price "
-            ".a-offscreen",
-
-            "#listPrice",
-
-            "#priceblock_ourprice",
+            ".a-price.a-text-price .a-offscreen",
+            "#listPrice"
         ]
 
-        for selettore in selettori_prec:
-            elementi = soup.select(
-                selettore
-            )
+        for selettore in selettori_precedenti:
+            elementi = soup.select(selettore)
 
             for elemento in elementi:
-                testo_prezzo = (
-                    elemento.get_text(
-                        " ",
-                        strip=True,
-                    )
+                testo = elemento.get_text(
+                    " ",
+                    strip=True
                 )
 
-                prezzo = (
-                    converti_prezzo_testo(
-                        testo_prezzo
-                    )
-                )
-
-                valore = prezzo_float(
-                    prezzo
-                )
+                prezzo = estrai_prezzo(testo)
+                valore = prezzo_float(prezzo)
 
                 if (
                     prezzo
-                    and valore
-                    and valore
-                    > prezzo_attuale_num
+                    and valore is not None
+                    and valore > prezzo_attuale_num
                 ):
-                    candidati_prec.append(
-                        (
-                            valore,
-                            prezzo,
-                        )
+                    candidati.append(
+                        (valore, prezzo)
                     )
 
-
-        # Cerca ulteriori prezzi barrati
-        for elemento in soup.find_all(
-            "span",
-            class_=re.compile(
-                r"a-text-price|basisPrice"
-            ),
-        ):
-            testo = elemento.get_text(
-                " ",
-                strip=True,
-            )
-
-            prezzo = converti_prezzo_testo(
-                testo
-            )
-
-            valore = prezzo_float(
-                prezzo
-            )
-
-            if (
-                prezzo
-                and valore
-                and valore
-                > prezzo_attuale_num
-            ):
-                candidati_prec.append(
-                    (
-                        valore,
-                        prezzo,
-                    )
-                )
-
-
-        if candidati_prec:
-            candidati_prec.sort(
+        if candidati:
+            candidati.sort(
                 key=lambda x: x[0],
-                reverse=True,
+                reverse=True
             )
 
-            prezzo_precedente = (
-                candidati_prec[0][1]
-            )
+            prezzo_precedente = candidati[0][1]
 
         else:
-            prezzo_precedente = (
-                prezzo_attuale
-            )
-
+            prezzo_precedente = prezzo_attuale
 
         # ----------------------------------------------------
         # SCONTO
         # ----------------------------------------------------
 
-        prezzo_prec_num = prezzo_float(
+        prezzo_precedente_num = prezzo_float(
             prezzo_precedente
         )
 
         if (
-            prezzo_prec_num
-            and prezzo_prec_num
-            > prezzo_attuale_num
+            prezzo_precedente_num
+            and prezzo_precedente_num > prezzo_attuale_num
         ):
             sconto = int(
                 round(
                     (
                         (
-                            prezzo_prec_num
+                            prezzo_precedente_num
                             - prezzo_attuale_num
                         )
-                        / prezzo_prec_num
+                        / prezzo_precedente_num
                     )
                     * 100
                 )
             )
-
         else:
             sconto = 0
-
 
         # ----------------------------------------------------
         # IMMAGINE
         # ----------------------------------------------------
 
-        immagine_url = ""
-
-        immagine = soup.find(
-            "img",
-            id="landingImage",
+        img = (
+            soup.find("img", id="landingImage")
+            or soup.find("img", id="imgBlkFront")
         )
 
-        if not immagine:
-            immagine = soup.find(
-                "img",
-                id="imgBlkFront",
-            )
+        immagine_url = ""
 
-        if immagine:
+        if img:
             immagine_url = (
-                immagine.get(
-                    "data-old-hires"
-                )
-                or immagine.get("src")
+                img.get("data-old-hires")
+                or img.get("src")
                 or ""
             )
-
 
         print(
             f"[AMAZON] {asin} | "
@@ -695,102 +539,70 @@ def scarica_dettagli_amazon(asin):
             f"-{sconto}%"
         )
 
-
         return {
             "asin": asin,
             "titolo": titolo,
-            "prezzo_attuale": (
-                prezzo_attuale
-            ),
-            "prezzo_precedente": (
-                prezzo_precedente
-            ),
+            "prezzo_attuale": prezzo_attuale,
+            "prezzo_precedente": prezzo_precedente,
             "sconto": sconto,
-            "immagine_url": immagine_url,
+            "immagine_url": immagine_url
         }
-
 
     except Exception as e:
         print(
-            f"[ERRORE SCRAPING {asin}] "
-            f"{e}"
+            f"[AMAZON] Errore scraping {asin}: {e}"
         )
-
         traceback.print_exc()
-
         return None
 
 
 # ============================================================
-# CANALE SPIA TELEGRAM
+# CANALI SPIA
 # ============================================================
 
 async def avvia_canale_spia():
     if not TELEGRAM_SESSION_STRING:
         print(
-            "[SPIA] TELEGRAM_SESSION_STRING "
-            "non configurata. "
+            "[SPIA] TELEGRAM_SESSION_STRING assente. "
             "Canale spia disattivato."
         )
-
         return
-
 
     if not TELEGRAM_API_ID:
         print(
-            "[SPIA] TELEGRAM_API_ID "
-            "non configurato."
+            "[SPIA] TELEGRAM_API_ID non configurato."
         )
-
         return
-
 
     if not TELEGRAM_API_HASH:
         print(
-            "[SPIA] TELEGRAM_API_HASH "
-            "non configurato."
+            "[SPIA] TELEGRAM_API_HASH non configurato."
         )
-
         return
 
-
     client = TelegramClient(
-        StringSession(
-            TELEGRAM_SESSION_STRING
-        ),
+        StringSession(TELEGRAM_SESSION_STRING),
         TELEGRAM_API_ID,
-        TELEGRAM_API_HASH,
+        TELEGRAM_API_HASH
     )
 
-
     try:
-        print(
-            "[SPIA] Connessione Telegram..."
-        )
+        print("[SPIA] Connessione a Telegram...")
 
         await asyncio.wait_for(
             client.connect(),
-            timeout=20,
+            timeout=20
         )
 
-
-        autorizzato = (
-            await client.is_user_authorized()
-        )
-
-        if not autorizzato:
+        if not await client.is_user_authorized():
             print(
-                "[SPIA] Sessione Telegram "
-                "non autorizzata."
+                "[SPIA] Sessione Telegram non autorizzata."
             )
 
             await client.disconnect()
-
             return
 
-
         canali_validi = []
-
 
         for canale in CANALI_SPIA:
             try:
@@ -798,9 +610,7 @@ async def avvia_canale_spia():
                     canale
                 )
 
-                canali_validi.append(
-                    entity
-                )
+                canali_validi.append(entity)
 
                 print(
                     f"[SPIA] @{canale} OK"
@@ -808,107 +618,224 @@ async def avvia_canale_spia():
 
             except Exception as e:
                 print(
-                    f"[SPIA WARNING] "
-                    f"@{canale}: {e}"
+                    f"[SPIA] Errore @{canale}: {e}"
                 )
-
 
         if not canali_validi:
             print(
-                "[SPIA] Nessun canale "
-                "valido."
+                "[SPIA] Nessun canale valido."
             )
 
             await client.disconnect()
-
             return
 
-
         print(
-            f"[SPIA] Monitoraggio attivo "
-            f"su {len(canali_validi)} "
-            f"canali."
+            f"[SPIA] Monitoraggio attivo su "
+            f"{len(canali_validi)} canali."
         )
-
 
         @client.on(
             events.NewMessage(
                 chats=canali_validi
             )
         )
-        async def gestisci_nuovo_messaggio(
-            event
-        ):
+        async def gestisci_messaggio(event):
             try:
                 testo = (
                     event.message.message
                     or ""
                 )
 
-
                 urls = re.findall(
                     r"https?://[^\s<>]+",
-                    testo,
-                )
-
-
-                # URL presenti nei pulsanti
-                if event.message.buttons:
-                    for row in (
-                        event.message.buttons
-                    ):
-                        for btn in row:
-                            url_btn = getattr(
-                                btn,
-                                "url",
-                                None,
-                            )
-
-                            if url_btn:
-                                urls.append(
-                                    url_btn
-                                )
-
-
-                # Cerca anche direttamente
-                # un ASIN nel testo
-                asin_diretto = estrai_asin(
                     testo
                 )
 
-                if asin_diretto:
-                    urls.insert(
-                        0,
-                        asin_diretto,
-                    )
+                # URL nei pulsanti Telegram
+                if event.message.buttons:
+                    for row in event.message.buttons:
+                        for bottone in row:
+                            url_bottone = getattr(
+                                bottone,
+                                "url",
+                                None
+                            )
 
+                            if url_bottone:
+                                urls.append(
+                                    url_bottone
+                                )
 
-                asin_trovato = None
+                # Prima cerca direttamente nel testo.
+                asin = estrai_asin(testo)
 
+                # Poi negli URL.
+                if not asin:
+                    for url in urls:
+                        asin = estrai_asin(url)
 
-                for elemento in urls:
-                    asin = estrai_asin(
-                        elemento
-                    )
+                        if asin:
+                            break
 
-                    if not asin:
-                        # elemento potrebbe essere
-                        # già un ASIN
-                        asin = estrai_asin(
-                            str(elemento)
-                        )
-
-                    if asin:
-                        asin_trovato = asin
-
-                        break
-
-
-                if not asin_trovato:
+                if not asin:
                     return
 
-
                 print(
-                    f"[SPIA] ASIN trovato: "
-                    f"{asin_trovato}"
-               
+                    f"[SPIA] ASIN trovato: {asin}"
+                )
+
+                duplicato = await asyncio.to_thread(
+                    prodotto_inviato_recentemente,
+                    asin,
+                    24
+                )
+
+                if duplicato:
+                    print(
+                        f"[SPIA] {asin} già in coda "
+                        f"o inviato recentemente."
+                    )
+                    return
+
+                prodotto = await asyncio.to_thread(
+                    scarica_dettagli_amazon,
+                    asin
+                )
+
+                if not prodotto:
+                    print(
+                        f"[SPIA] Impossibile ottenere "
+                        f"dettagli per {asin}"
+                    )
+                    return
+
+                await asyncio.to_thread(
+                    aggiungi_prodotto_db,
+                    prodotto
+                )
+
+            except Exception as e:
+                print(
+                    f"[SPIA] Errore messaggio: {e}"
+                )
+                traceback.print_exc()
+
+        await client.run_until_disconnected()
+
+    except asyncio.CancelledError:
+        print("[SPIA] Task cancellato.")
+
+    except Exception as e:
+        print(
+            f"[SPIA] Errore generale: {e}"
+        )
+        traceback.print_exc()
+
+    finally:
+        try:
+            if client.is_connected():
+                await client.disconnect()
+        except Exception:
+            pass
+
+
+# ============================================================
+# FONT
+# ============================================================
+
+def carica_font(dimensione, grassetto=False):
+    if grassetto:
+        percorsi = [
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+            "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf"
+        ]
+    else:
+        percorsi = [
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            "/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf"
+        ]
+
+    for percorso in percorsi:
+        if Path(percorso).exists():
+            return ImageFont.truetype(
+                percorso,
+                dimensione
+            )
+
+    return ImageFont.load_default()
+
+
+# ============================================================
+# TESTO GRAFICO
+# ============================================================
+
+def spezza_testo(
+    draw,
+    testo,
+    font,
+    larghezza_massima
+):
+    parole = str(testo).split()
+
+    righe = []
+    riga = ""
+
+    for parola in parole:
+        prova = f"{riga} {parola}".strip()
+
+        bbox = draw.textbbox(
+            (0, 0),
+            prova,
+            font=font
+        )
+
+        larghezza = bbox[2] - bbox[0]
+
+        if larghezza <= larghezza_massima:
+            riga = prova
+        else:
+            if riga:
+                righe.append(riga)
+
+            riga = parola
+
+    if riga:
+        righe.append(riga)
+
+    return righe
+
+
+def centra_testo(
+    draw,
+    testo,
+    box,
+    font,
+    colore
+):
+    x1, y1, x2, y2 = box
+
+    bbox = draw.textbbox(
+        (0, 0),
+        testo,
+        font=font
+    )
+
+    larghezza = bbox[2] - bbox[0]
+    altezza = bbox[3] - bbox[1]
+
+    x = (
+        x1
+        + ((x2 - x1) - larghezza) // 2
+    )
+
+    y = (
+        y1
+        + ((y2 - y1) - altezza) // 2
+        - bbox[1]
+    )
+
+    draw.text(
+        (x, y),
+        testo,
+        fill=colore,
+    
