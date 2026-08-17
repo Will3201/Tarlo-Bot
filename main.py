@@ -515,8 +515,6 @@ async def invia_offerta(prodotto):
 
     linea_link = f'<a href="{link_esc}">ACQUISTA SUBITO IN OFFERTA</a>'
 
-    didascalia = (
-        "🐜 <b>Il Tarlo ha colpito ancora!</b>\n\n"
-        + f"📦 <b>{titolo_esc}</b>\n"
-        + f"{info_prezzo}\n\n"
-        + f
+    didascalia = f"🐜 <b>Il Tarlo ha colpito ancora!</b>\n\n📦 <b>{titolo_esc}</b>\n{info_prezzo}\n\n👉 {linea_link}\n\n#IlTarloDelRisparmio"
+
+    with
