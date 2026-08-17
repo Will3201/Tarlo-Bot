@@ -234,7 +234,7 @@ async def avvia_canale_spia():
     client = TelegramClient(StringSession(session_string), TELEGRAM_API_ID, TELEGRAM_API_HASH)
     
     try:
-        await client.connect()
+        await asyncio.wait_for(client.connect(), timeout=15)
         if not await client.is_user_authorized():
             await client.disconnect()
             print("[SPIA] Sessione Telegram non autorizzata.")
@@ -250,6 +250,8 @@ async def avvia_canale_spia():
 
         if not canali_validi:
             return
+
+        print(f"[SPIA] Monitoraggio attivo su {len(canali_validi)} canali spia.")
 
         @client.on(events.NewMessage(chats=canali_validi))
         async def gestisci_nuovo_messaggio(event):
@@ -388,7 +390,6 @@ def crea_immagine_tiktok(prodotto):
     template = Image.open(TEMPLATE_TIKTOK_PATH).convert("RGBA").resize((1080, 1920), Image.Resampling.LANCZOS)
     draw = ImageDraw.Draw(template)
 
-    # 1. Immagine Prodotto nel box bianco grande
     try:
         foto = scarica_immagine(str(prodotto.get("immagine_url", "")))
         if foto:
@@ -397,13 +398,11 @@ def crea_immagine_tiktok(prodotto):
     except Exception as e:
         print(f"Errore caricamento foto TikTok: {e}")
 
-    # 2. Badge Sconto
     sconto = prodotto.get("sconto", 0)
     if sconto > 0:
         f_badge = carica_font(52, grassetto=True)
         centra_testo(draw, f"-{sconto}%", (215, 130, 385, 205), f_badge, "#FFFFFF")
 
-    # 3. Titolo Prodotto
     titolo = str(prodotto.get("titolo", "")).strip()
     box_titolo = (110, 1325, 970, 1455)
     w_box, h_box = box_titolo[2] - box_titolo[0], box_titolo[3] - box_titolo[1]
@@ -426,12 +425,10 @@ def crea_immagine_tiktok(prodotto):
         draw.text((box_titolo[0] + (w_box - w_riga) // 2, y_t), riga, fill="white", font=font_t)
         y_t += int(dim * 1.12)
 
-    # 4. Prezzo Attuale
     p_att = f"{str(prodotto.get('prezzo_attuale', '')).replace('€', '').strip()} €"
     f_att = carica_font(68, grassetto=True)
     centra_testo(draw, p_att, (75, 1470, 635, 1720), f_att, "#FFFFFF")
 
-    # 5. Prezzo Precedente
     p_prec = f"{str(prodotto.get('prezzo_precedente', '')).replace('€', '').strip()} €"
     if sconto > 0 and p_prec != p_att:
         f_prec = carica_font(48, grassetto=True)
@@ -511,7 +508,6 @@ async def invia_offerta(prodotto):
         "#IlTarloDelRisparmio"
     )
 
-    # 1. Invio su Telegram
     with open(foto, "rb") as file_foto:
         await bot.send_photo(
             chat_id=CANALE_CHAT_ID,
@@ -520,7 +516,9 @@ async def invia_offerta(prodotto):
             parse_mode="HTML",
         )
 
-    # 2. Generazione Grafica e Invio Webhook per TikTok
     foto_tiktok = crea_immagine_tiktok(prodotto)
     if foto_tiktok:
-        invia_webhook_tiktok(prodotto, f
+        invia_webhook_tiktok(prodotto, foto_tiktok)
+
+# ============================================================
+# CICLO DI INVIO PERIODICO E AVVIO GENERA
