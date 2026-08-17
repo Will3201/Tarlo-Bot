@@ -499,7 +499,6 @@ async def invia_offerta(prodotto):
     link = f"https://www.amazon.it/dp/{prodotto['asin']}?tag={AMAZON_TAG}"
     foto = crea_immagine_offerta(prodotto)
 
-    # Pre-elaborazione stringhe e variabili separate per evitare errori di sintassi
     titolo_esc = html.escape(str(prodotto['titolo']))
     p_att_esc = html.escape(str(prodotto['prezzo_attuale']))
     p_prec_esc = html.escape(str(prodotto['prezzo_precedente']))
@@ -507,14 +506,19 @@ async def invia_offerta(prodotto):
     sconto_val = prodotto['sconto']
 
     if sconto_val > 0 and prodotto['prezzo_precedente'] != prodotto['prezzo_attuale']:
-        info_prezzo = (
-            f"📉 Sconto: <b>-{sconto_val}%</b>\n"
-            f"💰 <s>{p_prec_esc} €</s> ➜ <b>{p_att_esc} €</b>"
-        )
+        info_prezzo = f"📉 Sconto: <b>-{sconto_val}%</b>\n💰 <s>{p_prec_esc} €</s> ➜ <b>{p_att_esc} €</b>"
     else:
         info_prezzo = f"💰 Prezzo speciale: <b>{p_att_esc} €</b>"
 
-    link_html = f'<a href="{link_esc}">ACQUISTA SUBITO IN OFFERTA</a>'
+    didascalia = f"""🐜 <b>Il Tarlo ha colpito ancora!</b>
 
-    didascalia = (
-        "🐜 <b>Il Tarlo ha colpito ancora!
+📦 <b>{titolo_esc}</b>
+{info_prezzo}
+
+👉 <a href="{link_esc}">ACQUISTA SUBITO IN OFFERTA</a>
+
+#IlTarloDelRisparmio"""
+
+    with open(foto, "rb") as file_foto:
+        await bot.send_photo(
+        
