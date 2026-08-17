@@ -4,6 +4,7 @@ import os
 import re
 import sqlite3
 import threading
+import traceback
 from datetime import datetime, timedelta
 from io import BytesIO
 from pathlib import Path
@@ -104,7 +105,7 @@ def aggiungi_prodotto_db(p):
             p["immagine_url"], datetime.now()
         ))
         conn.commit()
-        print(f"[DB] Prodotto aggiunto correttamente: {p['asin']}")
+        print(f"[DB] Prodotto salvato in coda: {p['asin']}")
         return True
 
 def ottieni_prossimo_prodotto():
@@ -121,7 +122,7 @@ def segna_inviato(asin):
         conn.commit()
 
 # ============================================================
-# SCRAPER AMAZON
+# SCRAPER AMAZON AVANZATO
 # ============================================================
 def estrai_asin(testo):
     match = re.search(r'/(?:dp|gp/product)/([A-Z0-9]{10})', testo)
@@ -132,13 +133,13 @@ def estrai_asin(testo):
 def scarica_dettagli_amazon(asin):
     url = f"https://www.amazon.it/dp/{asin}"
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
         "Accept-Language": "it-IT,it;q=0.9",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
     }
     
     try:
-        res = requests.get(url, headers=headers, timeout=10)
+        res = requests.get(url, headers=headers, timeout=12)
         if res.status_code != 200:
             return None
             
@@ -151,64 +152,58 @@ def scarica_dettagli_amazon(asin):
 
         # 1. Prezzo Attuale
         prezzo_attuale = None
-        prezzo_elem = soup.find("span", {"class": "a-price-whole"})
-        frazione_elem = soup.find("span", {"class": "a-price-fraction"})
-        if prezzo_elem:
-            p_w = re.sub(r'[^\d]', '', prezzo_elem.get_text())
-            p_f = frazione_elem.get_text().strip() if frazione_elem else "00"
-            prezzo_attuale = f"{p_w},{p_f}"
+        p_elem = soup.find("span", class_="a-price")
+        if p_elem:
+            off_elem = p_elem.find("span", class_="a-offscreen")
+            if off_elem:
+                txt = off_elem.get_text().replace("€", "").strip().replace(".", ",")
+                m = re.search(r'(\d+[\.,]\d{2})', txt)
+                if m:
+                    prezzo_attuale = m.group(1).replace('.', ',')
+
+        if not prezzo_attuale:
+            pw = soup.find("span", class_="a-price-whole")
+            pf = soup.find("span", class_="a-price-fraction")
+            if pw:
+                p_w = re.sub(r'[^\d]', '', pw.get_text())
+                p_f = pf.get_text().strip() if pf else "00"
+                prezzo_attuale = f"{p_w},{p_f}"
 
         if not prezzo_attuale:
             return None
 
         p_att_num = float(prezzo_attuale.replace('.', '').replace(',', '.'))
 
-        # 2. Prezzo Precedente
+        # 2. Prezzo Precedente / Listino
         prezzo_precedente = None
-        elementi_strike = soup.find_all("span", attrs={"data-a-strike": "true"})
-        if not elementi_strike:
-            elementi_strike = soup.find_all("span", class_=re.compile(r"a-text-price|basisPrice|a-text-strike"))
+        candidati_prec = []
 
-        for elem in elementi_strike:
-            txt = elem.get_text().lower()
-            if "/" in txt or "unità" in txt or "unit" in txt or "100ml" in txt or "kg" in txt:
-                continue
-            
-            m = re.search(r'(\d+[\.,]\d{2})', txt)
+        for elem in soup.find_all("span", class_=re.compile(r"a-text-price|basisPrice|a-color-secondary|a-size-small")):
+            off = elem.find("span", class_="a-offscreen")
+            t = off.get_text() if off else elem.get_text()
+            m = re.search(r'(\d+[\.,]\d{2})', t)
             if m:
-                val_str = m.group(1).replace('.', ',')
                 try:
-                    val_num = float(val_str.replace('.', '').replace(',', '.'))
-                    if val_num > p_att_num:
-                        prezzo_precedente = val_str
-                        break
+                    v = float(m.group(1).replace('.', '').replace(',', '.'))
+                    if v > p_att_num:
+                        candidati_prec.append((v, m.group(1).replace('.', ',')))
                 except ValueError:
-                    continue
+                    pass
 
-        if not prezzo_precedente:
-            m_list = re.findall(r'(?:Prezzo consigliato|Prezzo di listino|Prezzo precedente):\s*.*?(\d+[\.,]\d{2})', res.text, re.IGNORECASE)
-            for val_str in m_list:
-                try:
-                    val_num = float(val_str.replace('.', '').replace(',', '.'))
-                    if val_num > p_att_num:
-                        prezzo_precedente = val_str.replace('.', ',')
-                        break
-                except ValueError:
-                    continue
+        if candidati_prec:
+            candidati_prec.sort(key=lambda x: x[0], reverse=True)
+            prezzo_precedente = candidati_prec[0][1]
 
         # 3. Calcolo Sconto
         if prezzo_precedente:
-            try:
-                p_prec_num = float(prezzo_precedente.replace('.', '').replace(',', '.'))
-                sconto = int(round(((p_prec_num - p_att_num) / p_prec_num) * 100))
-            except Exception:
-                sconto = 0
+            p_prec_num = float(prezzo_precedente.replace('.', '').replace(',', '.'))
+            sconto = int(round(((p_prec_num - p_att_num) / p_prec_num) * 100))
         else:
             prezzo_precedente = prezzo_attuale
             sconto = 0
 
         # 4. Immagine
-        img_elem = soup.find("img", {"id": "landingImage"})
+        img_elem = soup.find("img", {"id": "landingImage"}) or soup.find("img", {"id": "imgBlkFront"})
         img_url = img_elem["src"] if img_elem else ""
 
         return {
@@ -339,10 +334,16 @@ def crea_immagine_offerta(prodotto):
         print(f"Errore caricamento immagine prodotto: {e}")
 
     sconto = prodotto.get("sconto", 0)
+    
+    # 1. Gestione Badge Sconto
     if sconto > 0:
         f_badge = carica_font(46, grassetto=True)
         centra_testo(draw, f"-{sconto}%", (160, 245, 290, 315), f_badge, "#FFFFFF")
+    else:
+        # Copre il badge % vuoto se non c'è sconto
+        draw.rectangle((140, 230, 310, 330), fill="#123E2E")
 
+    # 2. Titolo
     titolo = str(prodotto.get("titolo", "")).strip()
     box_titolo = (885, 355, 1450, 600)
     w_box, h_box = box_titolo[2] - box_titolo[0], box_titolo[3] - box_titolo[1]
@@ -365,10 +366,12 @@ def crea_immagine_offerta(prodotto):
         draw.text((box_titolo[0] + (w_box - w_riga) // 2, y_t), riga, fill="white", font=font_t)
         y_t += int(dim * 1.12)
 
+    # 3. Prezzo Attuale
     p_att = str(prodotto.get("prezzo_attuale", "")).replace("€", "").strip()
     f_att = carica_font(76, grassetto=True)
     centra_testo(draw, p_att, (1078, 1048, 1438, 1158), f_att, "#0D4B35")
 
+    # 4. Prezzo Precedente / Copertura
     p_prec = str(prodotto.get("prezzo_precedente", "")).replace("€", "").strip()
     if sconto > 0 and p_prec != p_att:
         f_prec = carica_font(40, grassetto=True)
@@ -376,13 +379,22 @@ def crea_immagine_offerta(prodotto):
         bbox_v = draw.textbbox((0, 0), p_prec, font=f_prec)
         w_v = bbox_v[2] - bbox_v[0]
         draw.line((1333 - w_v // 2 - 7, 1250, 1333 + w_v // 2 + 7, 1250), fill="#E23B27", width=6)
+    else:
+        # Copre in modo pulito il rettangolo "INVECE DI" se non è presente uno sconto
+        draw.rectangle((1050, 1190, 1460, 1300), fill="#123E2E")
 
     template.convert("RGB").save(OUTPUT_PATH, "PNG", optimize=True)
     return OUTPUT_PATH
 
 def crea_immagine_tiktok(prodotto):
     if not TEMPLATE_TIKTOK_PATH.exists():
-        print("[TIKTOK] File template_tiktok.png non trovato!")
+        if TEMPLATE_PATH.exists():
+            img_main = Image.open(crea_immagine_offerta(prodotto))
+            img_tiktok = Image.new("RGB", (1080, 1920), "#0A291E")
+            img_main_resized = ImageOps.contain(img_main, (1000, 1000))
+            img_tiktok.paste(img_main_resized, (40, 460))
+            img_tiktok.save(OUTPUT_TIKTOK_PATH, "PNG")
+            return OUTPUT_TIKTOK_PATH
         return None
 
     template = Image.open(TEMPLATE_TIKTOK_PATH).convert("RGBA").resize((1080, 1920), Image.Resampling.LANCZOS)
@@ -394,7 +406,7 @@ def crea_immagine_tiktok(prodotto):
             foto = ImageOps.contain(foto, (820, 780), method=Image.Resampling.LANCZOS)
             template.paste(foto, (540 - foto.width // 2, 870 - foto.height // 2), foto)
     except Exception as e:
-        print(f"Errore caricamento foto TikTok: {e}")
+        print(f"Errore foto TikTok: {e}")
 
     sconto = prodotto.get("sconto", 0)
     if sconto > 0:
@@ -431,7 +443,6 @@ def crea_immagine_tiktok(prodotto):
     if sconto > 0 and p_prec != p_att:
         f_prec = carica_font(48, grassetto=True)
         centra_testo(draw, p_prec, (655, 1470, 980, 1720), f_prec, "#333333")
-        
         bbox_v = draw.textbbox((0, 0), p_prec, font=f_prec)
         w_v = bbox_v[2] - bbox_v[0]
         centx = 655 + (980 - 655) // 2
@@ -444,7 +455,8 @@ def crea_immagine_tiktok(prodotto):
 # INVIO WEBHOOK TIKTOK
 # ============================================================
 def invia_webhook_tiktok(prodotto, foto_tiktok_path):
-    if not WEBHOOK_TIKTOK_URL:
+    if not WEBHOOK_TIKTOK_URL or not foto_tiktok_path or not Path(foto_tiktok_path).exists():
+        print(f"[WEBHOOK TIKTOK WARNING] Immagine o URL non valido per ASIN {prodotto['asin']}")
         return
 
     link = f"https://www.amazon.it/dp/{prodotto['asin']}?tag={AMAZON_TAG}"
@@ -462,11 +474,11 @@ def invia_webhook_tiktok(prodotto, foto_tiktok_path):
     try:
         with open(foto_tiktok_path, "rb") as f:
             files = {"file": ("offerta_tiktok.png", f, "image/png")}
-            res = requests.post(WEBHOOK_TIKTOK_URL, data=data, files=files, timeout=15)
+            res = requests.post(WEBHOOK_TIKTOK_URL, data=data, files=files, timeout=20)
             if res.status_code in [200, 201]:
-                print("[WEBHOOK TIKTOK] Inviato con successo!")
+                print(f"[WEBHOOK TIKTOK] Inviato con successo per ASIN: {prodotto['asin']}")
             else:
-                print(f"[WEBHOOK TIKTOK ERRORE]: {res.status_code} - {res.text}")
+                print(f"[WEBHOOK TIKTOK ERRORE]: Risposta {res.status_code} - {res.text}")
     except Exception as e:
         print(f"[WEBHOOK TIKTOK ERRORE EXCEPTION]: {e}")
 
@@ -483,7 +495,7 @@ def health():
 
 def run_flask():
     port = int(os.environ.get("PORT", "10000"))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, use_reloader=False)
 
 async def invia_offerta(prodotto):
     link = f"https://www.amazon.it/dp/{prodotto['asin']}?tag={AMAZON_TAG}"
@@ -502,25 +514,4 @@ async def invia_offerta(prodotto):
         "🐜 <b>Il Tarlo ha colpito ancora!</b>\n\n"
         f"📦 <b>{html.escape(str(prodotto['titolo']))}</b>\n"
         f"{info_prezzo}\n\n"
-        f'👉 <a href="{html.escape(link, quote=True)}">ACQUISTA SUBITO IN OFFERTA</a>\n\n'
-        "#IlTarloDelRisparmio"
-    )
-
-    with open(foto, "rb") as file_foto:
-        await bot.send_photo(
-            chat_id=CANALE_CHAT_ID,
-            photo=file_foto,
-            caption=didascalia,
-            parse_mode="HTML",
-        )
-
-    foto_tiktok = crea_immagine_tiktok(prodotto)
-    if foto_tiktok:
-        invia_webhook_tiktok(prodotto, foto_tiktok)
-
-# ============================================================
-# CICLO DI INVIO PERIODICO E AVVIO GENERALE
-# ============================================================
-async def loop_invio_offerte():
-    print("[BOT] Ciclo di invio offerte avviato.")
-  
+        f'👉 <a href="{html.escape(link, 
