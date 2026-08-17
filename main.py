@@ -340,7 +340,6 @@ def crea_immagine_offerta(prodotto):
         f_badge = carica_font(46, grassetto=True)
         centra_testo(draw, f"-{sconto}%", (160, 245, 290, 315), f_badge, "#FFFFFF")
     else:
-        # Copre il badge % vuoto se non c'è sconto
         draw.rectangle((140, 230, 310, 330), fill="#123E2E")
 
     # 2. Titolo
@@ -380,7 +379,6 @@ def crea_immagine_offerta(prodotto):
         w_v = bbox_v[2] - bbox_v[0]
         draw.line((1333 - w_v // 2 - 7, 1250, 1333 + w_v // 2 + 7, 1250), fill="#E23B27", width=6)
     else:
-        # Copre in modo pulito il rettangolo "INVECE DI" se non è presente uno sconto
         draw.rectangle((1050, 1190, 1460, 1300), fill="#123E2E")
 
     template.convert("RGB").save(OUTPUT_PATH, "PNG", optimize=True)
@@ -501,17 +499,23 @@ async def invia_offerta(prodotto):
     link = f"https://www.amazon.it/dp/{prodotto['asin']}?tag={AMAZON_TAG}"
     foto = crea_immagine_offerta(prodotto)
 
-    if prodotto['sconto'] > 0 and prodotto['prezzo_precedente'] != prodotto['prezzo_attuale']:
+    # Pre-elaborazione pulita per evitare sintassi errate
+    titolo_esc = html.escape(str(prodotto['titolo']))
+    p_att_esc = html.escape(str(prodotto['prezzo_attuale']))
+    p_prec_esc = html.escape(str(prodotto['prezzo_precedente']))
+    link_esc = html.escape(link, quote=True)
+    sconto_val = prodotto['sconto']
+
+    if sconto_val > 0 and prodotto['prezzo_precedente'] != prodotto['prezzo_attuale']:
         info_prezzo = (
-            f"📉 Sconto: <b>-{prodotto['sconto']}%</b>\n"
-            f"💰 <s>{html.escape(str(prodotto['prezzo_precedente']))} €</s> "
-            f"➜ <b>{html.escape(str(prodotto['prezzo_attuale']))} €</b>"
+            f"📉 Sconto: <b>-{sconto_val}%</b>\n"
+            f"💰 <s>{p_prec_esc} €</s> ➜ <b>{p_att_esc} €</b>"
         )
     else:
-        info_prezzo = f"💰 Prezzo speciale: <b>{html.escape(str(prodotto['prezzo_attuale']))} €</b>"
+        info_prezzo = f"💰 Prezzo speciale: <b>{p_att_esc} €</b>"
 
     didascalia = (
         "🐜 <b>Il Tarlo ha colpito ancora!</b>\n\n"
-        f"📦 <b>{html.escape(str(prodotto['titolo']))}</b>\n"
+        f"📦 <b>{titolo_esc}</b>\n"
         f"{info_prezzo}\n\n"
-        f'👉 <a href="{html.escape(link, 
+        f'👉 <a href="{
