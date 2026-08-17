@@ -299,13 +299,16 @@ def spezza_testo(draw, testo, font, larghezza_massima):
         if draw.textbbox((0, 0), prova, font=font)[2] <= larghezza_massima:
             riga = prova
         else:
-            if riga: righe.append(riga)
+            if riga:
+                righe.append(riga)
             riga = parola
-    if riga: righe.append(riga)
+    if riga:
+        righe.append(riga)
     return righe
 
 def scarica_immagine(url):
-    if not url: return None
+    if not url: 
+        return None
     res = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=10)
     res.raise_for_status()
     return Image.open(BytesIO(res.content)).convert("RGBA")
@@ -510,15 +513,10 @@ async def invia_offerta(prodotto):
     else:
         info_prezzo = f"💰 Prezzo speciale: <b>{p_att_esc} €</b>"
 
-    didascalia = f"""🐜 <b>Il Tarlo ha colpito ancora!</b>
+    linea_link = f'<a href="{link_esc}">ACQUISTA SUBITO IN OFFERTA</a>'
 
-📦 <b>{titolo_esc}</b>
-{info_prezzo}
-
-👉 <a href="{link_esc}">ACQUISTA SUBITO IN OFFERTA</a>
-
-#IlTarloDelRisparmio"""
-
-    with open(foto, "rb") as file_foto:
-        await bot.send_photo(
-        
+    didascalia = (
+        "🐜 <b>Il Tarlo ha colpito ancora!</b>\n\n"
+        + f"📦 <b>{titolo_esc}</b>\n"
+        + f"{info_prezzo}\n\n"
+        + f
