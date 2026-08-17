@@ -11,24 +11,23 @@ from pathlib import Path
 
 import requests
 from bs4 import BeautifulSoup
-from flask import Flask
+from flask import Flask, send_file
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 from telegram import Bot
 from telethon import TelegramClient, events
 from telethon.sessions import StringSession
 
 # ============================================================
-# CONFIGURAZIONE
+# CONFIGURAZIONE VARIABILI
 # ============================================================
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "8670212259:AAFn_21_abtz4vL4WQ5TpekYby-hCnAjzeU")
 CANALE_CHAT_ID = os.getenv("CANALE_CHAT_ID", "@TarloDelRisparmio")
 AMAZON_TAG = os.getenv("AMAZON_TAG", "tarlodelrispa-21")
 INTERVALLO_MINUTI = int(os.getenv("INTERVALLO_MINUTI", "5"))
 
-WEBHOOK_TIKTOK_URL = os.getenv(
-    "WEBHOOK_TIKTOK_URL", 
-    "https://hook.eu1.make.com/sex4ialbchbtuuja1jzdo3yhgzef42dt"
-)
+BUFFER_ACCESS_TOKEN = os.getenv("BUFFER_ACCESS_TOKEN", "")
+BUFFER_PROFILE_ID = os.getenv("BUFFER_PROFILE_ID", "")
+RENDER_EXTERNAL_URL = os.getenv("RENDER_EXTERNAL_URL", "https://tarlo-bot.onrender.com")
 
 TELEGRAM_API_ID = int(os.getenv("TELEGRAM_API_ID", "31134748"))
 TELEGRAM_API_HASH = os.getenv("TELEGRAM_API_HASH", "ba4265cff56d0687c6c5171b47f76e02")
@@ -51,7 +50,7 @@ bot = Bot(token=TELEGRAM_TOKEN)
 app = Flask(__name__)
 
 # ============================================================
-# DATABASE SQLITE CON FILTRO ANTI-DUPLICATI (24 ORE)
+# DATABASE SQLITE CON ANTI-DUPLICATI (24 ORE)
 # ============================================================
 def init_db():
     with sqlite3.connect(DB_PATH) as conn:
@@ -91,7 +90,7 @@ def prodotto_inviato_recentemente(asin, ore=24):
 
 def aggiungi_prodotto_db(p):
     if prodotto_inviato_recentemente(p["asin"], ore=24):
-        print(f"[DB] ASIN {p['asin']} già inviato nelle ultime 24h o in coda, ignorato.")
+        print(f"[DB] ASIN {p['asin']} già gestito nelle ultime 24h, ignorato.")
         return False
 
     with sqlite3.connect(DB_PATH) as conn:
@@ -105,7 +104,7 @@ def aggiungi_prodotto_db(p):
             p["immagine_url"], datetime.now()
         ))
         conn.commit()
-        print(f"[DB] Prodotto salvato in coda: {p['asin']}")
+        print(f"[DB] Prodotto aggiunto in coda: {p['asin']}")
         return True
 
 def ottieni_prossimo_prodotto():
@@ -122,7 +121,7 @@ def segna_inviato(asin):
         conn.commit()
 
 # ============================================================
-# SCRAPER AMAZON AVANZATO
+# SCRAPER AMAZON
 # ============================================================
 def estrai_asin(testo):
     match = re.search(r'/(?:dp|gp/product)/([A-Z0-9]{10})', testo)
@@ -220,7 +219,7 @@ def scarica_dettagli_amazon(asin):
 async def avvia_canale_spia():
     session_string = os.getenv("TELEGRAM_SESSION_STRING", "").strip()
     if not session_string:
-        print("[SPIA] TELEGRAM_SESSION_STRING non trovata, canale spia disattivato.")
+        print("[SPIA] TELEGRAM_SESSION_STRING non trovata.")
         return
 
     client = TelegramClient(StringSession(session_string), TELEGRAM_API_ID, TELEGRAM_API_HASH)
@@ -229,7 +228,7 @@ async def avvia_canale_spia():
         await asyncio.wait_for(client.connect(), timeout=15)
         if not await client.is_user_authorized():
             await client.disconnect()
-            print("[SPIA] Sessione Telegram non autorizzata.")
+            print("[SPIA] Sessione non autorizzata.")
             return
 
         canali_validi = []
@@ -238,12 +237,12 @@ async def avvia_canale_spia():
                 entity = await client.get_entity(canale)
                 canali_validi.append(entity)
             except Exception as e:
-                print(f"[SPIA WARNING] Errore su @{canale}: {e}")
+                print(f"[SPIA WARNING] Errore @{canale}: {e}")
 
         if not canali_validi:
             return
 
-        print(f"[SPIA] Monitoraggio attivo su {len(canali_validi)} canali spia.")
+        print(f"[SPIA] Monitoraggio attivo su {len(canali_validi)} canali.")
 
         @client.on(events.NewMessage(chats=canali_validi))
         async def gestisci_nuovo_messaggio(event):
@@ -272,7 +271,7 @@ async def avvia_canale_spia():
         print(f"[ERRORE SPIA]: {e}")
 
 # ============================================================
-# FUNZIONI GRAFICHE PILLOW
+# GRAFICA PILLOW
 # ============================================================
 def carica_font(dimensione, grassetto=False):
     percorsi = [
@@ -333,7 +332,6 @@ def crea_immagine_offerta(prodotto):
         print(f"Errore caricamento immagine prodotto: {e}")
 
     sconto = prodotto.get("sconto", 0)
-    
     if sconto > 0:
         f_badge = carica_font(46, grassetto=True)
         centra_testo(draw, f"-{sconto}%", (160, 245, 290, 315), f_badge, "#FFFFFF")
@@ -445,38 +443,7 @@ def crea_immagine_tiktok(prodotto):
     return OUTPUT_TIKTOK_PATH
 
 # ============================================================
-# INVIO WEBHOOK TIKTOK
-# ============================================================
-def invia_webhook_tiktok(prodotto, foto_tiktok_path):
-    if not WEBHOOK_TIKTOK_URL or not foto_tiktok_path or not Path(foto_tiktok_path).exists():
-        print(f"[WEBHOOK TIKTOK WARNING] Immagine o URL non valido per ASIN {prodotto['asin']}")
-        return
-
-    link = f"https://www.amazon.it/dp/{prodotto['asin']}?tag={AMAZON_TAG}"
-    
-    data = {
-        "asin": prodotto['asin'],
-        "titolo": prodotto['titolo'],
-        "prezzo_attuale": prodotto['prezzo_attuale'],
-        "prezzo_precedente": prodotto['prezzo_precedente'],
-        "sconto": str(prodotto['sconto']),
-        "link": link,
-        "didascalia": f"🔥 {prodotto['titolo']}\n💰 In offerta a soli {prodotto['prezzo_attuale']}€! Link nei commenti o in bio. #offerta #amazon #sconti"
-    }
-
-    try:
-        with open(foto_tiktok_path, "rb") as f:
-            files = {"file": ("offerta_tiktok.png", f, "image/png")}
-            res = requests.post(WEBHOOK_TIKTOK_URL, data=data, files=files, timeout=20)
-            if res.status_code in [200, 201]:
-                print(f"[WEBHOOK TIKTOK] Inviato con successo per ASIN: {prodotto['asin']}")
-            else:
-                print(f"[WEBHOOK TIKTOK ERRORE]: Risposta {res.status_code} - {res.text}")
-    except Exception as e:
-        print(f"[WEBHOOK TIKTOK ERRORE EXCEPTION]: {e}")
-
-# ============================================================
-# SERVER FLASK & INVIO TELEGRAM
+# FLASK & CHIAMATA DIRETTA API BUFFER
 # ============================================================
 @app.route("/")
 def home(): 
@@ -486,9 +453,44 @@ def home():
 def health(): 
     return {"status": "ok"}
 
+@app.route("/media/tiktok.png")
+def servi_immagine_tiktok():
+    if OUTPUT_TIKTOK_PATH.exists():
+        return send_file(OUTPUT_TIKTOK_PATH, mimetype="image/png")
+    return "Immagine non trovata", 404
+
 def run_flask():
     port = int(os.environ.get("PORT", "10000"))
     app.run(host="0.0.0.0", port=port, use_reloader=False)
+
+def invia_a_buffer(prodotto):
+    if not BUFFER_ACCESS_TOKEN or not BUFFER_PROFILE_ID:
+        print("[BUFFER WARNING] Variabili BUFFER_ACCESS_TOKEN o BUFFER_PROFILE_ID non impostate.")
+        return
+
+    url_imm_pubblica = f"{RENDER_EXTERNAL_URL.rstrip('/')}/media/tiktok.png"
+    didascalia = f"🔥 {prodotto['titolo']}\n💰 In offerta a {prodotto['prezzo_attuale']}€!\n\nLink in bio! #offerte #amazon #sconti"
+
+    headers = {
+        "Authorization": f"Bearer {BUFFER_ACCESS_TOKEN}"
+    }
+
+    payload = {
+        "profile_ids[]": [BUFFER_PROFILE_ID],
+        "text": didascalia,
+        "media[photo]": url_imm_pubblica,
+        "now": "true"
+    }
+
+    try:
+        res = requests.post("https://api.bufferapp.com/1/updates/create.json", headers=headers, data=payload, timeout=20)
+        dati = res.json()
+        if res.status_code == 200 and dati.get("success"):
+            print(f"[BUFFER API] Inviato con successo a Buffer per ASIN: {prodotto['asin']}")
+        else:
+            print(f"[BUFFER API ERRORE]: Risposta: {dati}")
+    except Exception as e:
+        print(f"[BUFFER API EXCEPTION]: {e}")
 
 async def invia_offerta(prodotto):
     link = f"https://www.amazon.it/dp/{prodotto['asin']}?tag={AMAZON_TAG}"
@@ -506,7 +508,6 @@ async def invia_offerta(prodotto):
         info_prezzo = f"💰 Prezzo speciale: <b>{p_att_esc} €</b>"
 
     linea_link = f'<a href="{link_esc}">ACQUISTA SUBITO IN OFFERTA</a>'
-
     didascalia = f"🐜 <b>Il Tarlo ha colpito ancora!</b>\n\n📦 <b>{titolo_esc}</b>\n{info_prezzo}\n\n👉 {linea_link}\n\n#IlTarloDelRisparmio"
 
     with open(foto, "rb") as file_foto:
@@ -517,4 +518,8 @@ async def invia_offerta(prodotto):
             parse_mode="HTML"
         )
 
-    foto_tiktok = crea_immagi
+    foto_tiktok = crea_immagine_tiktok(prodotto)
+    if foto_tiktok:
+        invia_a_buffer(prodotto)
+
+# ==================================================
