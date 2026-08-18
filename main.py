@@ -2,6 +2,7 @@ import asyncio
 import os
 import re
 import sqlite3
+import textwrap
 import threading
 from datetime import datetime, timedelta
 from io import BytesIO
@@ -38,7 +39,7 @@ TEMPLATE_PATH = BASE_DIR / "template.png"
 OUTPUT_PATH = BASE_DIR / "offerta_finale.png"
 DB_PATH = BASE_DIR / "offerte.db"
 
-# Nome del tuo file font
+# Nome esatto del tuo file font
 FONT_PATH = BASE_DIR / "Montserrat-Italic-VariableFont_wght.ttf"
 
 bot = Bot(token=TELEGRAM_TOKEN)
@@ -68,7 +69,7 @@ def segna_inviato(asin):
         conn.execute("INSERT OR REPLACE INTO prodotti (asin, inviato_il) VALUES (?, ?)", 
                      (asin, datetime.now().isoformat()))
 
-# --- SCRAPER AMAZON UNIVERSALE (Supporta Cibo/Igiene/Casa) ---
+# --- SCRAPER AMAZON UNIVERSALE (Supporta Cibo/Igiene/Casa/Informatica) ---
 def estrai_asin(testo):
     if not testo:
         return None
@@ -158,10 +159,12 @@ def scarica_dettagli_amazon(asin):
         print(f"Errore scraping ASIN {asin}: {e}")
         return None
 
-# --- GENERAZIONE GRAFICA 1080x1080 ---
+# --- GENERAZIONE GRAFICA PERFETTA 1080x1080 ---
 def crea_immagine(prodotto):
+    # 1. Carica il template e forza la risoluzione 1080x1080
     template = Image.open(TEMPLATE_PATH).convert("RGBA").resize((1080, 1080), Image.Resampling.LANCZOS)
     
+    # 2. Incolla l'immagine del prodotto nel riquadro bianco a sinistra
     box_x, box_y = 23, 238
     box_w, box_h = 542, 778
     
@@ -169,7 +172,7 @@ def crea_immagine(prodotto):
         try:
             resp = requests.get(prodotto["immagine_url"], timeout=10)
             img_prod = Image.open(BytesIO(resp.content)).convert("RGBA")
-            img_prod.thumbnail((box_w - 40, box_h - 40), Image.Resampling.LANCZOS)
+            img_prod.thumbnail((box_w - 60, box_h - 60), Image.Resampling.LANCZOS)
             
             offset_x = box_x + (box_w - img_prod.width) // 2
             offset_y = box_y + (box_h - img_prod.height) // 2
@@ -180,36 +183,57 @@ def crea_immagine(prodotto):
 
     draw = ImageDraw.Draw(template)
     
+    # 3. Caricamento Font con impostazione dello spessore Bold per il Variable Font
     try:
-        font_titolo = ImageFont.truetype(str(FONT_PATH), 26)
-        font_prezzo_grande = ImageFont.truetype(str(FONT_PATH), 72)
+        font_titolo = ImageFont.truetype(str(FONT_PATH), 28)
+        font_prezzo_grande = ImageFont.truetype(str(FONT_PATH), 75)
         font_prezzo_vecchio = ImageFont.truetype(str(FONT_PATH), 38)
-        font_sconto = ImageFont.truetype(str(FONT_PATH), 65)
-    except Exception as e:
-        print(f"[WARNING] Impossibile caricare {FONT_PATH.name}: {e}. Uso il font di default.")
-        font_titolo = font_prezzo_grande = font_prezzo_vecchio = font_sconto = ImageFont.load_default()
+        font_sconto = ImageFont.truetype(str(FONT_PATH), 60)
+        
+        # Imposta lo spessore Bold
+        font_titolo.set_variation_by_name('Bold')
+        font_prezzo_grande.set_variation_by_name('Bold')
+        font_prezzo_vecchio.set_variation_by_name('Bold')
+        font_sconto.set_variation_by_name('Bold')
+    except Exception:
+        try:
+            font_titolo = ImageFont.truetype(str(FONT_PATH), 28)
+            font_prezzo_grande = ImageFont.truetype(str(FONT_PATH), 75)
+            font_prezzo_vecchio = ImageFont.truetype(str(FONT_PATH), 38)
+            font_sconto = ImageFont.truetype(str(FONT_PATH), 60)
+        except Exception as e:
+            print(f"[WARNING] Impossibile caricare {FONT_PATH.name}: {e}")
+            font_titolo = font_prezzo_grande = font_prezzo_vecchio = font_sconto = ImageFont.load_default()
 
-    # A. Titolo Prodotto
-    titolo_breve = prodotto["titolo"][:42] + "..." if len(prodotto["titolo"]) > 42 else prodotto["titolo"]
-    draw.text((760, 320), titolo_breve, fill="white", font=font_titolo, anchor="mm")
+    # --- A. TITOLO PRODOTTO (Cartellino Verde in Alto a Destra) ---
+    titolo_pulito = prodotto["titolo"][:60]
+    righe = textwrap.wrap(titolo_pulito, width=20)
+    y_titolo = 310 - (len(righe) * 15)
+    for riga in righe[:3]:  # Massimo 3 righe
+        draw.text((720, y_titolo), riga, fill=(255, 255, 255, 255), font=font_titolo, anchor="mm")
+        y_titolo += 34
 
-    # B. Prezzo Attuale
+    # --- B. PREZZO ATTUALE (Box Arancione Grande) ---
     testo_prezzo = f"{prodotto['prezzo_attuale']} €"
-    draw.text((765, 555), testo_prezzo, fill="white", font=font_prezzo_grande, anchor="mm")
+    draw.text((765, 550), testo_prezzo, fill=(255, 255, 255, 255), font=font_prezzo_grande, anchor="mm")
 
-    # C. Prezzo Barrato
+    # --- C. PREZZO BARRATO (Riquadro Chiaro) ---
     if prodotto["prezzo_precedente"] and prodotto["prezzo_precedente"] != prodotto["prezzo_attuale"]:
         testo_vecchio = f"{prodotto['prezzo_precedente']} €"
-        draw.text((765, 720), testo_vecchio, fill="#555555", font=font_prezzo_vecchio, anchor="mm")
+        center_x, center_y = 765, 718
         
-        bbox = draw.textbbox((765, 720), testo_vecchio, font=font_prezzo_vecchio, anchor="mm")
-        draw.line([(bbox[0] - 5, 720), (bbox[2] + 5, 720)], fill="#D32F2F", width=4)
+        draw.text((center_x, center_y), testo_vecchio, fill=(100, 100, 100, 255), font=font_prezzo_vecchio, anchor="mm")
+        
+        # Linea rossa sopra il prezzo vecchio
+        bbox = draw.textbbox((center_x, center_y), testo_vecchio, font=font_prezzo_vecchio, anchor="mm")
+        draw.line([(bbox[0] - 8, center_y), (bbox[2] + 8, center_y)], fill=(211, 47, 47, 255), width=4)
 
-    # D. Percentuale Sconto
+    # --- D. PERCENTUALE SCONTO (Banner Arancione in Basso) ---
     if prodotto["sconto"] > 0:
         testo_sconto = f"-{prodotto['sconto']}%"
-        draw.text((810, 855), testo_sconto, fill="white", font=font_sconto, anchor="mm")
+        draw.text((820, 858), testo_sconto, fill=(255, 255, 255, 255), font=font_sconto, anchor="mm")
 
+    # 4. Salva l'immagine finale
     template.convert("RGB").save(OUTPUT_PATH, "PNG")
     return OUTPUT_PATH
 
@@ -225,7 +249,7 @@ async def main():
             chat = await event.get_chat()
             chat_username = getattr(chat, 'username', '') or ''
             
-            # Controlla in modo sicuro se il messaggio viene dai canali spia
+            # Controlla se il messaggio proviene da uno dei canali spia
             if chat_username.lower() in [c.lower() for c in CANALI_SPIA]:
                 asin = estrai_asin(event.message.text)
                 if asin and not gia_inviato(asin):
