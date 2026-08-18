@@ -23,14 +23,23 @@ TELEGRAM_API_ID = int(os.getenv("TELEGRAM_API_ID", "31134748"))
 TELEGRAM_API_HASH = os.getenv("TELEGRAM_API_HASH", "ba4265cff56d0687c6c5171b47f76e02")
 SESSION_STRING = os.getenv("TELEGRAM_SESSION_STRING", "")
 
-CANALI_SPIA = ["sparky_offerte", "AstroHouse_Casa_Cucina", "ultimaofferta", "offerte5"]
+# Lista Canali Spia ampliata (Generali + Casa + Spesa/Igiene)
+CANALI_SPIA = [
+    "sparky_offerte", 
+    "AstroHouse_Casa_Cucina", 
+    "ultimaofferta", 
+    "offerte5",
+    "OfferteSpesaAmazon",      # Cibo e igiene
+    "offerte_supermercato",    # Casa e prodotti quotidiani
+    "SpesaScontata"            # Cura della persona e casa
+]
 
 BASE_DIR = Path(__file__).resolve().parent
 TEMPLATE_PATH = BASE_DIR / "template.png"
 OUTPUT_PATH = BASE_DIR / "offerta_finale.png"
 DB_PATH = BASE_DIR / "offerte.db"
 
-# NOME ESATTO DEL TUO FONT
+# Nome del tuo file font
 FONT_PATH = BASE_DIR / "Montserrat-Italic-VariableFont_wght.ttf"
 
 bot = Bot(token=TELEGRAM_TOKEN)
@@ -60,7 +69,7 @@ def segna_inviato(asin):
         conn.execute("INSERT OR REPLACE INTO prodotti (asin, inviato_il) VALUES (?, ?)", 
                      (asin, datetime.now().isoformat()))
 
-# --- SCRAPER AMAZON (ANTI-ERRORE) ---
+# --- SCRAPER AMAZON UNIVERSALE (Funziona anche per Cibo/Igiene/Casa) ---
 def estrai_asin(testo):
     match = re.search(r'/(?:dp|gp/product)/([A-Z0-9]{10})', testo)
     return match.group(1) if match else None
@@ -72,33 +81,77 @@ def scarica_dettagli_amazon(asin):
         res = requests.get(url, headers=headers, timeout=12)
         soup = BeautifulSoup(res.text, "html.parser")
         
+        # 1. Titolo
         titolo_elem = soup.find("span", {"id": "productTitle"})
         titolo = titolo_elem.get_text().strip() if titolo_elem else "Prodotto Amazon"
 
-        # Prezzo Attuale
+        # 2. Prezzo Attuale (Tentativi multipli per cibo, spesa e casa)
+        prezzo_attuale = None
+        
+        # Tentativo A: Blocco prezzo standard
         p_elem = soup.find("span", {"class": "a-price", "data-a-size": "xl"}) or soup.find("span", {"class": "a-price", "data-a-size": "l"})
-        if not p_elem: return None
-        prezzo_attuale = p_elem.find("span", class_="a-offscreen").get_text().replace("€", "").strip().replace(".", ",")
-        p_att_num = float(prezzo_attuale.replace('.', '').replace(',', '.'))
+        if p_elem:
+            off_elem = p_elem.find("span", class_="a-offscreen")
+            if off_elem:
+                prezzo_attuale = off_elem.get_text().replace("€", "").strip().replace(".", ",")
 
-        # Prezzo Precedente (Solo se è il prezzo barrato ufficiale)
+        # Tentativo B: Blocco prezzo Apex (usato spesso per prodotti da supermercato)
+        if not prezzo_attuale:
+            p_apex = soup.find("span", class_="apexPriceToPay") or soup.find("div", {"id": "corePrice_feature_div"})
+            if p_apex:
+                off_elem = p_apex.find("span", class_="a-offscreen")
+                if off_elem:
+                    prezzo_attuale = off_elem.get_text().replace("€", "").strip().replace(".", ",")
+
+        # Se non si trova il prezzo, scarta
+        if not prezzo_attuale: 
+            return None
+
+        # Conversione sicura per calcoli
+        p_att_clean = prezzo_attuale.replace(' ', '').replace('\xa0', '')
+        if ',' in p_att_clean and '.' in p_att_clean:
+            p_att_clean = p_att_clean.replace('.', '').replace(',', '.')
+        else:
+            p_att_clean = p_att_clean.replace(',', '.')
+            
+        p_att_num = float(p_att_clean)
+
+        # 3. Prezzo Precedente e Sconto
         sconto = 0
         prezzo_precedente = prezzo_attuale
         p_strike = soup.find("span", class_="a-text-strike")
+        
         if p_strike:
-            val_strike = p_strike.get_text().replace("€", "").strip().replace(".", ",")
-            p_prec_num = float(val_strike.replace('.', '').replace(',', '.'))
+            val_strike = p_strike.get_text().replace("€", "").strip()
+            p_prec_clean = val_strike.replace(' ', '').replace('\xa0', '')
+            if ',' in p_prec_clean and '.' in p_prec_clean:
+                p_prec_clean = p_prec_clean.replace('.', '').replace(',', '.')
+            else:
+                p_prec_clean = p_prec_clean.replace(',', '.')
+                
+            p_prec_num = float(p_prec_clean)
+            
             if p_prec_num > p_att_num:
                 sconto_calc = int(round(((p_prec_num - p_att_num) / p_prec_num) * 100))
                 if 0 < sconto_calc <= 80: # Sanity check anti-errore
-                    prezzo_precedente = val_strike
+                    prezzo_precedente = val_strike.replace(".", ",")
                     sconto = sconto_calc
 
-        img_elem = soup.find("img", {"id": "landingImage"}) or soup.find("img", {"id": "imgBlkFront"})
+        # 4. Immagine Prodotto
+        img_elem = (
+            soup.find("img", {"id": "landingImage"}) or 
+            soup.find("img", {"id": "imgBlkFront"}) or 
+            soup.find("img", {"class": "a-dynamic-image"})
+        )
+        img_url = img_elem["src"] if img_elem else ""
+
         return {
-            "asin": asin, "titolo": titolo, "prezzo_attuale": prezzo_attuale,
+            "asin": asin, 
+            "titolo": titolo, 
+            "prezzo_attuale": prezzo_attuale,
             "prezzo_precedente": prezzo_precedente,
-            "sconto": sconto, "immagine_url": img_elem["src"] if img_elem else ""
+            "sconto": sconto, 
+            "immagine_url": img_url
         }
     except Exception as e:
         print(f"Errore scraping ASIN {asin}: {e}")
@@ -128,7 +181,7 @@ def crea_immagine(prodotto):
 
     draw = ImageDraw.Draw(template)
     
-    # 3. Caricamento Font Personalizzato
+    # 3. Caricamento Font Montserrat
     try:
         font_titolo = ImageFont.truetype(str(FONT_PATH), 26)
         font_prezzo_grande = ImageFont.truetype(str(FONT_PATH), 72)
@@ -186,7 +239,7 @@ async def main():
                 )
                 await bot.send_photo(chat_id=CANALE_CHAT_ID, photo=open(foto, "rb"), caption=didascalia, parse_mode="Markdown")
 
-    print("Bot Il Tarlo del Risparmio avviato...")
+    print("Bot Il Tarlo del Risparmio avviato con successo...")
     await client.run_until_disconnected()
 
 if __name__ == "__main__":
