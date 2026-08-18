@@ -1,5 +1,4 @@
 import asyncio
-import html
 import os
 import re
 import sqlite3
@@ -11,7 +10,7 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 from flask import Flask
-from PIL import Image, ImageDraw, ImageFont, ImageOps
+from PIL import Image, ImageDraw, ImageFont
 from telegram import Bot
 from telethon import TelegramClient, events
 from telethon.sessions import StringSession
@@ -30,6 +29,9 @@ BASE_DIR = Path(__file__).resolve().parent
 TEMPLATE_PATH = BASE_DIR / "template.png"
 OUTPUT_PATH = BASE_DIR / "offerta_finale.png"
 DB_PATH = BASE_DIR / "offerte.db"
+
+# NOME ESATTO DEL TUO FONT
+FONT_PATH = BASE_DIR / "Montserrat-Italic-VariableFont_wght.ttf"
 
 bot = Bot(token=TELEGRAM_TOKEN)
 app = Flask(__name__)
@@ -58,7 +60,7 @@ def segna_inviato(asin):
         conn.execute("INSERT OR REPLACE INTO prodotti (asin, inviato_il) VALUES (?, ?)", 
                      (asin, datetime.now().isoformat()))
 
-# --- SCRAPER AMAZON (INTELLIGENTE) ---
+# --- SCRAPER AMAZON (ANTI-ERRORE) ---
 def estrai_asin(testo):
     match = re.search(r'/(?:dp|gp/product)/([A-Z0-9]{10})', testo)
     return match.group(1) if match else None
@@ -81,30 +83,84 @@ def scarica_dettagli_amazon(asin):
 
         # Prezzo Precedente (Solo se è il prezzo barrato ufficiale)
         sconto = 0
+        prezzo_precedente = prezzo_attuale
         p_strike = soup.find("span", class_="a-text-strike")
         if p_strike:
-            p_prec_num = float(p_strike.get_text().replace("€", "").strip().replace('.', '').replace(',', '.'))
+            val_strike = p_strike.get_text().replace("€", "").strip().replace(".", ",")
+            p_prec_num = float(val_strike.replace('.', '').replace(',', '.'))
             if p_prec_num > p_att_num:
                 sconto_calc = int(round(((p_prec_num - p_att_num) / p_prec_num) * 100))
-                if 0 < sconto_calc <= 80: # Sanity check: no sconti > 80% (errore dati)
+                if 0 < sconto_calc <= 80: # Sanity check anti-errore
+                    prezzo_precedente = val_strike
                     sconto = sconto_calc
 
         img_elem = soup.find("img", {"id": "landingImage"}) or soup.find("img", {"id": "imgBlkFront"})
         return {
             "asin": asin, "titolo": titolo, "prezzo_attuale": prezzo_attuale,
-            "prezzo_precedente": p_strike.get_text().replace("€", "").strip() if p_strike else prezzo_attuale,
+            "prezzo_precedente": prezzo_precedente,
             "sconto": sconto, "immagine_url": img_elem["src"] if img_elem else ""
         }
     except Exception as e:
-        print(f"Errore scraping: {e}")
+        print(f"Errore scraping ASIN {asin}: {e}")
         return None
 
-# --- GRAFICA (PIL) ---
+# --- GENERAZIONE GRAFICA 1080x1080 ---
 def crea_immagine(prodotto):
-    template = Image.open(TEMPLATE_PATH).convert("RGBA").resize((1536, 1536))
+    # 1. Carica e forza la risoluzione a 1080x1080
+    template = Image.open(TEMPLATE_PATH).convert("RGBA").resize((1080, 1080), Image.Resampling.LANCZOS)
+    
+    # 2. Incolla l'immagine del prodotto nel riquadro bianco a sinistra
+    box_x, box_y = 23, 238
+    box_w, box_h = 542, 778
+    
+    if prodotto.get("immagine_url"):
+        try:
+            resp = requests.get(prodotto["immagine_url"], timeout=10)
+            img_prod = Image.open(BytesIO(resp.content)).convert("RGBA")
+            img_prod.thumbnail((box_w - 40, box_h - 40), Image.Resampling.LANCZOS)
+            
+            offset_x = box_x + (box_w - img_prod.width) // 2
+            offset_y = box_y + (box_h - img_prod.height) // 2
+            
+            template.paste(img_prod, (offset_x, offset_y), img_prod)
+        except Exception as e:
+            print(f"[ERRORE INCOLLA IMMAGINE]: {e}")
+
     draw = ImageDraw.Draw(template)
-    # [LOGICA DI DISEGNO RIMANE INVARIATA]
-    # (Inserisci qui il tuo codice di disegno esistente che funziona bene)
+    
+    # 3. Caricamento Font Personalizzato
+    try:
+        font_titolo = ImageFont.truetype(str(FONT_PATH), 26)
+        font_prezzo_grande = ImageFont.truetype(str(FONT_PATH), 72)
+        font_prezzo_vecchio = ImageFont.truetype(str(FONT_PATH), 38)
+        font_sconto = ImageFont.truetype(str(FONT_PATH), 65)
+    except Exception as e:
+        print(f"[WARNING] Impossibile caricare {FONT_PATH.name}: {e}. Uso il font di default.")
+        font_titolo = font_prezzo_grande = font_prezzo_vecchio = font_sconto = ImageFont.load_default()
+
+    # --- A. TITOLO PRODOTTO (Etichetta Verde in alto a destra) ---
+    titolo_breve = prodotto["titolo"][:42] + "..." if len(prodotto["titolo"]) > 42 else prodotto["titolo"]
+    draw.text((760, 320), titolo_breve, fill="white", font=font_titolo, anchor="mm")
+
+    # --- B. PREZZO ATTUALE (Box Arancione) ---
+    testo_prezzo = f"{prodotto['prezzo_attuale']} €"
+    draw.text((765, 555), testo_prezzo, fill="white", font=font_prezzo_grande, anchor="mm")
+
+    # --- C. PREZZO BARRATO (Riquadro Chiaro) ---
+    if prodotto["prezzo_precedente"] and prodotto["prezzo_precedente"] != prodotto["prezzo_attuale"]:
+        testo_vecchio = f"{prodotto['prezzo_precedente']} €"
+        draw.text((765, 720), testo_vecchio, fill="#555555", font=font_prezzo_vecchio, anchor="mm")
+        
+        # Disegna la linea rossa sopra il prezzo vecchio
+        bbox = draw.textbbox((765, 720), testo_vecchio, font=font_prezzo_vecchio, anchor="mm")
+        draw.line([(bbox[0] - 5, 720), (bbox[2] + 5, 720)], fill="#D32F2F", width=4)
+
+    # --- D. PERCENTUALE SCONTO (Banner arancione in basso a destra) ---
+    if prodotto["sconto"] > 0:
+        testo_sconto = f"-{prodotto['sconto']}%"
+        draw.text((810, 855), testo_sconto, fill="white", font=font_sconto, anchor="mm")
+
+    # 4. Salva il file finale
     template.convert("RGB").save(OUTPUT_PATH, "PNG")
     return OUTPUT_PATH
 
@@ -122,14 +178,18 @@ async def main():
             if p:
                 segna_inviato(asin)
                 foto = crea_immagine(p)
-                didascalia = f"📦 {p['titolo']}\n💰 Prezzo: {p['prezzo_attuale']}€\n👉 https://amazon.it/dp/{p['asin']}?tag={AMAZON_TAG}"
-                await bot.send_photo(chat_id=CANALE_CHAT_ID, photo=open(foto, "rb"), caption=didascalia)
+                didascalia = (
+                    f"🪵 **{p['titolo']}**\n\n"
+                    f"💰 **Prezzo speciale:** {p['prezzo_attuale']} €\n"
+                    f"👉 **Acquista ora:** https://amazon.it/dp/{p['asin']}?tag={AMAZON_TAG}\n\n"
+                    f"#IlTarloDelRisparmio"
+                )
+                await bot.send_photo(chat_id=CANALE_CHAT_ID, photo=open(foto, "rb"), caption=didascalia, parse_mode="Markdown")
 
-    print("Bot avviato...")
+    print("Bot Il Tarlo del Risparmio avviato...")
     await client.run_until_disconnected()
 
 if __name__ == "__main__":
-    # Flask per mantenere attivo Render
     threading.Thread(target=lambda: app.run(host="0.0.0.0", port=10000), daemon=True).start()
     asyncio.run(main())
     
