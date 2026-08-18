@@ -23,15 +23,14 @@ TELEGRAM_API_ID = int(os.getenv("TELEGRAM_API_ID", "31134748"))
 TELEGRAM_API_HASH = os.getenv("TELEGRAM_API_HASH", "ba4265cff56d0687c6c5171b47f76e02")
 SESSION_STRING = os.getenv("TELEGRAM_SESSION_STRING", "")
 
-# Lista Canali Spia ampliata (Generali + Casa + Spesa/Igiene)
+# Lista Canali Spia (Senza username errati che causavano il crash)
 CANALI_SPIA = [
     "sparky_offerte", 
     "AstroHouse_Casa_Cucina", 
     "ultimaofferta", 
     "offerte5",
-    "OfferteSpesaAmazon",      # Cibo e igiene
-    "offerte_supermercato",    # Casa e prodotti quotidiani
-    "SpesaScontata"            # Cura della persona e casa
+    "offerte_supermercato", 
+    "SpesaScontata"
 ]
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -69,8 +68,10 @@ def segna_inviato(asin):
         conn.execute("INSERT OR REPLACE INTO prodotti (asin, inviato_il) VALUES (?, ?)", 
                      (asin, datetime.now().isoformat()))
 
-# --- SCRAPER AMAZON UNIVERSALE (Funziona anche per Cibo/Igiene/Casa) ---
+# --- SCRAPER AMAZON UNIVERSALE (Supporta Cibo/Igiene/Casa) ---
 def estrai_asin(testo):
+    if not testo:
+        return None
     match = re.search(r'/(?:dp|gp/product)/([A-Z0-9]{10})', testo)
     return match.group(1) if match else None
 
@@ -85,7 +86,7 @@ def scarica_dettagli_amazon(asin):
         titolo_elem = soup.find("span", {"id": "productTitle"})
         titolo = titolo_elem.get_text().strip() if titolo_elem else "Prodotto Amazon"
 
-        # 2. Prezzo Attuale (Tentativi multipli per cibo, spesa e casa)
+        # 2. Prezzo Attuale (Tentativi multipli per prodotti Spesa/Casa)
         prezzo_attuale = None
         
         # Tentativo A: Blocco prezzo standard
@@ -95,7 +96,7 @@ def scarica_dettagli_amazon(asin):
             if off_elem:
                 prezzo_attuale = off_elem.get_text().replace("€", "").strip().replace(".", ",")
 
-        # Tentativo B: Blocco prezzo Apex (usato spesso per prodotti da supermercato)
+        # Tentativo B: Blocco prezzo Apex (usato per cibo e igiene)
         if not prezzo_attuale:
             p_apex = soup.find("span", class_="apexPriceToPay") or soup.find("div", {"id": "corePrice_feature_div"})
             if p_apex:
@@ -103,11 +104,11 @@ def scarica_dettagli_amazon(asin):
                 if off_elem:
                     prezzo_attuale = off_elem.get_text().replace("€", "").strip().replace(".", ",")
 
-        # Se non si trova il prezzo, scarta
+        # Se non trova il prezzo, scarta
         if not prezzo_attuale: 
             return None
 
-        # Conversione sicura per calcoli
+        # Conversione in numero per calcoli
         p_att_clean = prezzo_attuale.replace(' ', '').replace('\xa0', '')
         if ',' in p_att_clean and '.' in p_att_clean:
             p_att_clean = p_att_clean.replace('.', '').replace(',', '.')
@@ -133,7 +134,7 @@ def scarica_dettagli_amazon(asin):
             
             if p_prec_num > p_att_num:
                 sconto_calc = int(round(((p_prec_num - p_att_num) / p_prec_num) * 100))
-                if 0 < sconto_calc <= 80: # Sanity check anti-errore
+                if 0 < sconto_calc <= 80:
                     prezzo_precedente = val_strike.replace(".", ",")
                     sconto = sconto_calc
 
@@ -159,10 +160,8 @@ def scarica_dettagli_amazon(asin):
 
 # --- GENERAZIONE GRAFICA 1080x1080 ---
 def crea_immagine(prodotto):
-    # 1. Carica e forza la risoluzione a 1080x1080
     template = Image.open(TEMPLATE_PATH).convert("RGBA").resize((1080, 1080), Image.Resampling.LANCZOS)
     
-    # 2. Incolla l'immagine del prodotto nel riquadro bianco a sinistra
     box_x, box_y = 23, 238
     box_w, box_h = 542, 778
     
@@ -181,7 +180,6 @@ def crea_immagine(prodotto):
 
     draw = ImageDraw.Draw(template)
     
-    # 3. Caricamento Font Montserrat
     try:
         font_titolo = ImageFont.truetype(str(FONT_PATH), 26)
         font_prezzo_grande = ImageFont.truetype(str(FONT_PATH), 72)
@@ -191,29 +189,27 @@ def crea_immagine(prodotto):
         print(f"[WARNING] Impossibile caricare {FONT_PATH.name}: {e}. Uso il font di default.")
         font_titolo = font_prezzo_grande = font_prezzo_vecchio = font_sconto = ImageFont.load_default()
 
-    # --- A. TITOLO PRODOTTO (Etichetta Verde in alto a destra) ---
+    # A. Titolo Prodotto
     titolo_breve = prodotto["titolo"][:42] + "..." if len(prodotto["titolo"]) > 42 else prodotto["titolo"]
     draw.text((760, 320), titolo_breve, fill="white", font=font_titolo, anchor="mm")
 
-    # --- B. PREZZO ATTUALE (Box Arancione) ---
+    # B. Prezzo Attuale
     testo_prezzo = f"{prodotto['prezzo_attuale']} €"
     draw.text((765, 555), testo_prezzo, fill="white", font=font_prezzo_grande, anchor="mm")
 
-    # --- C. PREZZO BARRATO (Riquadro Chiaro) ---
+    # C. Prezzo Barrato
     if prodotto["prezzo_precedente"] and prodotto["prezzo_precedente"] != prodotto["prezzo_attuale"]:
         testo_vecchio = f"{prodotto['prezzo_precedente']} €"
         draw.text((765, 720), testo_vecchio, fill="#555555", font=font_prezzo_vecchio, anchor="mm")
         
-        # Disegna la linea rossa sopra il prezzo vecchio
         bbox = draw.textbbox((765, 720), testo_vecchio, font=font_prezzo_vecchio, anchor="mm")
         draw.line([(bbox[0] - 5, 720), (bbox[2] + 5, 720)], fill="#D32F2F", width=4)
 
-    # --- D. PERCENTUALE SCONTO (Banner arancione in basso a destra) ---
+    # D. Percentuale Sconto
     if prodotto["sconto"] > 0:
         testo_sconto = f"-{prodotto['sconto']}%"
         draw.text((810, 855), testo_sconto, fill="white", font=font_sconto, anchor="mm")
 
-    # 4. Salva il file finale
     template.convert("RGB").save(OUTPUT_PATH, "PNG")
     return OUTPUT_PATH
 
@@ -223,21 +219,29 @@ async def main():
     client = TelegramClient(StringSession(SESSION_STRING), TELEGRAM_API_ID, TELEGRAM_API_HASH)
     await client.start()
 
-    @client.on(events.NewMessage(chats=CANALI_SPIA))
+    @client.on(events.NewMessage())
     async def handler(event):
-        asin = estrai_asin(event.message.text)
-        if asin and not gia_inviato(asin):
-            p = await asyncio.to_thread(scarica_dettagli_amazon, asin)
-            if p:
-                segna_inviato(asin)
-                foto = crea_immagine(p)
-                didascalia = (
-                    f"🪵 **{p['titolo']}**\n\n"
-                    f"💰 **Prezzo speciale:** {p['prezzo_attuale']} €\n"
-                    f"👉 **Acquista ora:** https://amazon.it/dp/{p['asin']}?tag={AMAZON_TAG}\n\n"
-                    f"#IlTarloDelRisparmio"
-                )
-                await bot.send_photo(chat_id=CANALE_CHAT_ID, photo=open(foto, "rb"), caption=didascalia, parse_mode="Markdown")
+        try:
+            chat = await event.get_chat()
+            chat_username = getattr(chat, 'username', '') or ''
+            
+            # Controlla in modo sicuro se il messaggio viene dai canali spia
+            if chat_username.lower() in [c.lower() for c in CANALI_SPIA]:
+                asin = estrai_asin(event.message.text)
+                if asin and not gia_inviato(asin):
+                    p = await asyncio.to_thread(scarica_dettagli_amazon, asin)
+                    if p:
+                        segna_inviato(asin)
+                        foto = crea_immagine(p)
+                        didascalia = (
+                            f"🪵 **{p['titolo']}**\n\n"
+                            f"💰 **Prezzo speciale:** {p['prezzo_attuale']} €\n"
+                            f"👉 **Acquista ora:** https://amazon.it/dp/{p['asin']}?tag={AMAZON_TAG}\n\n"
+                            f"#IlTarloDelRisparmio"
+                        )
+                        await bot.send_photo(chat_id=CANALE_CHAT_ID, photo=open(foto, "rb"), caption=didascalia, parse_mode="Markdown")
+        except Exception as e:
+            print(f"Errore gestione messaggio: {e}")
 
     print("Bot Il Tarlo del Risparmio avviato con successo...")
     await client.run_until_disconnected()
