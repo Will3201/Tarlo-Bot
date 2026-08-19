@@ -189,19 +189,19 @@ def scarica_dettagli_amazon(asin):
         print(f"Errore scraping ASIN {asin}: {e}")
         return None
 
-# --- GENERAZIONE GRAFICA POSIZIONATA AL MILLIMETRO ---
+# --- GENERAZIONE GRAFICA (RICAMPIATA E CALIBRATA) ---
 def crea_immagine(prodotto):
     template = Image.open(TEMPLATE_PATH).convert("RGBA").resize((1080, 1080), Image.Resampling.LANCZOS)
     
-    # Riquadro bianco prodotto a sinistra
-    box_x, box_y = 23, 238
-    box_w, box_h = 542, 778
+    # 1. Foto prodotto a sinistra nel quadrato bianco
+    box_x, box_y = 35, 240
+    box_w, box_h = 510, 770
     
     if prodotto.get("immagine_url"):
         try:
             resp = requests.get(prodotto["immagine_url"], timeout=10)
             img_prod = Image.open(BytesIO(resp.content)).convert("RGBA")
-            img_prod.thumbnail((box_w - 60, box_h - 60), Image.Resampling.LANCZOS)
+            img_prod.thumbnail((box_w - 40, box_h - 40), Image.Resampling.LANCZOS)
             
             offset_x = box_x + (box_w - img_prod.width) // 2
             offset_y = box_y + (box_h - img_prod.height) // 2
@@ -214,24 +214,24 @@ def crea_immagine(prodotto):
     font_file = carica_font_extra_bold()
     
     try:
-        font_titolo = ImageFont.truetype(font_file, 22)        
-        font_prezzo_grande = ImageFont.truetype(font_file, 70) 
-        font_prezzo_vecchio = ImageFont.truetype(font_file, 38)
-        font_sconto = ImageFont.truetype(font_file, 62)        
+        font_titolo = ImageFont.truetype(font_file, 20)          # Titolo nel cartellino verde
+        font_prezzo_grande = ImageFont.truetype(font_file, 68)   # Prezzo scontato nel tasto arancio
+        font_prezzo_vecchio = ImageFont.truetype(font_file, 34)  # Prezzo originale nel box bianco
+        font_sconto = ImageFont.truetype(font_file, 75)          # Sconto in percentuale in basso
     except Exception as e:
-        print(f"[WARNING] Fallback su font default: {e}")
         font_titolo = font_prezzo_grande = font_prezzo_vecchio = font_sconto = ImageFont.load_default()
 
-    X_CENTRO = 765
+    # Asse X centrale per gli elementi a destra
+    X_CENTRO = 760
 
-    # 1. TITOLO PRODOTTO (Cartellino Verde - Centro Y: 380)
-    titolo_breve = prodotto["titolo"][:45]
+    # A. TITOLO PRODOTTO (Cartellino verde in alto - Y: 385)
+    titolo_breve = prodotto["titolo"][:42]
     righe = textwrap.wrap(titolo_breve, width=18)[:3]
-    start_y = 380 - (len(righe) * 11)
+    start_y = 385 - (len(righe) * 11)
     
     for i, riga in enumerate(righe):
         draw.text(
-            (X_CENTRO, start_y + (i * 24)),
+            (X_CENTRO, start_y + (i * 22)),
             riga,
             fill=(255, 255, 255, 255),
             stroke_width=1,
@@ -240,7 +240,7 @@ def crea_immagine(prodotto):
             anchor="mm"
         )
 
-    # 2. PREZZO ATTUALE SCONTATO (Rettangolone Arancio - Centro Y: 488)
+    # B. PREZZO ATTUALE SCONTATO (Tasto Arancione Grande - Y: 488)
     testo_prezzo = f"{prodotto['prezzo_attuale']} €"
     draw.text(
         (X_CENTRO, 488),
@@ -252,33 +252,33 @@ def crea_immagine(prodotto):
         anchor="mm"
     )
 
-    # 3. PREZZO PRECEDENTE BARRATO (Rettangolo Bianco - Centro Y: 572)
+    # C. PREZZO VECCHIO BARRATO (Box Bianco - Y: 560)
     if prodotto.get("prezzo_precedente"):
         testo_vecchio = f"{prodotto['prezzo_precedente']} €"
         draw.text(
-            (X_CENTRO, 572),
+            (X_CENTRO, 560),
             testo_vecchio,
-            fill=(40, 40, 40, 255),
+            fill=(50, 50, 50, 255),
             font=font_prezzo_vecchio,
             anchor="mm"
         )
         
-        # Linea rossa di sbarramento disegnata sul testo
-        bbox = draw.textbbox((X_CENTRO, 572), testo_vecchio, font=font_prezzo_vecchio, anchor="mm")
+        # Linea barrata rossa centrata sul testo
+        bbox = draw.textbbox((X_CENTRO, 560), testo_vecchio, font=font_prezzo_vecchio, anchor="mm")
         draw.line(
             [(bbox[0] - 6, bbox[1] + (bbox[3]-bbox[1])/2), (bbox[2] + 6, bbox[1] + (bbox[3]-bbox[1])/2)],
             fill=(220, 30, 30, 255),
             width=3
         )
 
-    # 4. PERCENTUALE SCONTO (Banner arancio in basso - Centro Y: 648)
+    # D. PERCENTUALE SCONTO (A sinistra del simbolo % gigante in basso - Y: 650, X: 660)
     if prodotto.get("sconto") and prodotto["sconto"] > 0:
         testo_sconto = f"-{prodotto['sconto']}%"
         draw.text(
-            (X_CENTRO, 648),
+            (660, 650),
             testo_sconto,
             fill=(255, 255, 255, 255),
-            stroke_width=2,
+            stroke_width=3,
             stroke_fill=(180, 60, 0, 255),
             font=font_sconto,
             anchor="mm"
