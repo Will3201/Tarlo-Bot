@@ -1,266 +1,138 @@
-import asyncio
 import os
-import re
-import sqlite3
 import textwrap
-import threading
-from datetime import datetime, timedelta
-from io import BytesIO
-from pathlib import Path
-
-import requests
-from bs4 import BeautifulSoup
-from flask import Flask
+import urllib.request
 from PIL import Image, ImageDraw, ImageFont
-from telegram import Bot
-from telethon import TelegramClient, events
-from telethon.sessions import StringSession
 
-# --- CONFIGURAZIONE ---
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "8670212259:AAFn_21_abtz4vL4WQ5TpekYby-hCnAjzeU")
-CANALE_CHAT_ID = os.getenv("CANALE_CHAT_ID", "@TarloDelRisparmio")
-AMAZON_TAG = os.getenv("AMAZON_TAG", "tarlodelrispa-21")
-TELEGRAM_API_ID = int(os.getenv("TELEGRAM_API_ID", "31134748"))
-TELEGRAM_API_HASH = os.getenv("TELEGRAM_API_HASH", "ba4265cff56d0687c6c5171b47f76e02")
-SESSION_STRING = os.getenv("TELEGRAM_SESSION_STRING", "")
+def scarica_font_se_mancante():
+    """Scarica automaticamente il font Montserrat ExtraBold se non è presente."""
+    os.makedirs("fonts", exist_ok=True)
+    font_path = os.path.join("fonts", "Montserrat-ExtraBold.ttf")
+    
+    if not os.path.exists(font_path):
+        url = "https://github.com/google/fonts/raw/main/ofl/montserrat/Montserrat-ExtraBold.ttf"
+        try:
+            urllib.request.urlretrieve(url, font_path)
+            print("Font Montserrat-ExtraBold scaricato con successo!")
+        except Exception as e:
+            print(f"Errore download font: {e}")
+            font_path = None
+            
+    return font_path
 
-# Porta per Render
-PORT = int(os.getenv("PORT", 10000))
+def crea_grafica_offerta_perfetta(
+    sfondo_path,
+    immagine_prodotto_path,
+    titolo_prodotto,
+    prezzo_attuale,
+    prezzo_originale=None,
+    percentuale_sconto=None,
+    output_path="offerta_corretta.png"
+):
+    # 1. Apri lo sfondo
+    if os.path.exists(sfondo_path):
+        img = Image.open(sfondo_path).convert("RGBA")
+    else:
+        img = Image.new("RGBA", (1080, 1080), (15, 60, 30, 255))
+        
+    draw = ImageDraw.Draw(img)
 
-# Lista Canali Spia
-CANALI_SPIA = [
-    "sparky_offerte", 
-    "AstroHouse_Casa_Cucina", 
-    "ultimaofferta", 
-    "offerte5",
-    "offerte_supermercato", 
-    "SpesaScontata"
-]
-
-BASE_DIR = Path(__file__).resolve().parent
-TEMPLATE_PATH = BASE_DIR / "template.png"
-OUTPUT_PATH = BASE_DIR / "offerta_finale.png"
-DB_PATH = BASE_DIR / "offerte.db"
-
-# Nome del tuo file font
-FONT_PATH = BASE_DIR / "Montserrat-Italic-VariableFont_wght.ttf"
-
-bot = Bot(token=TELEGRAM_TOKEN)
-app = Flask(__name__)
-
-# --- WEB SERVER PER RENDER ---
-@app.route("/")
-def home():
-    return "Bot Online", 200
-
-# --- DATABASE ---
-def init_db():
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS prodotti (
-                asin TEXT PRIMARY KEY,
-                inviato_il DATETIME
-            )
-        """)
-
-def gia_inviato(asin):
-    with sqlite3.connect(DB_PATH) as conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT inviato_il FROM prodotti WHERE asin = ?", (asin,))
-        row = cursor.fetchone()
-        if not row: return False
-        inviato_dt = datetime.fromisoformat(row[0])
-        return datetime.now() - inviato_dt < timedelta(hours=24)
-
-def segna_inviato(asin):
-    with sqlite3.connect(DB_PATH) as conn:
-        conn.execute("INSERT OR REPLACE INTO prodotti (asin, inviato_il) VALUES (?, ?)", 
-                     (asin, datetime.now().isoformat()))
-
-# --- SCRAPER AMAZON UNIVERSALE ---
-def estrai_asin(testo):
-    if not testo:
-        return None
-    match = re.search(r'/(?:dp|gp/product)/([A-Z0-9]{10})', testo)
-    return match.group(1) if match else None
-
-def scarica_dettagli_amazon(asin):
-    url = f"https://www.amazon.it/dp/{asin}"
-    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+    # 2. Carica il Font ExtraBold (Download automatico)
+    font_path = scarica_font_se_mancante()
+    
     try:
-        res = requests.get(url, headers=headers, timeout=12)
-        soup = BeautifulSoup(res.text, "html.parser")
+        font_titolo = ImageFont.truetype(font_path, 34)
+        font_prezzo = ImageFont.truetype(font_path, 85)     # Prezzo grande
+        font_barrato = ImageFont.truetype(font_path, 50)    # Prezzo vecchio
+        font_sconto = ImageFont.truetype(font_path, 95)     # Sconto %
+    except Exception:
+        font_titolo = font_prezzo = font_barrato = font_sconto = ImageFont.load_default()
+
+    # 3. Inserisci l'immagine del prodotto a sinistra
+    if os.path.exists(immagine_prodotto_path):
+        prod_img = Image.open(immagine_prodotto_path).convert("RGBA")
+        prod_img.thumbnail((380, 380), Image.Resampling.LANCZOS)
         
-        titolo_elem = soup.find("span", {"id": "productTitle"})
-        titolo = titolo_elem.get_text().strip() if titolo_elem else "Prodotto Amazon"
+        p_w, p_h = prod_img.size
+        pos_x = int(255 - p_w / 2)
+        pos_y = int(520 - p_h / 2)
+        img.paste(prod_img, (pos_x, pos_y), prod_img)
 
-        prezzo_attuale = None
-        p_elem = soup.find("span", {"class": "a-price", "data-a-size": "xl"}) or soup.find("span", {"class": "a-price", "data-a-size": "l"})
-        if p_elem:
-            off_elem = p_elem.find("span", class_="a-offscreen")
-            if off_elem:
-                prezzo_attuale = off_elem.get_text().replace("€", "").strip().replace(".", ",")
+    # Coordinata X centrale per tutti gli elementi a destra
+    X_CENTRO = 660  
 
-        if not prezzo_attuale:
-            p_apex = soup.find("span", class_="apexPriceToPay") or soup.find("div", {"id": "corePrice_feature_div"})
-            if p_apex:
-                off_elem = p_apex.find("span", class_="a-offscreen")
-                if off_elem:
-                    prezzo_attuale = off_elem.get_text().replace("€", "").strip().replace(".", ",")
-
-        if not prezzo_attuale: 
-            return None
-
-        p_att_clean = prezzo_attuale.replace(' ', '').replace('\xa0', '')
-        if ',' in p_att_clean and '.' in p_att_clean:
-            p_att_clean = p_att_clean.replace('.', '').replace(',', '.')
-        else:
-            p_att_clean = p_att_clean.replace(',', '.')
-            
-        p_att_num = float(p_att_clean)
-
-        sconto = 0
-        prezzo_precedente = prezzo_attuale
-        p_strike = soup.find("span", class_="a-text-strike")
-        
-        if p_strike:
-            val_strike = p_strike.get_text().replace("€", "").strip()
-            p_prec_clean = val_strike.replace(' ', '').replace('\xa0', '')
-            if ',' in p_prec_clean and '.' in p_prec_clean:
-                p_prec_clean = p_prec_clean.replace('.', '').replace(',', '.')
-            else:
-                p_prec_clean = p_prec_clean.replace(',', '.')
-                
-            p_prec_num = float(p_prec_clean)
-            
-            if p_prec_num > p_att_num:
-                sconto_calc = int(round(((p_prec_num - p_att_num) / p_prec_num) * 100))
-                if 0 < sconto_calc <= 80:
-                    prezzo_precedente = val_strike.replace(".", ",")
-                    sconto = sconto_calc
-
-        img_elem = (
-            soup.find("img", {"id": "landingImage"}) or 
-            soup.find("img", {"id": "imgBlkFront"}) or 
-            soup.find("img", {"class": "a-dynamic-image"})
+    # 4. TITOLO SUL CARTELLINO VERDE (Testo Bianco con contorno sottile per massima nitidezza)
+    righe_titolo = textwrap.wrap(titolo_prodotto, width=20)[:4]
+    start_y = 410 - (len(righe_titolo) * 18)
+    
+    for i, riga in enumerate(righe_titolo):
+        draw.text(
+            (X_CENTRO, start_y + (i * 38)),
+            riga,
+            fill=(255, 255, 255, 255),
+            stroke_width=1,
+            stroke_fill=(0, 0, 0, 100),  # Lieve ombreggiatura nera per staccare dal verde
+            font=font_titolo,
+            anchor="mm"
         )
-        img_url = img_elem["src"] if img_elem else ""
 
-        return {
-            "asin": asin, 
-            "titolo": titolo, 
-            "prezzo_attuale": prezzo_attuale,
-            "prezzo_precedente": prezzo_precedente,
-            "sconto": sconto, 
-            "immagine_url": img_url
-        }
-    except Exception as e:
-        print(f"Errore scraping ASIN {asin}: {e}")
-        return None
+    # 5. PREZZO SPECIALE (Box Arancione - Grassetto e Bordo Chiaro)
+    testo_prezzo = f"{prezzo_attuale:.2f} €".replace(".", ",")
+    draw.text(
+        (X_CENTRO, 515),
+        testo_prezzo,
+        fill=(255, 255, 255, 255),
+        stroke_width=2,
+        stroke_fill=(230, 100, 0, 255), # Bordo arancione scuro per dare l'effetto 3D
+        font=font_prezzo,
+        anchor="mm"
+    )
 
-# --- GENERAZIONE GRAFICA ---
-def crea_immagine(prodotto):
-    template = Image.open(TEMPLATE_PATH).convert("RGBA").resize((1080, 1080), Image.Resampling.LANCZOS)
-    
-    box_x, box_y = 23, 238
-    box_w, box_h = 542, 778
-    
-    if prodotto.get("immagine_url"):
-        try:
-            resp = requests.get(prodotto["immagine_url"], timeout=10)
-            img_prod = Image.open(BytesIO(resp.content)).convert("RGBA")
-            img_prod.thumbnail((box_w - 60, box_h - 60), Image.Resampling.LANCZOS)
-            
-            offset_x = box_x + (box_w - img_prod.width) // 2
-            offset_y = box_y + (box_h - img_prod.height) // 2
-            
-            template.paste(img_prod, (offset_x, offset_y), img_prod)
-        except Exception as e:
-            print(f"[ERRORE INCOLLA IMMAGINE]: {e}")
-
-    draw = ImageDraw.Draw(template)
-    
-    # Caricamento Font in modo sicuro
-    try:
-        font_titolo = ImageFont.truetype(str(FONT_PATH), 28)
-        font_prezzo_grande = ImageFont.truetype(str(FONT_PATH), 75)
-        font_prezzo_vecchio = ImageFont.truetype(str(FONT_PATH), 38)
-        font_sconto = ImageFont.truetype(str(FONT_PATH), 60)
+    # 6. PREZZO BARRATO (Box Chiaro)
+    if prezzo_originale:
+        testo_barrato = f"{prezzo_originale:.2f} €".replace(".", ",")
+        draw.text(
+            (X_CENTRO, 578),
+            testo_barrato,
+            fill=(20, 20, 20, 255),  # Nero intenso
+            stroke_width=1,
+            stroke_fill=(0, 0, 0, 255),
+            font=font_barrato,
+            anchor="mm"
+        )
         
-        try:
-            font_titolo.set_variation_by_name('Bold')
-            font_prezzo_grande.set_variation_by_name('Bold')
-            font_prezzo_vecchio.set_variation_by_name('Bold')
-            font_sconto.set_variation_by_name('Bold')
-        except Exception:
-            pass
-    except Exception as e:
-        print(f"[WARNING] Impossibile caricare {FONT_PATH.name}: {e}")
-        font_titolo = font_prezzo_grande = font_prezzo_vecchio = font_sconto = ImageFont.load_default()
+        # Riga rossa marcata di sbarramento
+        bbox = draw.textbbox((X_CENTRO, 578), testo_barrato, font=font_barrato, anchor="mm")
+        draw.line(
+            [(bbox[0] - 8, bbox[1] + (bbox[3]-bbox[1])/2), (bbox[2] + 8, bbox[1] + (bbox[3]-bbox[1])/2)],
+            fill=(220, 30, 30, 255),
+            width=5
+        )
 
-    # A. Titolo Prodotto
-    titolo_pulito = prodotto["titolo"][:60]
-    righe = textwrap.wrap(titolo_pulito, width=20)
-    y_titolo = 310 - (len(righe) * 15)
-    for riga in righe[:3]:
-        draw.text((720, y_titolo), riga, fill=(255, 255, 255, 255), font=font_titolo, anchor="mm")
-        y_titolo += 34
+    # 7. PERCENTUALE SCONTO (Banner Arancione In Basso)
+    if percentuale_sconto:
+        testo_sconto = f"-{abs(percentuale_sconto)}%"
+        draw.text(
+            (X_CENTRO, 628),
+            testo_sconto,
+            fill=(255, 255, 255, 255),
+            stroke_width=2,
+            stroke_fill=(200, 70, 0, 255),
+            font=font_sconto,
+            anchor="mm"
+        )
 
-    # B. Prezzo Attuale
-    testo_prezzo = f"{prodotto['prezzo_attuale']} €"
-    draw.text((765, 550), testo_prezzo, fill=(255, 255, 255, 255), font=font_prezzo_grande, anchor="mm")
+    img.save(output_path, "PNG")
+    print(f"Immagine generata con successo: {output_path}")
 
-    # C. Prezzo Barrato
-    if prodotto["prezzo_precedente"] and prodotto["prezzo_precedente"] != prodotto["prezzo_attuale"]:
-        testo_vecchio = f"{prodotto['prezzo_precedente']} €"
-        center_x, center_y = 765, 718
-        
-        draw.text((center_x, center_y), testo_vecchio, fill=(100, 100, 100, 255), font=font_prezzo_vecchio, anchor="mm")
-        bbox = draw.textbbox((center_x, center_y), testo_vecchio, font=font_prezzo_vecchio, anchor="mm")
-        draw.line([(bbox[0] - 8, center_y), (bbox[2] + 8, center_y)], fill=(211, 47, 47, 255), width=4)
-
-    # D. Percentuale Sconto
-    if prodotto["sconto"] > 0:
-        testo_sconto = f"-{prodotto['sconto']}%"
-        draw.text((820, 858), testo_sconto, fill=(255, 255, 255, 255), font=font_sconto, anchor="mm")
-
-    template.convert("RGB").save(OUTPUT_PATH, "PNG")
-    return OUTPUT_PATH
-
-# --- BOT TELEGRAM ---
-async def main():
-    init_db()
-    client = TelegramClient(StringSession(SESSION_STRING), TELEGRAM_API_ID, TELEGRAM_API_HASH)
-    await client.start()
-
-    @client.on(events.NewMessage())
-    async def handler(event):
-        try:
-            chat = await event.get_chat()
-            chat_username = getattr(chat, 'username', '') or ''
-            
-            if chat_username.lower() in [c.lower() for c in CANALI_SPIA]:
-                asin = estrai_asin(event.message.text)
-                if asin and not gia_inviato(asin):
-                    p = await asyncio.to_thread(scarica_dettagli_amazon, asin)
-                    if p:
-                        segna_inviato(asin)
-                        foto = crea_immagine(p)
-                        didascalia = (
-                            f"🪵 **{p['titolo']}**\n\n"
-                            f"💰 **Prezzo speciale:** {p['prezzo_attuale']} €\n"
-                            f"👉 **Acquista ora:** https://amazon.it/dp/{p['asin']}?tag={AMAZON_TAG}\n\n"
-                            f"#IlTarloDelRisparmio"
-                        )
-                        await bot.send_photo(chat_id=CANALE_CHAT_ID, photo=open(foto, "rb"), caption=didascalia, parse_mode="Markdown")
-        except Exception as e:
-            print(f"Errore gestione messaggio: {e}")
-
-    print("Bot Il Tarlo del Risparmio avviato...")
-    await client.run_until_disconnected()
-
+# Esempio di test
 if __name__ == "__main__":
-    # Avvia Flask sulla porta assegnata da Render
-    threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT), daemon=True).start()
-    asyncio.run(main())
+    crea_grafica_offerta_perfetta(
+        sfondo_path="template.png",
+        immagine_prodotto_path="prodotto.png",
+        titolo_prodotto="Lefant M1 Robot Aspirapolvere Lavapavimenti 5500Pa",
+        prezzo_attuale=119.98,
+        prezzo_originale=169.00,
+        percentuale_sconto=30,
+        output_path="offerta_finale.png"
+    )
     
