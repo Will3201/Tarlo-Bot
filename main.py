@@ -97,12 +97,12 @@ def estrai_asin(testo):
     if not testo:
         return None
         
-    # 1. Cerca ASIN diretto (es. amazon.it/dp/B000000000)
+    # 1. Cerca ASIN diretto
     match = re.search(r'/(?:dp|gp/product)/([A-Z0-9]{10})', testo)
     if match:
         return match.group(1)
         
-    # 2. Se trova un link corto (amzn.to, bit.ly, ecc.), segue il reindirizzamento
+    # 2. Reindirizzamento link corti (amzn.to, bit.ly, ecc.)
     urls = re.findall(r'https?://[^\s]+', testo)
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
     
@@ -192,11 +192,11 @@ def scarica_dettagli_amazon(asin):
         print(f"Errore scraping ASIN {asin}: {e}")
         return None
 
-# --- GENERAZIONE GRAFICA CENTRATA ---
+# --- GENERAZIONE GRAFICA CENTRATA SU TEMPLATE 1080x1080 ---
 def crea_immagine(prodotto):
     template = Image.open(TEMPLATE_PATH).convert("RGBA").resize((1080, 1080), Image.Resampling.LANCZOS)
     
-    # Riquadro immagine prodotto a sinistra
+    # Riquadro bianco prodotto a sinistra
     box_x, box_y = 23, 238
     box_w, box_h = 542, 778
     
@@ -217,25 +217,25 @@ def crea_immagine(prodotto):
     font_file = carica_font_extra_bold()
     
     try:
-        font_titolo = ImageFont.truetype(font_file, 24)        # Più piccolo per stare nell'etichetta verde
-        font_prezzo_grande = ImageFont.truetype(font_file, 75) # Prezzo principale
-        font_prezzo_vecchio = ImageFont.truetype(font_file, 42)# Prezzo barrato
-        font_sconto = ImageFont.truetype(font_file, 70)        # Percentuale sconto
+        font_titolo = ImageFont.truetype(font_file, 24)        # Titolo etichetta verde
+        font_prezzo_grande = ImageFont.truetype(font_file, 85) # Prezzo scontato (Rettangolo arancio)
+        font_prezzo_vecchio = ImageFont.truetype(font_file, 45)# Prezzo originale (Box bianco)
+        font_sconto = ImageFont.truetype(font_file, 75)        # Sconto % (Banner in basso)
     except Exception as e:
         print(f"[WARNING] Fallback su font default: {e}")
         font_titolo = font_prezzo_grande = font_prezzo_vecchio = font_sconto = ImageFont.load_default()
 
-    # Coordinata X centrale esatta per tutti i testi del lato destro
+    # Asse X centrale per la colonna dei prezzi a destra
     X_CENTRO = 765
 
-    # 1. TITOLO PRODOTTO (Cartellino Verde - Y: 405)
-    titolo_breve = prodotto["titolo"][:45]  # Tronca il titolo per farlo entrare benissimo
-    righe = textwrap.wrap(titolo_breve, width=18)[:3] # Max 3 righe
-    start_y = 405 - (len(righe) * 12)
+    # 1. TITOLO PRODOTTO (Cartellino Verde - Centro Y: 370)
+    titolo_breve = prodotto["titolo"][:45]
+    righe = textwrap.wrap(titolo_breve, width=18)[:3]
+    start_y = 370 - (len(righe) * 12)
     
     for i, riga in enumerate(righe):
         draw.text(
-            (X_CENTRO, start_y + (i * 28)),
+            (X_CENTRO, start_y + (i * 26)),
             riga,
             fill=(255, 255, 255, 255),
             stroke_width=1,
@@ -244,42 +244,42 @@ def crea_immagine(prodotto):
             anchor="mm"
         )
 
-    # 2. PREZZO ATTUALE (Box Arancione Grande - Y: 500)
+    # 2. PREZZO ATTUALE SCONTATO (Rettangolone Arancio - Centro Y: 575)
     testo_prezzo = f"{prodotto['prezzo_attuale']} €"
     draw.text(
-        (X_CENTRO, 500),
+        (X_CENTRO, 575),
         testo_prezzo,
         fill=(255, 255, 255, 255),
         stroke_width=2,
-        stroke_fill=(200, 80, 0, 255),
+        stroke_fill=(180, 60, 0, 255),
         font=font_prezzo_grande,
         anchor="mm"
     )
 
-    # 3. PREZZO BARRATO (Box Bianco - Y: 572)
+    # 3. PREZZO PRECEDENTE BARRATO (Rettangolo Bianco - Centro Y: 730)
     if prodotto.get("prezzo_precedente"):
         testo_vecchio = f"{prodotto['prezzo_precedente']} €"
         draw.text(
-            (X_CENTRO, 572),
+            (X_CENTRO, 730),
             testo_vecchio,
-            fill=(30, 30, 30, 255),
+            fill=(40, 40, 40, 255),
             font=font_prezzo_vecchio,
             anchor="mm"
         )
         
         # Linea rossa di sbarramento
-        bbox = draw.textbbox((X_CENTRO, 572), testo_vecchio, font=font_prezzo_vecchio, anchor="mm")
+        bbox = draw.textbbox((X_CENTRO, 730), testo_vecchio, font=font_prezzo_vecchio, anchor="mm")
         draw.line(
             [(bbox[0] - 6, bbox[1] + (bbox[3]-bbox[1])/2), (bbox[2] + 6, bbox[1] + (bbox[3]-bbox[1])/2)],
             fill=(220, 30, 30, 255),
             width=4
         )
 
-    # 4. PERCENTUALE SCONTO (Banner In Basso Arancione - Y: 632)
+    # 4. PERCENTUALE SCONTO (Banner in basso con simbolo % - Centro Y: 860, X: 800)
     if prodotto.get("sconto") and prodotto["sconto"] > 0:
         testo_sconto = f"-{prodotto['sconto']}%"
         draw.text(
-            (X_CENTRO, 632),
+            (800, 860),
             testo_sconto,
             fill=(255, 255, 255, 255),
             stroke_width=2,
@@ -313,7 +313,6 @@ async def main():
                         
                         url_affiliato = f"https://www.amazon.it/dp/{p['asin']}?tag={AMAZON_TAG}"
                         
-                        # Format identico alla prima immagine di riferimento
                         didascalia = "🪵 **Il Tarlo ha colpito ancora!**\n\n"
                         didascalia += f"📦 **{p['titolo']}**\n"
                         
@@ -341,4 +340,4 @@ async def main():
 if __name__ == "__main__":
     threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT), daemon=True).start()
     asyncio.run(main())
-    
+                
