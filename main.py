@@ -189,11 +189,11 @@ def scarica_dettagli_amazon(asin):
         print(f"Errore scraping ASIN {asin}: {e}")
         return None
 
-# --- GENERAZIONE GRAFICA CORRETTA ---
+# --- GENERAZIONE GRAFICA ---
 def crea_immagine(prodotto):
     template = Image.open(TEMPLATE_PATH).convert("RGBA").resize((1080, 1080), Image.Resampling.LANCZOS)
     
-    # Foto prodotto a sinistra
+    # 1. Foto prodotto a sinistra
     box_x, box_y = 25, 240
     box_w, box_h = 510, 770
     
@@ -215,16 +215,16 @@ def crea_immagine(prodotto):
     
     try:
         font_titolo = ImageFont.truetype(font_file, 22)
-        font_prezzo_grande = ImageFont.truetype(font_file, 72)
+        font_prezzo_grande = ImageFont.truetype(font_file, 65)
         font_prezzo_vecchio = ImageFont.truetype(font_file, 36)
         font_sconto = ImageFont.truetype(font_file, 68)
     except Exception as e:
         font_titolo = font_prezzo_grande = font_prezzo_vecchio = font_sconto = ImageFont.load_default()
 
-    # 1. TITOLO (Cartellino verde in alto - X: 730, Y: 310)
+    # A. TITOLO PRODOTTO (Cartellino verde in alto - X: 730, Y: 320)
     titolo_breve = prodotto["titolo"][:42]
     righe = textwrap.wrap(titolo_breve, width=18)[:3]
-    start_y = 310 - (len(righe) * 11)
+    start_y = 320 - ((len(righe) - 1) * 12)
     
     for i, riga in enumerate(righe):
         draw.text(
@@ -237,10 +237,10 @@ def crea_immagine(prodotto):
             anchor="mm"
         )
 
-    # 2. PREZZO ATTUALE SCONTATO (Pulsante arancione grande - X: 760, Y: 550)
+    # B. PREZZO ATTUALE SCONTATO (Pulsante arancione - X: 765, Y: 555)
     testo_prezzo = f"{prodotto['prezzo_attuale']} €"
     draw.text(
-        (760, 550),
+        (765, 555),
         testo_prezzo,
         fill=(255, 255, 255, 255),
         stroke_width=2,
@@ -249,30 +249,33 @@ def crea_immagine(prodotto):
         anchor="mm"
     )
 
-    # 3. PREZZO VECCHIO BARRATO (Riquadro bianco - X: 760, Y: 720)
+    # C. PREZZO VECCHIO BARRATO (Box bianco - X: 765, Y: 721)
     if prodotto.get("prezzo_precedente"):
         testo_vecchio = f"{prodotto['prezzo_precedente']} €"
+        y_vecchio = 721
+        
         draw.text(
-            (760, 720),
+            (765, y_vecchio),
             testo_vecchio,
-            fill=(50, 50, 50, 255),
+            fill=(40, 40, 40, 255),
             font=font_prezzo_vecchio,
             anchor="mm"
         )
         
-        # Linea barrata rossa
-        bbox = draw.textbbox((760, 720), testo_vecchio, font=font_prezzo_vecchio, anchor="mm")
+        # Linea barrata rossa sovrapposta esattamente al testo
+        bbox = draw.textbbox((765, y_vecchio), testo_vecchio, font=font_prezzo_vecchio, anchor="mm")
+        y_linea = (bbox[1] + bbox[3]) / 2
         draw.line(
-            [(bbox[0] - 6, bbox[1] + (bbox[3]-bbox[1])/2), (bbox[2] + 6, bbox[1] + (bbox[3]-bbox[1])/2)],
+            [(bbox[0] - 8, y_linea), (bbox[2] + 8, y_linea)],
             fill=(220, 30, 30, 255),
-            width=3
+            width=4
         )
 
-    # 4. PERCENTUALE SCONTO (Fascia arancione in basso a destra - X: 780, Y: 850)
+    # D. PERCENTUALE SCONTO (Fascia arancione in basso - X: 760, Y: 850)
     if prodotto.get("sconto") and prodotto["sconto"] > 0:
         testo_sconto = f"-{prodotto['sconto']}%"
         draw.text(
-            (780, 850),
+            (760, 850),
             testo_sconto,
             fill=(255, 255, 255, 255),
             stroke_width=3,
