@@ -192,7 +192,7 @@ def scarica_dettagli_amazon(asin):
         print(f"Errore scraping ASIN {asin}: {e}")
         return None
 
-# --- GENERAZIONE GRAFICA PERFETTA E CENTRATA ---
+# --- GENERAZIONE GRAFICA CENTRATA ---
 def crea_immagine(prodotto):
     template = Image.open(TEMPLATE_PATH).convert("RGBA").resize((1080, 1080), Image.Resampling.LANCZOS)
     
@@ -229,7 +229,7 @@ def crea_immagine(prodotto):
     X_CENTRO = 765
 
     # 1. TITOLO PRODOTTO (Cartellino Verde - Y: 405)
-    titolo_breve = prodotto["titolo"][:45]  # Tronca il titolo per farlo entrare perfettamente
+    titolo_breve = prodotto["titolo"][:45]  # Tronca il titolo per farlo entrare benissimo
     righe = textwrap.wrap(titolo_breve, width=18)[:3] # Max 3 righe
     start_y = 405 - (len(righe) * 12)
     
@@ -311,12 +311,19 @@ async def main():
                         segna_inviato(asin)
                         foto = crea_immagine(p)
                         
-                        didascalia = f"🪵 **{p['titolo']}**\n\n"
+                        url_affiliato = f"https://www.amazon.it/dp/{p['asin']}?tag={AMAZON_TAG}"
+                        
+                        # Format identico alla prima immagine di riferimento
+                        didascalia = "🪵 **Il Tarlo ha colpito ancora!**\n\n"
+                        didascalia += f"📦 **{p['titolo']}**\n"
+                        
                         if p['sconto'] > 0 and p['prezzo_precedente']:
                             didascalia += f"📉 **Sconto:** -{p['sconto']}%\n"
-                            didascalia += f"❌ **Invece di:** ~~{p['prezzo_precedente']} €~~\n"
-                        didascalia += f"💰 **Prezzo speciale:** {p['prezzo_attuale']} €\n"
-                        didascalia += f"👉 **Acquista ora:** https://amazon.it/dp/{p['asin']}?tag={AMAZON_TAG}\n\n"
+                            didascalia += f"💰 ~~{p['prezzo_precedente']} €~~ ➔ **{p['prezzo_attuale']} €**\n\n"
+                        else:
+                            didascalia += f"💰 **Prezzo speciale:** {p['prezzo_attuale']} €\n\n"
+                            
+                        didascalia += f"👉 **[ACQUISTA SUBITO IN OFFERTA]({url_affiliato})**\n\n"
                         didascalia += "#IlTarloDelRisparmio"
 
                         await bot.send_photo(
