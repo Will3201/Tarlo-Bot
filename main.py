@@ -34,7 +34,6 @@ CANALI_SPIA = [
     "offerte5",
     "offerte_supermercato", 
     "SpesaScontata"
-    "tempodisconti"
 ]
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -42,7 +41,6 @@ TEMPLATE_PATH = BASE_DIR / "template.png"
 OUTPUT_PATH = BASE_DIR / "offerta_finale.png"
 DB_PATH = BASE_DIR / "offerte.db"
 
-# Cartella e nome font
 FONT_DIR = BASE_DIR / "fonts"
 FONT_PATH = FONT_DIR / "Montserrat-ExtraBold.ttf"
 
@@ -80,7 +78,7 @@ def segna_inviato(asin):
 
 # --- GESTIONE FONT AUTOMATICA ---
 def carica_font_extra_bold():
-    """Garantisce il caricamento di un font ExtraBold ben visibile."""
+    """Garantisce il caricamento del font ExtraBold."""
     os.makedirs(FONT_DIR, exist_ok=True)
     if not FONT_PATH.exists():
         url = "https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/montserrat/static/Montserrat-ExtraBold.ttf"
@@ -94,13 +92,32 @@ def carica_font_extra_bold():
             
     return str(FONT_PATH) if FONT_PATH.exists() else None
 
-# --- SCRAPER AMAZON ---
+# --- ESTRAZIONE ASIN & SROTOLAMENTO LINK BREVI ---
 def estrai_asin(testo):
     if not testo:
         return None
+        
+    # 1. Cerca ASIN diretto (es. amazon.it/dp/B000000000)
     match = re.search(r'/(?:dp|gp/product)/([A-Z0-9]{10})', testo)
-    return match.group(1) if match else None
+    if match:
+        return match.group(1)
+        
+    # 2. Se trova un link corto (amzn.to, bit.ly, ecc.), segue il reindirizzamento
+    urls = re.findall(r'https?://[^\s]+', testo)
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+    
+    for url in urls:
+        try:
+            res = requests.head(url, allow_redirects=True, timeout=5, headers=headers)
+            match_redirect = re.search(r'/(?:dp|gp/product)/([A-Z0-9]{10})', res.url)
+            if match_redirect:
+                return match_redirect.group(1)
+        except Exception as e:
+            print(f"Errore risoluzione link corto {url}: {e}")
+            
+    return None
 
+# --- SCRAPER AMAZON ---
 def scarica_dettagli_amazon(asin):
     url = f"https://www.amazon.it/dp/{asin}"
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
@@ -150,7 +167,6 @@ def scarica_dettagli_amazon(asin):
                 
             p_prec_num = float(p_prec_clean)
             
-            # Controllo di sicurezza: Il prezzo vecchio deve essere strettamente maggiore di quello scontato
             if p_prec_num > p_att_num:
                 sconto_calc = int(round(((p_prec_num - p_att_num) / p_prec_num) * 100))
                 if 0 < sconto_calc <= 85:
@@ -176,11 +192,11 @@ def scarica_dettagli_amazon(asin):
         print(f"Errore scraping ASIN {asin}: {e}")
         return None
 
-# --- GENERAZIONE GRAFICA PERFETTA ---
+# --- GENERAZIONE GRAFICA PERFETTA E CENTRATA ---
 def crea_immagine(prodotto):
     template = Image.open(TEMPLATE_PATH).convert("RGBA").resize((1080, 1080), Image.Resampling.LANCZOS)
     
-    # Riquadro immagine prodotto
+    # Riquadro immagine prodotto a sinistra
     box_x, box_y = 23, 238
     box_w, box_h = 542, 778
     
@@ -201,74 +217,73 @@ def crea_immagine(prodotto):
     font_file = carica_font_extra_bold()
     
     try:
-        font_titolo = ImageFont.truetype(font_file, 34)
-        font_prezzo_grande = ImageFont.truetype(font_file, 85)
-        font_prezzo_vecchio = ImageFont.truetype(font_file, 50)
-        font_sconto = ImageFont.truetype(font_file, 95)
+        font_titolo = ImageFont.truetype(font_file, 24)        # Più piccolo per stare nell'etichetta verde
+        font_prezzo_grande = ImageFont.truetype(font_file, 75) # Prezzo principale
+        font_prezzo_vecchio = ImageFont.truetype(font_file, 42)# Prezzo barrato
+        font_sconto = ImageFont.truetype(font_file, 70)        # Percentuale sconto
     except Exception as e:
         print(f"[WARNING] Fallback su font default: {e}")
         font_titolo = font_prezzo_grande = font_prezzo_vecchio = font_sconto = ImageFont.load_default()
 
-    X_CENTRO = 765  # Asse centrale verticale della colonna destra
+    # Coordinata X centrale esatta per tutti i testi del lato destro
+    X_CENTRO = 765
 
-    # A. Titolo Prodotto (Dentro il cartellino verde)
-    titolo_pulito = prodotto["titolo"]
-    righe = textwrap.wrap(titolo_pulito, width=20)[:4] # Max 4 righe
-    start_y = 410 - (len(righe) * 18)
+    # 1. TITOLO PRODOTTO (Cartellino Verde - Y: 405)
+    titolo_breve = prodotto["titolo"][:45]  # Tronca il titolo per farlo entrare perfettamente
+    righe = textwrap.wrap(titolo_breve, width=18)[:3] # Max 3 righe
+    start_y = 405 - (len(righe) * 12)
     
     for i, riga in enumerate(righe):
         draw.text(
-            (X_CENTRO, start_y + (i * 38)),
+            (X_CENTRO, start_y + (i * 28)),
             riga,
             fill=(255, 255, 255, 255),
             stroke_width=1,
-            stroke_fill=(0, 0, 0, 100),
+            stroke_fill=(0, 0, 0, 120),
             font=font_titolo,
             anchor="mm"
         )
 
-    # B. Prezzo Attuale Scontato (Box Arancione)
+    # 2. PREZZO ATTUALE (Box Arancione Grande - Y: 500)
     testo_prezzo = f"{prodotto['prezzo_attuale']} €"
     draw.text(
-        (X_CENTRO, 515),
+        (X_CENTRO, 500),
         testo_prezzo,
         fill=(255, 255, 255, 255),
         stroke_width=2,
-        stroke_fill=(230, 100, 0, 255),
+        stroke_fill=(200, 80, 0, 255),
         font=font_prezzo_grande,
         anchor="mm"
     )
 
-    # C. Prezzo Barrato (Box Bianco)
-    if prodotto["prezzo_precedente"]:
+    # 3. PREZZO BARRATO (Box Bianco - Y: 572)
+    if prodotto.get("prezzo_precedente"):
         testo_vecchio = f"{prodotto['prezzo_precedente']} €"
         draw.text(
-            (X_CENTRO, 578),
+            (X_CENTRO, 572),
             testo_vecchio,
-            fill=(20, 20, 20, 255),
-            stroke_width=1,
-            stroke_fill=(0, 0, 0, 255),
+            fill=(30, 30, 30, 255),
             font=font_prezzo_vecchio,
             anchor="mm"
         )
         
-        # Linea Rossa marcata di sbarramento
-        bbox = draw.textbbox((X_CENTRO, 578), testo_vecchio, font=font_prezzo_vecchio, anchor="mm")
+        # Linea rossa di sbarramento
+        bbox = draw.textbbox((X_CENTRO, 572), testo_vecchio, font=font_prezzo_vecchio, anchor="mm")
         draw.line(
-            [(bbox[0] - 8, bbox[1] + (bbox[3]-bbox[1])/2), (bbox[2] + 8, bbox[1] + (bbox[3]-bbox[1])/2)],
+            [(bbox[0] - 6, bbox[1] + (bbox[3]-bbox[1])/2), (bbox[2] + 6, bbox[1] + (bbox[3]-bbox[1])/2)],
             fill=(220, 30, 30, 255),
-            width=5
+            width=4
         )
 
-    # D. Percentuale Sconto (Banner In Basso)
-    if prodotto["sconto"] > 0:
+    # 4. PERCENTUALE SCONTO (Banner In Basso Arancione - Y: 632)
+    if prodotto.get("sconto") and prodotto["sconto"] > 0:
         testo_sconto = f"-{prodotto['sconto']}%"
         draw.text(
-            (X_CENTRO, 628),
+            (X_CENTRO, 632),
             testo_sconto,
             fill=(255, 255, 255, 255),
             stroke_width=2,
-            stroke_fill=(200, 70, 0, 255),
+            stroke_fill=(180, 60, 0, 255),
             font=font_sconto,
             anchor="mm"
         )
@@ -296,7 +311,6 @@ async def main():
                         segna_inviato(asin)
                         foto = crea_immagine(p)
                         
-                        # Composizione testo Telegram completa
                         didascalia = f"🪵 **{p['titolo']}**\n\n"
                         if p['sconto'] > 0 and p['prezzo_precedente']:
                             didascalia += f"📉 **Sconto:** -{p['sconto']}%\n"
@@ -318,7 +332,6 @@ async def main():
     await client.run_until_disconnected()
 
 if __name__ == "__main__":
-    # Avvia Flask in background sulla porta di Render
     threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT), daemon=True).start()
     asyncio.run(main())
     
