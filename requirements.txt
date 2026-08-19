@@ -1,6 +1,6 @@
 python-telegram-bot
-Flask
-Pillow
-requests
-beautifulsoup4
 telethon
+flask
+pillow
+beautifulsoup4
+requests
