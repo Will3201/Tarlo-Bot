@@ -12,7 +12,7 @@ import cairosvg
 import requests
 from bs4 import BeautifulSoup
 from flask import Flask
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 from telegram import Bot
 from telethon import TelegramClient, events
 from telethon.sessions import StringSession
@@ -27,7 +27,7 @@ SESSION_STRING = os.getenv("TELEGRAM_SESSION_STRING", "")
 
 PORT = int(os.getenv("PORT", 10000))
 
-# Lista canali monitorati (virgole verificate)
+# Lista canali monitorati
 CANALI_SPIA = [
     "sparky_offerte", 
     "AstroHouse_Casa_Cucina", 
@@ -180,32 +180,26 @@ def scarica_dettagli_amazon(asin):
         print(f"[ERRORE SCRAPING]: {e}")
         return None
 
-# --- GENERAZIONE GRAFICA SVG ---
+# --- GENERAZIONE GRAFICA TRAMITE PILLOW (PIL) ---
 def crea_immagine(prodotto):
-    with open(SVG_TEMPLATE_PATH, "r", encoding="utf-8") as f:
-        svg_code = f.read()
-
-    # Rimuove i tag <tspan> intermedi inseriti da Canva quando spezza le parole
-    svg_code = re.sub(r'</tspan>\s*<tspan[^>]*>', '', svg_code)
-
-    titolo_breve = prodotto["titolo"][:42]
-    prezzo_att = f"{prodotto['prezzo_attuale']} €"
-    prezzo_vec = f"{prodotto['prezzo_precedente']} €" if prodotto.get("prezzo_precedente") else ""
-    sconto_txt = f"-{prodotto['sconto']}%" if prodotto.get("sconto") and prodotto["sconto"] > 0 else ""
-
-    # Sostituzione dei segnaposto
-    svg_modificato = (
-        svg_code.replace("TXT_TITOLO", titolo_breve)
-                .replace("TXT_PATT", prezzo_att)
-                .replace("TXT_PVEC", prezzo_vec)
-                .replace("TXT_SCONTO", sconto_txt)
-    )
-
-    cairosvg.svg2png(bytestring=svg_modificato.encode('utf-8'), write_to=str(OUTPUT_PATH))
+    # Converts SVG base image directly into PNG
+    cairosvg.svg2png(url=str(SVG_TEMPLATE_PATH), write_to=str(OUTPUT_PATH))
     
+    base_img = Image.open(OUTPUT_PATH).convert("RGBA")
+    draw = ImageDraw.Draw(base_img)
+
+    # Caricamento Font
+    try:
+        font_titolo = ImageFont.truetype("arial.ttf", 26)
+        font_patt = ImageFont.truetype("arialbd.ttf", 52)
+        font_pvec = ImageFont.truetype("arial.ttf", 32)
+        font_sconto = ImageFont.truetype("arialbd.ttf", 48)
+    except Exception:
+        font_titolo = font_patt = font_pvec = font_sconto = ImageFont.load_default()
+
+    # 1. Incolla Immagine Prodotto a sinistra
     if prodotto.get("immagine_url"):
         try:
-            base_img = Image.open(OUTPUT_PATH).convert("RGBA")
             resp = requests.get(prodotto["immagine_url"], timeout=10)
             img_prod = Image.open(BytesIO(resp.content)).convert("RGBA")
             
@@ -217,10 +211,28 @@ def crea_immagine(prodotto):
             offset_y = box_y + (box_h - img_prod.height) // 2
             
             base_img.paste(img_prod, (offset_x, offset_y), img_prod)
-            base_img.convert("RGB").save(OUTPUT_PATH, "PNG")
         except Exception as e:
             print(f"[ERRORE INCOLLA IMMAGINE]: {e}")
 
+    # 2. Scrittura Titolo (Targhetta Verde)
+    titolo_breve = prodotto["titolo"][:38]
+    draw.text((750, 300), titolo_breve, fill="white", font=font_titolo, anchor="mm")
+
+    # 3. Scrittura Prezzo Attuale (Targhetta Arancione)
+    prezzo_att = f"{prodotto['prezzo_attuale']} €"
+    draw.text((750, 550), prezzo_att, fill="black", font=font_patt, anchor="mm")
+
+    # 4. Scrittura Prezzo Vecchio (Targhetta Bianca)
+    if prodotto.get("prezzo_precedente"):
+        prezzo_vec = f"{prodotto['prezzo_precedente']} €"
+        draw.text((750, 715), prezzo_vec, fill="#333333", font=font_pvec, anchor="mm")
+
+    # 5. Scrittura Sconto (Targhetta In Basso)
+    if prodotto.get("sconto") and prodotto["sconto"] > 0:
+        sconto_txt = f"-{prodotto['sconto']}%"
+        draw.text((780, 860), sconto_txt, fill="white", font=font_sconto, anchor="mm")
+
+    base_img.convert("RGB").save(OUTPUT_PATH, "PNG")
     return OUTPUT_PATH
 
 # --- BOT TELEGRAM ---
