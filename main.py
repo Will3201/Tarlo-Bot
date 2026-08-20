@@ -117,7 +117,10 @@ def estrai_asin(testo):
 # --- SCRAPER AMAZON ---
 def scarica_dettagli_amazon(asin):
     url = f"https://www.amazon.it/dp/{asin}"
-    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Accept-Language": "it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7"
+    }
     try:
         res = requests.get(url, headers=headers, timeout=12)
         soup = BeautifulSoup(res.text, "html.parser")
@@ -142,33 +145,31 @@ def scarica_dettagli_amazon(asin):
         if not prezzo_attuale: 
             return None
 
-        p_att_clean = prezzo_attuale.replace(' ', '').replace('\xa0', '')
-        if ',' in p_att_clean and '.' in p_att_clean:
-            p_att_clean = p_att_clean.replace('.', '').replace(',', '.')
-        else:
-            p_att_clean = p_att_clean.replace(',', '.')
-            
+        p_att_clean = re.sub(r'[^\d,]', '', prezzo_attuale).replace(',', '.')
         p_att_num = float(p_att_clean)
 
         sconto = 0
         prezzo_precedente = None
-        p_strike = soup.find("span", class_="a-text-strike")
         
-        if p_strike:
-            val_strike = p_strike.get_text().replace("€", "").strip()
-            p_prec_clean = val_strike.replace(' ', '').replace('\xa0', '')
-            if ',' in p_prec_clean and '.' in p_prec_clean:
-                p_prec_clean = p_prec_clean.replace('.', '').replace(',', '.')
-            else:
-                p_prec_clean = p_prec_clean.replace(',', '.')
-                
-            p_prec_num = float(p_prec_clean)
-            
-            if p_prec_num > p_att_num:
-                sconto_calc = int(round(((p_prec_num - p_att_num) / p_prec_num) * 100))
-                if 0 < sconto_calc <= 85:
-                    prezzo_precedente = val_strike.replace(".", ",")
-                    sconto = sconto_calc
+        strike_elem = (
+            soup.find("span", class_="a-text-strike") or 
+            soup.find("span", class_="a-text-price") or
+            soup.find("span", {"id": "listPrice"})
+        )
+        
+        if strike_elem:
+            off_strike = strike_elem.find("span", class_="a-offscreen")
+            val_strike = off_strike.get_text() if off_strike else strike_elem.get_text()
+            val_strike_clean = re.sub(r'[^\d,]', '', val_strike).replace(',', '.')
+            try:
+                p_prec_num = float(val_strike_clean)
+                if p_prec_num > p_att_num:
+                    sconto_calc = int(round(((p_prec_num - p_att_num) / p_prec_num) * 100))
+                    if 0 < sconto_calc <= 85:
+                        prezzo_precedente = f"{p_prec_num:.2f}".replace(".", ",")
+                        sconto = sconto_calc
+            except ValueError:
+                pass
 
         img_elem = (
             soup.find("img", {"id": "landingImage"}) or 
@@ -221,14 +222,14 @@ def crea_immagine(prodotto):
     except Exception as e:
         font_titolo = font_prezzo_grande = font_prezzo_vecchio = font_sconto = ImageFont.load_default()
 
-    # A. TITOLO PRODOTTO (Cartellino verde in alto - X: 730, Y: 320)
+    # A. TITOLO PRODOTTO (Cartellino verde - X: 745, Y: 345)
     titolo_breve = prodotto["titolo"][:42]
     righe = textwrap.wrap(titolo_breve, width=18)[:3]
-    start_y = 320 - ((len(righe) - 1) * 12)
+    start_y = 345 - ((len(righe) - 1) * 12)
     
     for i, riga in enumerate(righe):
         draw.text(
-            (730, start_y + (i * 24)),
+            (745, start_y + (i * 24)),
             riga,
             fill=(255, 255, 255, 255),
             stroke_width=1,
@@ -237,10 +238,10 @@ def crea_immagine(prodotto):
             anchor="mm"
         )
 
-    # B. PREZZO ATTUALE SCONTATO (Pulsante arancione - X: 765, Y: 555)
+    # B. PREZZO ATTUALE SCONTATO (Pulsante arancione - X: 775, Y: 555)
     testo_prezzo = f"{prodotto['prezzo_attuale']} €"
     draw.text(
-        (765, 555),
+        (775, 555),
         testo_prezzo,
         fill=(255, 255, 255, 255),
         stroke_width=2,
@@ -249,33 +250,33 @@ def crea_immagine(prodotto):
         anchor="mm"
     )
 
-    # C. PREZZO VECCHIO BARRATO (Box bianco - X: 765, Y: 721)
+    # C. PREZZO VECCHIO BARRATO (Box bianco - X: 775, Y: 760)
     if prodotto.get("prezzo_precedente"):
         testo_vecchio = f"{prodotto['prezzo_precedente']} €"
-        y_vecchio = 721
+        center_x, center_y = 775, 760
         
         draw.text(
-            (765, y_vecchio),
+            (center_x, center_y),
             testo_vecchio,
-            fill=(40, 40, 40, 255),
+            fill=(30, 30, 30, 255),
             font=font_prezzo_vecchio,
             anchor="mm"
         )
         
-        # Linea barrata rossa sovrapposta esattamente al testo
-        bbox = draw.textbbox((765, y_vecchio), testo_vecchio, font=font_prezzo_vecchio, anchor="mm")
+        # Barra rossa dinamicamente agganciata al testo
+        bbox = draw.textbbox((center_x, center_y), testo_vecchio, font=font_prezzo_vecchio, anchor="mm")
         y_linea = (bbox[1] + bbox[3]) / 2
         draw.line(
-            [(bbox[0] - 8, y_linea), (bbox[2] + 8, y_linea)],
+            [(bbox[0] - 6, y_linea), (bbox[2] + 6, y_linea)],
             fill=(220, 30, 30, 255),
             width=4
         )
 
-    # D. PERCENTUALE SCONTO (Fascia arancione in basso - X: 760, Y: 850)
+    # D. PERCENTUALE SCONTO (Fascia arancione in basso - X: 790, Y: 880)
     if prodotto.get("sconto") and prodotto["sconto"] > 0:
         testo_sconto = f"-{prodotto['sconto']}%"
         draw.text(
-            (760, 850),
+            (790, 880),
             testo_sconto,
             fill=(255, 255, 255, 255),
             stroke_width=3,
