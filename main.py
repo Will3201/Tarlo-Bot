@@ -33,7 +33,7 @@ CANALI_SPIA = [
     "ultimaofferta", 
     "offerte5",
     "offerte_supermercato", 
-    "SpesaScontata"
+    "SpesaScontata",
     "provawill32"
 ]
 
