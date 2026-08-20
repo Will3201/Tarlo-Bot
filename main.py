@@ -180,7 +180,7 @@ def crea_immagine(prodotto):
     font_pvec = carica_font_locale(36)
     font_sconto = carica_font_locale(55)
 
-    # 1. Immagine Prodotto (Box Bianco Sinistra)
+    # 1. Immagine Prodotto (Box Bianco Sinistra - Ingrandita)
     if prodotto.get("immagine_url"):
         try:
             resp = requests.get(prodotto["immagine_url"], timeout=10)
@@ -188,9 +188,6 @@ def crea_immagine(prodotto):
             box_x, box_y = 30, 170
             box_w, box_h = 460, 730
 
-            # Margine ridotto a 6px cosi' l'immagine occupa quasi tutto lo
-            # spazio disponibile nel box bianco, senza pero' tagliare nulla
-            # (fit "contain": l'immagine intera resta sempre visibile).
             margine = 6
             img_prod.thumbnail((box_w - margine * 2, box_h - margine * 2), Image.Resampling.LANCZOS)
 
@@ -201,21 +198,14 @@ def crea_immagine(prodotto):
             )
         except: pass
 
-    # Centro orizzontale reale della colonna di destra, misurato sui box del
-    # template (bordi da x=550 a x=1044 -> centro = 797). Il vecchio valore
-    # 738 non corrispondeva al centro reale del box ed era la causa dello
-    # spostamento a sinistra di tutti i testi.
     CENTRO_X = 797
 
-    # Centri verticali reali dei box, misurati pixel-per-pixel sul PNG
-    # generato dal template (non erano quelli usati finora, per questo il
-    # testo appariva troppo in alto rispetto al centro del rispettivo box).
     Y_TITOLO = 291
     Y_PREZZO_ATTUALE = 487
     Y_PREZZO_VECCHIO = 781
     Y_SCONTO = 918
 
-    # 2. Titolo (Box Verde) - centratura precisa multi-riga
+    # 2. Titolo (Box Verde)
     titolo_txt = textwrap.fill(prodotto["titolo"][:55], width=22)
     draw_centrato(draw, CENTRO_X, Y_TITOLO, titolo_txt, font_titolo, "white",
                   stroke_width=2, stroke_fill="black")
@@ -224,7 +214,7 @@ def crea_immagine(prodotto):
     draw_centrato(draw, CENTRO_X, Y_PREZZO_ATTUALE, f"{prodotto['prezzo_attuale']} €", font_patt, "#111111",
                   stroke_width=1, stroke_fill="white")
 
-    # 4. Prezzo Vecchio (Box Grigio) + linea di sbarramento centrata sul testo reale
+    # 4. Prezzo Vecchio (Box Grigio) + linea di sbarramento
     if prodotto.get("prezzo_precedente"):
         p_vec = f"{prodotto['prezzo_precedente']} €"
 
