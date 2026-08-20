@@ -148,13 +148,12 @@ def scarica_dettagli_amazon(asin):
         print(f"[ERRORE SCRAPING]: {e}")
         return None
 
-# --- GENERAZIONE IMMAGINE (CON CENTRATURA CORRETTA) ---
+# --- GENERAZIONE IMMAGINE ---
 def crea_immagine(prodotto):
     cairosvg.svg2png(url=str(SVG_TEMPLATE_PATH), write_to=str(OUTPUT_PATH))
     base_img = Image.open(OUTPUT_PATH).convert("RGBA")
     draw = ImageDraw.Draw(base_img)
 
-    # Font dimensioni ottimizzate
     font_titolo = carica_font_locale(38)
     font_patt = carica_font_locale(85)
     font_pvec = carica_font_locale(45)
@@ -175,21 +174,17 @@ def crea_immagine(prodotto):
     titolo_txt = textwrap.fill(prodotto["titolo"][:50], width=17)
     draw.text((750, 260), titolo_txt, fill="white", font=font_titolo, anchor="mm", align="center", stroke_width=2, stroke_fill="black")
 
-    # Prezzo Attuale (Centro perfetto del riquadro arancione grande)
-    # Coordinate centro stimato: X=750, Y=550
+    # Prezzo Attuale (Centrato nel riquadro arancione grande)
     draw.text((750, 550), f"{prodotto['prezzo_attuale']} €", fill="#111111", font=font_patt, anchor="mm", stroke_width=1, stroke_fill="white")
 
-    # Prezzo Vecchio (Centro perfetto della casella bianca)
-    # Coordinate centro stimato: X=750, Y=720
+    # Prezzo Vecchio (Centrato nella casella bianca)
     if prodotto.get("prezzo_precedente"):
         p_vec = f"{prodotto['prezzo_precedente']} €"
         draw.text((750, 720), p_vec, fill="#333333", font=font_pvec, anchor="mm", stroke_width=1, stroke_fill="white")
-        # Linea sbarrata
         bbox = draw.textbbox((750, 720), p_vec, font=font_pvec, anchor="mm")
         draw.line([(bbox[0]-6, (bbox[1]+bbox[3])//2), (bbox[2]+6, (bbox[1]+bbox[3])//2)], fill="#CC0000", width=4)
 
-    # Sconto (Centro perfetto della fascia in basso a destra)
-    # Coordinate centro stimato: X=750, Y=860
+    # Sconto (Centrato nella fascia in basso)
     if prodotto.get("sconto") and prodotto["sconto"] > 0:
         draw.text((750, 860), f"-{prodotto['sconto']}%", fill="white", font=font_sconto, anchor="mm", stroke_width=3, stroke_fill="black")
 
@@ -230,5 +225,14 @@ async def main():
     await client.run_until_disconnected()
 
 if __name__ == "__main__":
+    # --- CANCELLAZIONE AUTOMATICA DATABASE PER TEST ---
+    if DB_PATH.exists():
+        try:
+            os.remove(DB_PATH)
+            print("--- [TEST MODE] Database offerte.db rimosso con successo! ---")
+        except Exception as e:
+            print(f"[WARN RESET DB]: {e}")
+
     threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT), daemon=True).start()
     asyncio.run(main())
+        
