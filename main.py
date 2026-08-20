@@ -45,15 +45,6 @@ DB_PATH = BASE_DIR / "offerte.db"
 bot = Bot(token=TELEGRAM_TOKEN)
 app = Flask(__name__)
 
-# --- RESET DATABASE ALL'AVVIO ---
-def reset_db_all_avvio():
-    if DB_PATH.exists():
-        try:
-            os.remove(DB_PATH)
-            print("--- [RESET DB]: File offerte.db eliminato con successo! ---")
-        except Exception as e:
-            print(f"[ERRORE RESET DB]: {e}")
-
 # --- RICERCA AUTOMATICA FONT ---
 def carica_font_locale(size):
     font_files = list(BASE_DIR.rglob("*.ttf")) + list(BASE_DIR.rglob("*.otf"))
@@ -157,7 +148,7 @@ def scarica_dettagli_amazon(asin):
         print(f"[ERRORE SCRAPING]: {e}")
         return None
 
-# --- GENERAZIONE IMMAGINE (COORDINATE CORRETTE) ---
+# --- GENERAZIONE IMMAGINE ---
 def crea_immagine(prodotto):
     cairosvg.svg2png(url=str(SVG_TEMPLATE_PATH), write_to=str(OUTPUT_PATH))
     base_img = Image.open(OUTPUT_PATH).convert("RGBA")
@@ -168,7 +159,7 @@ def crea_immagine(prodotto):
     font_pvec = carica_font_locale(38)
     font_sconto = carica_font_locale(55)
 
-    # 1. Immagine Prodotto (Box Bianco Sinistra)
+    # 1. Immagine Prodotto (Box Bianco)
     if prodotto.get("immagine_url"):
         try:
             resp = requests.get(prodotto["immagine_url"], timeout=10)
@@ -179,23 +170,21 @@ def crea_immagine(prodotto):
             base_img.paste(img_prod, (box_x + (box_w - img_prod.width) // 2, box_y + (box_h - img_prod.height) // 2), img_prod)
         except: pass
 
-    # Coordinate X centrali dei box a destra: X = 735
-
-    # 2. Titolo (Centro Box Verde - Y=270)
+    # 2. Titolo (Centro Box Verde)
     titolo_txt = textwrap.fill(prodotto["titolo"][:55], width=20)
     draw.text((735, 270), titolo_txt, fill="white", font=font_titolo, anchor="mm", align="center", stroke_width=2, stroke_fill="black")
 
-    # 3. Prezzo Attuale (Centro Box Arancione Grande - Y=515)
+    # 3. Prezzo Attuale (Centro Box Arancione Grande)
     draw.text((735, 515), f"{prodotto['prezzo_attuale']} €", fill="#111111", font=font_patt, anchor="mm", stroke_width=1, stroke_fill="white")
 
-    # 4. Prezzo Vecchio (Centro Barra Grigia - Y=722)
+    # 4. Prezzo Vecchio (Centro Barra Grigia)
     if prodotto.get("prezzo_precedente"):
         p_vec = f"{prodotto['prezzo_precedente']} €"
         draw.text((735, 722), p_vec, fill="#333333", font=font_pvec, anchor="mm", stroke_width=1, stroke_fill="white")
         bbox = draw.textbbox((735, 722), p_vec, font=font_pvec, anchor="mm")
         draw.line([(bbox[0]-4, (bbox[1]+bbox[3])//2), (bbox[2]+4, (bbox[1]+bbox[3])//2)], fill="#CC0000", width=4)
 
-    # 5. Sconto (Centro Box Arancione In Basso - Y=840)
+    # 5. Sconto (Centro Box Arancione In Basso)
     if prodotto.get("sconto") and prodotto["sconto"] > 0:
         draw.text((735, 840), f"-{prodotto['sconto']}%", fill="white", font=font_sconto, anchor="mm", stroke_width=2, stroke_fill="black")
 
@@ -236,7 +225,6 @@ async def main():
     await client.run_until_disconnected()
 
 if __name__ == "__main__":
-    reset_db_all_avvio()
     threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT), daemon=True).start()
     asyncio.run(main())
-    
+                  
