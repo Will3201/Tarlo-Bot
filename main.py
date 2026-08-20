@@ -55,14 +55,29 @@ def carica_font_locale(size):
             print(f"[ERRORE CARICAMENTO FONT]: {e}")
     return ImageFont.load_default()
 
+# --- HELPER: CONVERSIONE PREZZI ROBUSTA ---
+def parse_prezzo(testo):
+    if not testo: return None
+    t = testo.replace("€", "").strip()
+    t = re.sub(r'[^\d.,]', '', t)
+    if not t: return None
+    
+    if ',' in t:
+        t = t.replace('.', '').replace(',', '.')
+    else:
+        if t.count('.') > 1:
+            t = t.replace('.', '')
+        elif t.count('.') == 1:
+            parts = t.split('.')
+            if len(parts[1]) == 3:
+                t = t.replace('.', '')
+    try:
+        return float(t)
+    except:
+        return None
+
 # --- HELPER: CENTRATURA TESTO PRECISA ---
 def draw_centrato(draw, center_x, center_y, testo, font, fill, stroke_width=0, stroke_fill=None, align="center"):
-    """
-    Centra il testo (anche multi-riga) esattamente su (center_x, center_y),
-    usando il bounding box reale del testo renderizzato (comprensivo di stroke),
-    invece di affidarsi ad anchor='mm' che con stroke_width e testo multi-riga
-    puo' risultare impreciso.
-    """
     bbox = draw.multiline_textbbox(
         (0, 0), testo, font=font, stroke_width=stroke_width, align=align
     )
@@ -132,21 +147,22 @@ def scarica_dettagli_amazon(asin):
         titolo_elem = soup.find("span", {"id": "productTitle"})
         titolo = titolo_elem.get_text().strip() if titolo_elem else "Prodotto Amazon"
 
-        prezzo_attuale = None
+        prezzo_attuale_str = None
         p_elem = soup.find("span", {"class": "a-price", "data-a-size": "xl"}) or soup.find("span", {"class": "a-price", "data-a-size": "l"})
         if p_elem:
             off_elem = p_elem.find("span", class_="a-offscreen")
-            if off_elem: prezzo_attuale = off_elem.get_text().replace("€", "").strip().replace(".", ",")
+            if off_elem: prezzo_attuale_str = off_elem.get_text()
 
-        if not prezzo_attuale:
+        if not prezzo_attuale_str:
             p_apex = soup.find("span", class_="apexPriceToPay")
             if p_apex:
                 off_elem = p_apex.find("span", class_="a-offscreen")
-                if off_elem: prezzo_attuale = off_elem.get_text().replace("€", "").strip().replace(".", ",")
+                if off_elem: prezzo_attuale_str = off_elem.get_text()
 
-        if not prezzo_attuale: return None
+        p_att_num = parse_prezzo(prezzo_attuale_str)
+        if not p_att_num: return None
+        prezzo_attuale = f"{p_att_num:.2f}".replace(".", ",")
 
-        p_att_num = float(prezzo_attuale.replace(',', '.'))
         sconto = 0
         prezzo_precedente = None
 
@@ -154,12 +170,10 @@ def scarica_dettagli_amazon(asin):
         if strike_elem:
             off_strike = strike_elem.find("span", class_="a-offscreen")
             val_strike = off_strike.get_text() if off_strike else strike_elem.get_text()
-            try:
-                p_prec_num = float(re.sub(r'[^\d,]', '', val_strike).replace(',', '.'))
-                if p_prec_num > p_att_num:
-                    sconto = int(round(((p_prec_num - p_att_num) / p_prec_num) * 100))
-                    prezzo_precedente = f"{p_prec_num:.2f}".replace(".", ",")
-            except: pass
+            p_prec_num = parse_prezzo(val_strike)
+            if p_prec_num and p_prec_num > p_att_num:
+                sconto = int(round(((p_prec_num - p_att_num) / p_prec_num) * 100))
+                prezzo_precedente = f"{p_prec_num:.2f}".replace(".", ",")
 
         img_elem = soup.find("img", {"id": "landingImage"}) or soup.find("img", {"id": "imgBlkFront"})
         img_url = img_elem["src"] if img_elem else ""
@@ -169,7 +183,7 @@ def scarica_dettagli_amazon(asin):
         print(f"[ERRORE SCRAPING]: {e}")
         return None
 
-# --- GENERAZIONE IMMAGINE (CENTRATURA CORRETTA + IMMAGINE PRODOTTO INGRANDITA) ---
+# --- GENERAZIONE IMMAGINE ---
 def crea_immagine(prodotto):
     cairosvg.svg2png(url=str(SVG_TEMPLATE_PATH), write_to=str(OUTPUT_PATH))
     base_img = Image.open(OUTPUT_PATH).convert("RGBA")
@@ -180,7 +194,6 @@ def crea_immagine(prodotto):
     font_pvec = carica_font_locale(36)
     font_sconto = carica_font_locale(55)
 
-    # 1. Immagine Prodotto (Box Bianco Sinistra - Ingrandita)
     if prodotto.get("immagine_url"):
         try:
             resp = requests.get(prodotto["immagine_url"], timeout=10)
@@ -199,38 +212,27 @@ def crea_immagine(prodotto):
         except: pass
 
     CENTRO_X = 797
-
     Y_TITOLO = 291
     Y_PREZZO_ATTUALE = 487
     Y_PREZZO_VECCHIO = 781
     Y_SCONTO = 918
 
-    # 2. Titolo (Box Verde)
     titolo_txt = textwrap.fill(prodotto["titolo"][:55], width=22)
-    draw_centrato(draw, CENTRO_X, Y_TITOLO, titolo_txt, font_titolo, "white",
-                  stroke_width=2, stroke_fill="black")
+    draw_centrato(draw, CENTRO_X, Y_TITOLO, titolo_txt, font_titolo, "white", stroke_width=2, stroke_fill="black")
 
-    # 3. Prezzo Attuale (Box Arancione Grande)
-    draw_centrato(draw, CENTRO_X, Y_PREZZO_ATTUALE, f"{prodotto['prezzo_attuale']} €", font_patt, "#111111",
-                  stroke_width=1, stroke_fill="white")
+    draw_centrato(draw, CENTRO_X, Y_PREZZO_ATTUALE, f"{prodotto['prezzo_attuale']} €", font_patt, "#111111", stroke_width=1, stroke_fill="white")
 
-    # 4. Prezzo Vecchio (Box Grigio) + linea di sbarramento
     if prodotto.get("prezzo_precedente"):
         p_vec = f"{prodotto['prezzo_precedente']} €"
-
-        bbox, _ = draw_centrato(draw, CENTRO_X, Y_PREZZO_VECCHIO, p_vec, font_pvec, "#333333",
-                                 stroke_width=1, stroke_fill="white")
-
+        bbox, _ = draw_centrato(draw, CENTRO_X, Y_PREZZO_VECCHIO, p_vec, font_pvec, "#333333", stroke_width=1, stroke_fill="white")
         w = bbox[2] - bbox[0]
         draw.line(
             [(CENTRO_X - w / 2 - 4, Y_PREZZO_VECCHIO), (CENTRO_X + w / 2 + 4, Y_PREZZO_VECCHIO)],
             fill="#CC0000", width=4
         )
 
-    # 5. Sconto (Box Arancione Basso)
     if prodotto.get("sconto") and prodotto["sconto"] > 0:
-        draw_centrato(draw, CENTRO_X, Y_SCONTO, f"-{prodotto['sconto']}%", font_sconto, "white",
-                      stroke_width=2, stroke_fill="black")
+        draw_centrato(draw, CENTRO_X, Y_SCONTO, f"-{prodotto['sconto']}%", font_sconto, "white", stroke_width=2, stroke_fill="black")
 
     base_img.convert("RGB").save(OUTPUT_PATH, "PNG")
     return OUTPUT_PATH
