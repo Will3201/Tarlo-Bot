@@ -187,27 +187,16 @@ def crea_immagine(prodotto):
             img_prod = Image.open(BytesIO(resp.content)).convert("RGBA")
             box_x, box_y = 30, 170
             box_w, box_h = 460, 730
+
+            # Margine ridotto a 6px cosi' l'immagine occupa quasi tutto lo
+            # spazio disponibile nel box bianco, senza pero' tagliare nulla
+            # (fit "contain": l'immagine intera resta sempre visibile).
             margine = 6
-            target_w, target_h = box_w - margine * 2, box_h - margine * 2
-
-            # Strategia "cover" (come object-fit: cover in CSS): la foto
-            # riempie TUTTO lo spazio disponibile, anche a costo di tagliare
-            # leggermente i bordi. Con thumbnail() (fit "contain") una foto
-            # con proporzioni "larghe" restava piccola e lasciava molto
-            # spazio bianco sopra/sotto: questo la fa apparire molto piu'
-            # grande e coerente col box.
-            scale = max(target_w / img_prod.width, target_h / img_prod.height)
-            new_w, new_h = int(img_prod.width * scale), int(img_prod.height * scale)
-            img_prod = img_prod.resize((new_w, new_h), Image.Resampling.LANCZOS)
-
-            # Crop centrale alle dimensioni target
-            left = (new_w - target_w) // 2
-            top = (new_h - target_h) // 2
-            img_prod = img_prod.crop((left, top, left + target_w, top + target_h))
+            img_prod.thumbnail((box_w - margine * 2, box_h - margine * 2), Image.Resampling.LANCZOS)
 
             base_img.paste(
                 img_prod,
-                (box_x + margine, box_y + margine),
+                (box_x + (box_w - img_prod.width) // 2, box_y + (box_h - img_prod.height) // 2),
                 img_prod
             )
         except: pass
@@ -278,12 +267,13 @@ async def main():
         foto = crea_immagine(p)
         url = f"https://www.amazon.it/dp/{p['asin']}?tag={AMAZON_TAG}"
 
-        msg = f"🪵 **Il Tarlo ha colpito ancora!**\n\n📦 **{p['titolo']}**\n"
+        msg = f"🛒 *{p['titolo']}*\n\n"
         if p['sconto'] > 0:
-            msg += f"📉 **Sconto:** -{p['sconto']}%\n💰 ~~{p['prezzo_precedente']} €~~ ➔ **{p['prezzo_attuale']} €**\n\n"
+            msg += f"💰 *{p['prezzo_attuale']} €* anziché {p['prezzo_precedente']} €! (-{p['sconto']}%)\n"
         else:
-            msg += f"💰 **Prezzo:** {p['prezzo_attuale']} €\n\n"
-        msg += f"👉 **[ACQUISTA SUBITO]({url})**\n\n#IlTarloDelRisparmio"
+            msg += f"💰 *{p['prezzo_attuale']} €*\n"
+        msg += f"👉 [Apri su Amazon]({url})\n\n"
+        msg += "🪵 Segnalata da Il Tarlo del Risparmio\n#IlTarloDelRisparmio"
 
         await bot.send_photo(chat_id=CANALE_CHAT_ID, photo=open(foto, "rb"), caption=msg, parse_mode="Markdown")
 
@@ -292,4 +282,4 @@ async def main():
 if __name__ == "__main__":
     threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT), daemon=True).start()
     asyncio.run(main())
-        
+    
