@@ -176,26 +176,38 @@ def crea_immagine(prodotto):
     draw = ImageDraw.Draw(base_img)
 
     font_titolo = carica_font_locale(26)
-    font_patt = carica_font_locale(75)
+    font_patt = carica_font_locale(92)
     font_pvec = carica_font_locale(36)
     font_sconto = carica_font_locale(55)
 
-    # 1. Immagine Prodotto (Box Bianco Sinistra - Ingrandita ulteriormente)
+    # 1. Immagine Prodotto (Box Bianco Sinistra)
     if prodotto.get("immagine_url"):
         try:
             resp = requests.get(prodotto["immagine_url"], timeout=10)
             img_prod = Image.open(BytesIO(resp.content)).convert("RGBA")
             box_x, box_y = 30, 170
             box_w, box_h = 460, 730
-
-            # Margine ridotto a 6px (prima 20px) cosi' l'immagine occupa quasi
-            # tutto lo spazio disponibile nel box bianco
             margine = 6
-            img_prod.thumbnail((box_w - margine * 2, box_h - margine * 2), Image.Resampling.LANCZOS)
+            target_w, target_h = box_w - margine * 2, box_h - margine * 2
+
+            # Strategia "cover" (come object-fit: cover in CSS): la foto
+            # riempie TUTTO lo spazio disponibile, anche a costo di tagliare
+            # leggermente i bordi. Con thumbnail() (fit "contain") una foto
+            # con proporzioni "larghe" restava piccola e lasciava molto
+            # spazio bianco sopra/sotto: questo la fa apparire molto piu'
+            # grande e coerente col box.
+            scale = max(target_w / img_prod.width, target_h / img_prod.height)
+            new_w, new_h = int(img_prod.width * scale), int(img_prod.height * scale)
+            img_prod = img_prod.resize((new_w, new_h), Image.Resampling.LANCZOS)
+
+            # Crop centrale alle dimensioni target
+            left = (new_w - target_w) // 2
+            top = (new_h - target_h) // 2
+            img_prod = img_prod.crop((left, top, left + target_w, top + target_h))
 
             base_img.paste(
                 img_prod,
-                (box_x + (box_w - img_prod.width) // 2, box_y + (box_h - img_prod.height) // 2),
+                (box_x + margine, box_y + margine),
                 img_prod
             )
         except: pass
@@ -206,33 +218,39 @@ def crea_immagine(prodotto):
     # spostamento a sinistra di tutti i testi.
     CENTRO_X = 797
 
+    # Centri verticali reali dei box, misurati pixel-per-pixel sul PNG
+    # generato dal template (non erano quelli usati finora, per questo il
+    # testo appariva troppo in alto rispetto al centro del rispettivo box).
+    Y_TITOLO = 291
+    Y_PREZZO_ATTUALE = 487
+    Y_PREZZO_VECCHIO = 781
+    Y_SCONTO = 918
+
     # 2. Titolo (Box Verde) - centratura precisa multi-riga
     titolo_txt = textwrap.fill(prodotto["titolo"][:55], width=22)
-    draw_centrato(draw, CENTRO_X, 265, titolo_txt, font_titolo, "white",
+    draw_centrato(draw, CENTRO_X, Y_TITOLO, titolo_txt, font_titolo, "white",
                   stroke_width=2, stroke_fill="black")
 
     # 3. Prezzo Attuale (Box Arancione Grande)
-    draw_centrato(draw, CENTRO_X, 510, f"{prodotto['prezzo_attuale']} €", font_patt, "#111111",
+    draw_centrato(draw, CENTRO_X, Y_PREZZO_ATTUALE, f"{prodotto['prezzo_attuale']} €", font_patt, "#111111",
                   stroke_width=1, stroke_fill="white")
 
     # 4. Prezzo Vecchio (Box Grigio) + linea di sbarramento centrata sul testo reale
     if prodotto.get("prezzo_precedente"):
         p_vec = f"{prodotto['prezzo_precedente']} €"
-        box_grigio_center_y = 755
 
-        bbox, _ = draw_centrato(draw, CENTRO_X, box_grigio_center_y, p_vec, font_pvec, "#333333",
+        bbox, _ = draw_centrato(draw, CENTRO_X, Y_PREZZO_VECCHIO, p_vec, font_pvec, "#333333",
                                  stroke_width=1, stroke_fill="white")
 
         w = bbox[2] - bbox[0]
         draw.line(
-            [(CENTRO_X - w / 2 - 4, box_grigio_center_y), (CENTRO_X + w / 2 + 4, box_grigio_center_y)],
+            [(CENTRO_X - w / 2 - 4, Y_PREZZO_VECCHIO), (CENTRO_X + w / 2 + 4, Y_PREZZO_VECCHIO)],
             fill="#CC0000", width=4
         )
 
     # 5. Sconto (Box Arancione Basso)
     if prodotto.get("sconto") and prodotto["sconto"] > 0:
-        box_arancione_basso_center_y = 860
-        draw_centrato(draw, CENTRO_X, box_arancione_basso_center_y, f"-{prodotto['sconto']}%", font_sconto, "white",
+        draw_centrato(draw, CENTRO_X, Y_SCONTO, f"-{prodotto['sconto']}%", font_sconto, "white",
                       stroke_width=2, stroke_fill="black")
 
     base_img.convert("RGB").save(OUTPUT_PATH, "PNG")
@@ -274,3 +292,4 @@ async def main():
 if __name__ == "__main__":
     threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT), daemon=True).start()
     asyncio.run(main())
+        
