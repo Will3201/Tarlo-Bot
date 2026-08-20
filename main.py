@@ -200,15 +200,19 @@ def crea_immagine(prodotto):
             )
         except: pass
 
-    # Centro orizzontale comune della colonna di destra: X = 738
+    # Centro orizzontale reale della colonna di destra, misurato sui box del
+    # template (bordi da x=550 a x=1044 -> centro = 797). Il vecchio valore
+    # 738 non corrispondeva al centro reale del box ed era la causa dello
+    # spostamento a sinistra di tutti i testi.
+    CENTRO_X = 797
 
     # 2. Titolo (Box Verde) - centratura precisa multi-riga
     titolo_txt = textwrap.fill(prodotto["titolo"][:55], width=22)
-    draw_centrato(draw, 738, 265, titolo_txt, font_titolo, "white",
+    draw_centrato(draw, CENTRO_X, 265, titolo_txt, font_titolo, "white",
                   stroke_width=2, stroke_fill="black")
 
     # 3. Prezzo Attuale (Box Arancione Grande)
-    draw_centrato(draw, 738, 510, f"{prodotto['prezzo_attuale']} €", font_patt, "#111111",
+    draw_centrato(draw, CENTRO_X, 510, f"{prodotto['prezzo_attuale']} €", font_patt, "#111111",
                   stroke_width=1, stroke_fill="white")
 
     # 4. Prezzo Vecchio (Box Grigio) + linea di sbarramento centrata sul testo reale
@@ -216,19 +220,19 @@ def crea_immagine(prodotto):
         p_vec = f"{prodotto['prezzo_precedente']} €"
         box_grigio_center_y = 755
 
-        bbox, _ = draw_centrato(draw, 738, box_grigio_center_y, p_vec, font_pvec, "#333333",
+        bbox, _ = draw_centrato(draw, CENTRO_X, box_grigio_center_y, p_vec, font_pvec, "#333333",
                                  stroke_width=1, stroke_fill="white")
 
         w = bbox[2] - bbox[0]
         draw.line(
-            [(738 - w / 2 - 4, box_grigio_center_y), (738 + w / 2 + 4, box_grigio_center_y)],
+            [(CENTRO_X - w / 2 - 4, box_grigio_center_y), (CENTRO_X + w / 2 + 4, box_grigio_center_y)],
             fill="#CC0000", width=4
         )
 
     # 5. Sconto (Box Arancione Basso)
     if prodotto.get("sconto") and prodotto["sconto"] > 0:
         box_arancione_basso_center_y = 860
-        draw_centrato(draw, 738, box_arancione_basso_center_y, f"-{prodotto['sconto']}%", font_sconto, "white",
+        draw_centrato(draw, CENTRO_X, box_arancione_basso_center_y, f"-{prodotto['sconto']}%", font_sconto, "white",
                       stroke_width=2, stroke_fill="black")
 
     base_img.convert("RGB").save(OUTPUT_PATH, "PNG")
@@ -270,4 +274,3 @@ async def main():
 if __name__ == "__main__":
     threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT), daemon=True).start()
     asyncio.run(main())
-    
