@@ -148,7 +148,7 @@ def scarica_dettagli_amazon(asin):
         print(f"[ERRORE SCRAPING]: {e}")
         return None
 
-# --- GENERAZIONE IMMAGINE (TESTI PERFETTAMENTE CENTRATI NEI BOX) ---
+# --- GENERAZIONE IMMAGINE (CON CORREZIONI DI POSIZIONE E DIMENSIONE) ---
 def crea_immagine(prodotto):
     cairosvg.svg2png(url=str(SVG_TEMPLATE_PATH), write_to=str(OUTPUT_PATH))
     base_img = Image.open(OUTPUT_PATH).convert("RGBA")
@@ -159,30 +159,33 @@ def crea_immagine(prodotto):
     font_pvec = carica_font_locale(36)
     font_sconto = carica_font_locale(55)
 
-    # 1. Immagine Prodotto (Box Bianco Sinistra)
+    # 1. Immagine Prodotto (Box Bianco Sinistra - Ingrandita)
     if prodotto.get("immagine_url"):
         try:
             resp = requests.get(prodotto["immagine_url"], timeout=10)
             img_prod = Image.open(BytesIO(resp.content)).convert("RGBA")
             box_x, box_y = 30, 170
             box_w, box_h = 460, 730
-            img_prod.thumbnail((box_w - 40, box_h - 40), Image.Resampling.LANCZOS)
+            
+            # Margine ridotto a 20px per fare in modo che l'immagine occupi più spazio (più grande)
+            img_prod.thumbnail((box_w - 20, box_h - 20), Image.Resampling.LANCZOS)
+            
             base_img.paste(img_prod, (box_x + (box_w - img_prod.width) // 2, box_y + (box_h - img_prod.height) // 2), img_prod)
         except: pass
 
     # Centro orizzontale comune della colonna di destra: X = 738
 
-    # 2. Titolo (Box Verde: Y=190 -> 350 | Centro: Y=265)
+    # 2. Titolo (Box Verde)
     titolo_txt = textwrap.fill(prodotto["titolo"][:55], width=22)
     draw.text((738, 265), titolo_txt, fill="white", font=font_titolo, anchor="mm", align="center", stroke_width=2, stroke_fill="black")
 
-    # 3. Prezzo Attuale (Box Arancione Grande: Y=370 -> 650 | Centro: Y=510)
+    # 3. Prezzo Attuale (Box Arancione Grande)
     draw.text((738, 510), f"{prodotto['prezzo_attuale']} €", fill="#111111", font=font_patt, anchor="mm", stroke_width=1, stroke_fill="white")
 
-    # 4. Prezzo Vecchio (Box Grigio corretto: Centro esatto a Y = 723)
+    # 4. Prezzo Vecchio (Box Grigio - Abbassato al centro esatto: Y = 755)
     if prodotto.get("prezzo_precedente"):
         p_vec = f"{prodotto['prezzo_precedente']} €"
-        box_grigio_center_y = 723
+        box_grigio_center_y = 755  # Spostato più in basso
         
         draw.text((738, box_grigio_center_y), p_vec, fill="#333333", font=font_pvec, anchor="mm", stroke_width=1, stroke_fill="white")
         
@@ -190,9 +193,9 @@ def crea_immagine(prodotto):
         bbox = draw.textbbox((738, box_grigio_center_y), p_vec, font=font_pvec, anchor="mm")
         draw.line([(bbox[0]-4, box_grigio_center_y), (bbox[2]+4, box_grigio_center_y)], fill="#CC0000", width=4)
 
-    # 5. Sconto (Box Arancione Basso corretto: Centro esatto a Y = 841)
+    # 5. Sconto (Box Arancione Basso - Abbassato al centro esatto: Y = 860)
     if prodotto.get("sconto") and prodotto["sconto"] > 0:
-        box_arancione_basso_center_y = 841
+        box_arancione_basso_center_y = 860  # Spostato più in basso
         draw.text((738, box_arancione_basso_center_y), f"-{prodotto['sconto']}%", fill="white", font=font_sconto, anchor="mm", stroke_width=2, stroke_fill="black")
 
     base_img.convert("RGB").save(OUTPUT_PATH, "PNG")
