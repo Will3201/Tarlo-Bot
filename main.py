@@ -27,7 +27,7 @@ SESSION_STRING = os.getenv("TELEGRAM_SESSION_STRING", "")
 
 PORT = int(os.getenv("PORT", 10000))
 
-# Lista canali monitorati
+# Lista canali monitorati (virgole verificate)
 CANALI_SPIA = [
     "sparky_offerte", 
     "AstroHouse_Casa_Cucina", 
@@ -185,12 +185,15 @@ def crea_immagine(prodotto):
     with open(SVG_TEMPLATE_PATH, "r", encoding="utf-8") as f:
         svg_code = f.read()
 
+    # Rimuove i tag <tspan> intermedi inseriti da Canva quando spezza le parole
+    svg_code = re.sub(r'</tspan>\s*<tspan[^>]*>', '', svg_code)
+
     titolo_breve = prodotto["titolo"][:42]
     prezzo_att = f"{prodotto['prezzo_attuale']} €"
     prezzo_vec = f"{prodotto['prezzo_precedente']} €" if prodotto.get("prezzo_precedente") else ""
     sconto_txt = f"-{prodotto['sconto']}%" if prodotto.get("sconto") and prodotto["sconto"] > 0 else ""
 
-    # Sostituzione segnaposto corti di Canva
+    # Sostituzione dei segnaposto
     svg_modificato = (
         svg_code.replace("TXT_TITOLO", titolo_breve)
                 .replace("TXT_PATT", prezzo_att)
@@ -292,4 +295,3 @@ async def main():
 if __name__ == "__main__":
     threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT), daemon=True).start()
     asyncio.run(main())
-    
