@@ -148,16 +148,17 @@ def scarica_dettagli_amazon(asin):
         print(f"[ERRORE SCRAPING]: {e}")
         return None
 
-# --- GENERAZIONE IMMAGINE (CON CONTORNI) ---
+# --- GENERAZIONE IMMAGINE (CON CENTRATURA CORRETTA) ---
 def crea_immagine(prodotto):
     cairosvg.svg2png(url=str(SVG_TEMPLATE_PATH), write_to=str(OUTPUT_PATH))
     base_img = Image.open(OUTPUT_PATH).convert("RGBA")
     draw = ImageDraw.Draw(base_img)
 
-    font_titolo = carica_font_locale(34)
-    font_patt = carica_font_locale(72)
-    font_pvec = carica_font_locale(44)
-    font_sconto = carica_font_locale(68)
+    # Font dimensioni ottimizzate
+    font_titolo = carica_font_locale(38)
+    font_patt = carica_font_locale(85)
+    font_pvec = carica_font_locale(45)
+    font_sconto = carica_font_locale(75)
 
     # Incolla Immagine
     if prodotto.get("immagine_url"):
@@ -170,23 +171,27 @@ def crea_immagine(prodotto):
             base_img.paste(img_prod, (box_x + (box_w - img_prod.width) // 2, box_y + (box_h - img_prod.height) // 2), img_prod)
         except: pass
 
-    # Titolo (Bianco con contorno nero)
+    # Titolo (Centrato nel riquadro verde)
     titolo_txt = textwrap.fill(prodotto["titolo"][:50], width=17)
-    draw.text((720, 280), titolo_txt, fill="white", font=font_titolo, anchor="mm", align="center", stroke_width=2, stroke_fill="black")
+    draw.text((750, 260), titolo_txt, fill="white", font=font_titolo, anchor="mm", align="center", stroke_width=2, stroke_fill="black")
 
-    # Prezzo Attuale (Scuro con contorno bianco)
-    draw.text((760, 550), f"{prodotto['prezzo_attuale']} €", fill="#111111", font=font_patt, anchor="mm", stroke_width=1, stroke_fill="white")
+    # Prezzo Attuale (Centro perfetto del riquadro arancione grande)
+    # Coordinate centro stimato: X=750, Y=550
+    draw.text((750, 550), f"{prodotto['prezzo_attuale']} €", fill="#111111", font=font_patt, anchor="mm", stroke_width=1, stroke_fill="white")
 
-    # Prezzo Vecchio (Grigio con contorno bianco)
+    # Prezzo Vecchio (Centro perfetto della casella bianca)
+    # Coordinate centro stimato: X=750, Y=720
     if prodotto.get("prezzo_precedente"):
         p_vec = f"{prodotto['prezzo_precedente']} €"
-        draw.text((760, 720), p_vec, fill="#333333", font=font_pvec, anchor="mm", stroke_width=1, stroke_fill="white")
-        bbox = draw.textbbox((760, 720), p_vec, font=font_pvec, anchor="mm")
+        draw.text((750, 720), p_vec, fill="#333333", font=font_pvec, anchor="mm", stroke_width=1, stroke_fill="white")
+        # Linea sbarrata
+        bbox = draw.textbbox((750, 720), p_vec, font=font_pvec, anchor="mm")
         draw.line([(bbox[0]-6, (bbox[1]+bbox[3])//2), (bbox[2]+6, (bbox[1]+bbox[3])//2)], fill="#CC0000", width=4)
 
-    # Sconto (Bianco con contorno nero)
+    # Sconto (Centro perfetto della fascia in basso a destra)
+    # Coordinate centro stimato: X=750, Y=860
     if prodotto.get("sconto") and prodotto["sconto"] > 0:
-        draw.text((820, 850), f"-{prodotto['sconto']}%", fill="white", font=font_sconto, anchor="mm", stroke_width=3, stroke_fill="black")
+        draw.text((750, 860), f"-{prodotto['sconto']}%", fill="white", font=font_sconto, anchor="mm", stroke_width=3, stroke_fill="black")
 
     base_img.convert("RGB").save(OUTPUT_PATH, "PNG")
     return OUTPUT_PATH
@@ -227,4 +232,3 @@ async def main():
 if __name__ == "__main__":
     threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT), daemon=True).start()
     asyncio.run(main())
-    
