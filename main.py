@@ -27,6 +27,7 @@ SESSION_STRING = os.getenv("TELEGRAM_SESSION_STRING", "")
 
 PORT = int(os.getenv("PORT", 10000))
 
+# Lista canali monitorati
 CANALI_SPIA = [
     "sparky_offerte", 
     "AstroHouse_Casa_Cucina", 
@@ -106,8 +107,13 @@ def scarica_dettagli_amazon(asin):
     }
     try:
         res = requests.get(url, headers=headers, timeout=12)
-        soup = BeautifulSoup(res.text, "html.parser")
+        print(f"[DEBUG SCRAPER] Status Code Amazon: {res.status_code}")
         
+        if res.status_code != 200:
+            print(f"[ERRORE SCRAPER] Risposta non valida ({res.status_code}) da Amazon.")
+            return None
+
+        soup = BeautifulSoup(res.text, "html.parser")
         titolo_elem = soup.find("span", {"id": "productTitle"})
         titolo = titolo_elem.get_text().strip() if titolo_elem else "Prodotto Amazon"
 
@@ -126,6 +132,7 @@ def scarica_dettagli_amazon(asin):
                     prezzo_attuale = off_elem.get_text().replace("€", "").strip().replace(".", ",")
 
         if not prezzo_attuale: 
+            print("[ERRORE SCRAPER] Impossibile trovare il prezzo del prodotto.")
             return None
 
         p_att_clean = re.sub(r'[^\d,]', '', prezzo_attuale).replace(',', '.')
@@ -170,33 +177,29 @@ def scarica_dettagli_amazon(asin):
             "immagine_url": img_url
         }
     except Exception as e:
-        print(f"Errore scraping ASIN {asin}: {e}")
+        print(f"[ERRORE SCRAPING]: {e}")
         return None
 
-# --- GENERAZIONE GRAFICA TRAMITE CANVA SVG ---
+# --- GENERAZIONE GRAFICA SVG ---
 def crea_immagine(prodotto):
-    # 1. Leggi il modello SVG generato da Canva
     with open(SVG_TEMPLATE_PATH, "r", encoding="utf-8") as f:
         svg_code = f.read()
 
-    # Prepara le stringhe per la sostituzione
     titolo_breve = prodotto["titolo"][:42]
     prezzo_att = f"{prodotto['prezzo_attuale']} €"
     prezzo_vec = f"{prodotto['prezzo_precedente']} €" if prodotto.get("prezzo_precedente") else ""
     sconto_txt = f"-{prodotto['sconto']}%" if prodotto.get("sconto") and prodotto["sconto"] > 0 else ""
 
-    # 2. Sostituisci i segnaposto di Canva con i dati reali
+    # Sostituzione segnaposto corti di Canva
     svg_modificato = (
-        svg_code.replace("TITOLO_PRODOTTO", titolo_breve)
-                .replace("PREZZO_ATTUALE", prezzo_att)
-                .replace("PREZZO_VECCHIO", prezzo_vec)
-                .replace("PERCENTUALE_SCONTO", sconto_txt)
+        svg_code.replace("TXT_TITOLO", titolo_breve)
+                .replace("TXT_PATT", prezzo_att)
+                .replace("TXT_PVEC", prezzo_vec)
+                .replace("TXT_SCONTO", sconto_txt)
     )
 
-    # 3. Converti l'SVG in un'immagine PNG usando CairoSVG
     cairosvg.svg2png(bytestring=svg_modificato.encode('utf-8'), write_to=str(OUTPUT_PATH))
     
-    # 4. Incolla l'immagine del prodotto a sinistra usando Pillow
     if prodotto.get("immagine_url"):
         try:
             base_img = Image.open(OUTPUT_PATH).convert("RGBA")
@@ -213,7 +216,7 @@ def crea_immagine(prodotto):
             base_img.paste(img_prod, (offset_x, offset_y), img_prod)
             base_img.convert("RGB").save(OUTPUT_PATH, "PNG")
         except Exception as e:
-            print(f"[ERRORE INCOLLA IMMAGINE PRODOTTO]: {e}")
+            print(f"[ERRORE INCOLLA IMMAGINE]: {e}")
 
     return OUTPUT_PATH
 
@@ -227,38 +230,61 @@ async def main():
     async def handler(event):
         try:
             chat = await event.get_chat()
-            chat_username = getattr(chat, 'username', '') or ''
+            chat_username = (getattr(chat, 'username', '') or '').replace("@", "").lower()
+            canali_puliti = [c.replace("@", "").lower() for c in CANALI_SPIA]
             
-            if chat_username.lower() in [c.lower() for c in CANALI_SPIA]:
-                asin = estrai_asin(event.message.text)
-                if asin and not gia_inviato(asin):
-                    p = await asyncio.to_thread(scarica_dettagli_amazon, asin)
-                    if p:
-                        segna_inviato(asin)
-                        foto = crea_immagine(p)
-                        
-                        url_affiliato = f"https://www.amazon.it/dp/{p['asin']}?tag={AMAZON_TAG}"
-                        
-                        didascalia = "🪵 **Il Tarlo ha colpito ancora!**\n\n"
-                        didascalia += f"📦 **{p['titolo']}**\n"
-                        
-                        if p['sconto'] > 0 and p['prezzo_precedente']:
-                            didascalia += f"📉 **Sconto:** -{p['sconto']}%\n"
-                            didascalia += f"💰 ~~{p['prezzo_precedente']} €~~ ➔ **{p['prezzo_attuale']} €**\n\n"
-                        else:
-                            didascalia += f"💰 **Prezzo speciale:** {p['prezzo_attuale']} €\n\n"
-                            
-                        didascalia += f"👉 **[ACQUISTA SUBITO IN OFFERTA]({url_affiliato})**\n\n"
-                        didascalia += "#IlTarloDelRisparmio"
+            print(f"\n[NUOVO MESSAGGIO] Da chat: @{chat_username}")
 
-                        await bot.send_photo(
-                            chat_id=CANALE_CHAT_ID, 
-                            photo=open(foto, "rb"), 
-                            caption=didascalia, 
-                            parse_mode="Markdown"
-                        )
+            if chat_username not in canali_puliti:
+                print(f" -> Canale '{chat_username}' ignorato (non presente in CANALI_SPIA).")
+                return
+
+            asin = estrai_asin(event.message.text)
+            if not asin:
+                print(" -> Nessun ASIN identificato nel messaggio.")
+                return
+
+            print(f" -> ASIN identificato: {asin}")
+
+            if gia_inviato(asin):
+                print(f" -> ASIN {asin} già processato e presente nel DB nelle ultime 24h.")
+                return
+
+            print(" -> Scraping Amazon in corso...")
+            p = await asyncio.to_thread(scarica_dettagli_amazon, asin)
+            
+            if not p:
+                print(" -> Impossibile ottenere i dettagli del prodotto.")
+                return
+
+            print(" -> Generazione immagine e composizione post...")
+            segna_inviato(asin)
+            foto = crea_immagine(p)
+            
+            url_affiliato = f"https://www.amazon.it/dp/{p['asin']}?tag={AMAZON_TAG}"
+            
+            didascalia = "🪵 **Il Tarlo ha colpito ancora!**\n\n"
+            didascalia += f"📦 **{p['titolo']}**\n"
+            
+            if p['sconto'] > 0 and p['prezzo_precedente']:
+                didascalia += f"📉 **Sconto:** -{p['sconto']}%\n"
+                didascalia += f"💰 ~~{p['prezzo_precedente']} €~~ ➔ **{p['prezzo_attuale']} €**\n\n"
+            else:
+                didascalia += f"💰 **Prezzo speciale:** {p['prezzo_attuale']} €\n\n"
+                
+            didascalia += f"👉 **[ACQUISTA SUBITO IN OFFERTA]({url_affiliato})**\n\n"
+            didascalia += "#IlTarloDelRisparmio"
+
+            await bot.send_photo(
+                chat_id=CANALE_CHAT_ID, 
+                photo=open(foto, "rb"), 
+                caption=didascalia, 
+                parse_mode="Markdown"
+            )
+            print(" -> [SUCCESS] Post pubblicato correttamente su Telegram!")
+
         except Exception as e:
-            print(f"Errore gestione messaggio: {e}")
+            print(f"[ERRORE HANDLER CRITICO]: {e}")
 
     print("Bot Il Tarlo del Risparmio avviato...")
     await client.run_until_disconnected()
@@ -266,3 +292,4 @@ async def main():
 if __name__ == "__main__":
     threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT), daemon=True).start()
     asyncio.run(main())
+    
