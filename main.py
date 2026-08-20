@@ -216,20 +216,20 @@ def crea_immagine(prodotto):
     
     try:
         font_titolo = ImageFont.truetype(font_file, 22)
-        font_prezzo_grande = ImageFont.truetype(font_file, 65)
-        font_prezzo_vecchio = ImageFont.truetype(font_file, 36)
-        font_sconto = ImageFont.truetype(font_file, 68)
+        font_prezzo_grande = ImageFont.truetype(font_file, 68)
+        font_prezzo_vecchio = ImageFont.truetype(font_file, 34)
+        font_sconto = ImageFont.truetype(font_file, 65)
     except Exception as e:
         font_titolo = font_prezzo_grande = font_prezzo_vecchio = font_sconto = ImageFont.load_default()
 
-    # A. TITOLO PRODOTTO (Cartellino verde - X: 745, Y: 345)
+    # A. TITOLO PRODOTTO (Cartellino verde)
     titolo_breve = prodotto["titolo"][:42]
     righe = textwrap.wrap(titolo_breve, width=18)[:3]
-    start_y = 345 - ((len(righe) - 1) * 12)
+    start_y = 330 - ((len(righe) - 1) * 12)
     
     for i, riga in enumerate(righe):
         draw.text(
-            (745, start_y + (i * 24)),
+            (730, start_y + (i * 24)),
             riga,
             fill=(255, 255, 255, 255),
             stroke_width=1,
@@ -238,10 +238,10 @@ def crea_immagine(prodotto):
             anchor="mm"
         )
 
-    # B. PREZZO ATTUALE SCONTATO (Pulsante arancione - X: 775, Y: 555)
+    # B. PREZZO ATTUALE SCONTATO (Pulsante arancione - centrato verticalmente a Y=595)
     testo_prezzo = f"{prodotto['prezzo_attuale']} €"
     draw.text(
-        (775, 555),
+        (765, 595),
         testo_prezzo,
         fill=(255, 255, 255, 255),
         stroke_width=2,
@@ -250,33 +250,22 @@ def crea_immagine(prodotto):
         anchor="mm"
     )
 
-    # C. PREZZO VECCHIO BARRATO (Box bianco - X: 775, Y: 760)
+    # C. PREZZO VECCHIO (Allineato sopra la linea rossa già presente nel template)
     if prodotto.get("prezzo_precedente"):
         testo_vecchio = f"{prodotto['prezzo_precedente']} €"
-        center_x, center_y = 775, 760
-        
         draw.text(
-            (center_x, center_y),
+            (765, 715),
             testo_vecchio,
-            fill=(30, 30, 30, 255),
+            fill=(40, 40, 40, 255),
             font=font_prezzo_vecchio,
             anchor="mm"
         )
-        
-        # Barra rossa dinamicamente agganciata al testo
-        bbox = draw.textbbox((center_x, center_y), testo_vecchio, font=font_prezzo_vecchio, anchor="mm")
-        y_linea = (bbox[1] + bbox[3]) / 2
-        draw.line(
-            [(bbox[0] - 6, y_linea), (bbox[2] + 6, y_linea)],
-            fill=(220, 30, 30, 255),
-            width=4
-        )
 
-    # D. PERCENTUALE SCONTO (Fascia arancione in basso - X: 790, Y: 880)
+    # D. PERCENTUALE SCONTO (Affiancata a sinistra del simbolo % dello sfondo)
     if prodotto.get("sconto") and prodotto["sconto"] > 0:
-        testo_sconto = f"-{prodotto['sconto']}%"
+        testo_sconto = f"-{prodotto['sconto']}"
         draw.text(
-            (790, 880),
+            (710, 860),
             testo_sconto,
             fill=(255, 255, 255, 255),
             stroke_width=3,
