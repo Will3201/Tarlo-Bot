@@ -28,11 +28,11 @@ SESSION_STRING = os.getenv("TELEGRAM_SESSION_STRING", "")
 PORT = int(os.getenv("PORT", 10000))
 
 CANALI_SPIA = [
-    "sparky_offerte", 
-    "AstroHouse_Casa_Cucina", 
-    "ultimaofferta", 
+    "sparky_offerte",
+    "AstroHouse_Casa_Cucina",
+    "ultimaofferta",
     "offerte5",
-    "offerte_supermercato", 
+    "offerte_supermercato",
     "SpesaScontata",
     "provawill32"
 ]
@@ -54,6 +54,27 @@ def carica_font_locale(size):
         except Exception as e:
             print(f"[ERRORE CARICAMENTO FONT]: {e}")
     return ImageFont.load_default()
+
+# --- HELPER: CENTRATURA TESTO PRECISA ---
+def draw_centrato(draw, center_x, center_y, testo, font, fill, stroke_width=0, stroke_fill=None, align="center"):
+    """
+    Centra il testo (anche multi-riga) esattamente su (center_x, center_y),
+    usando il bounding box reale del testo renderizzato (comprensivo di stroke),
+    invece di affidarsi ad anchor='mm' che con stroke_width e testo multi-riga
+    puo' risultare impreciso.
+    """
+    bbox = draw.multiline_textbbox(
+        (0, 0), testo, font=font, stroke_width=stroke_width, align=align
+    )
+    w = bbox[2] - bbox[0]
+    h = bbox[3] - bbox[1]
+    x = center_x - w / 2 - bbox[0]
+    y = center_y - h / 2 - bbox[1]
+    draw.multiline_text(
+        (x, y), testo, fill=fill, font=font,
+        align=align, stroke_width=stroke_width, stroke_fill=stroke_fill
+    )
+    return bbox, (x, y)
 
 # --- WEB SERVER ---
 @app.route("/")
@@ -81,7 +102,7 @@ def gia_inviato(asin):
 
 def segna_inviato(asin):
     with sqlite3.connect(DB_PATH) as conn:
-        conn.execute("INSERT OR REPLACE INTO prodotti (asin, inviato_il) VALUES (?, ?)", 
+        conn.execute("INSERT OR REPLACE INTO prodotti (asin, inviato_il) VALUES (?, ?)",
                      (asin, datetime.now().isoformat()))
 
 # --- ESTRAZIONE ASIN ---
@@ -107,7 +128,7 @@ def scarica_dettagli_amazon(asin):
         res = requests.get(url, headers=headers, timeout=12)
         if res.status_code != 200: return None
         soup = BeautifulSoup(res.text, "html.parser")
-        
+
         titolo_elem = soup.find("span", {"id": "productTitle"})
         titolo = titolo_elem.get_text().strip() if titolo_elem else "Prodotto Amazon"
 
@@ -128,7 +149,7 @@ def scarica_dettagli_amazon(asin):
         p_att_num = float(prezzo_attuale.replace(',', '.'))
         sconto = 0
         prezzo_precedente = None
-        
+
         strike_elem = soup.find("span", class_="a-text-strike") or soup.find("span", {"id": "listPrice"})
         if strike_elem:
             off_strike = strike_elem.find("span", class_="a-offscreen")
@@ -148,7 +169,7 @@ def scarica_dettagli_amazon(asin):
         print(f"[ERRORE SCRAPING]: {e}")
         return None
 
-# --- GENERAZIONE IMMAGINE (CON CORREZIONI DI POSIZIONE E DIMENSIONE) ---
+# --- GENERAZIONE IMMAGINE (CENTRATURA CORRETTA + IMMAGINE PRODOTTO INGRANDITA) ---
 def crea_immagine(prodotto):
     cairosvg.svg2png(url=str(SVG_TEMPLATE_PATH), write_to=str(OUTPUT_PATH))
     base_img = Image.open(OUTPUT_PATH).convert("RGBA")
@@ -159,44 +180,56 @@ def crea_immagine(prodotto):
     font_pvec = carica_font_locale(36)
     font_sconto = carica_font_locale(55)
 
-    # 1. Immagine Prodotto (Box Bianco Sinistra - Ingrandita)
+    # 1. Immagine Prodotto (Box Bianco Sinistra - Ingrandita ulteriormente)
     if prodotto.get("immagine_url"):
         try:
             resp = requests.get(prodotto["immagine_url"], timeout=10)
             img_prod = Image.open(BytesIO(resp.content)).convert("RGBA")
             box_x, box_y = 30, 170
             box_w, box_h = 460, 730
-            
-            # Margine ridotto a 20px per fare in modo che l'immagine occupi più spazio (più grande)
-            img_prod.thumbnail((box_w - 20, box_h - 20), Image.Resampling.LANCZOS)
-            
-            base_img.paste(img_prod, (box_x + (box_w - img_prod.width) // 2, box_y + (box_h - img_prod.height) // 2), img_prod)
+
+            # Margine ridotto a 6px (prima 20px) cosi' l'immagine occupa quasi
+            # tutto lo spazio disponibile nel box bianco
+            margine = 6
+            img_prod.thumbnail((box_w - margine * 2, box_h - margine * 2), Image.Resampling.LANCZOS)
+
+            base_img.paste(
+                img_prod,
+                (box_x + (box_w - img_prod.width) // 2, box_y + (box_h - img_prod.height) // 2),
+                img_prod
+            )
         except: pass
 
     # Centro orizzontale comune della colonna di destra: X = 738
 
-    # 2. Titolo (Box Verde)
+    # 2. Titolo (Box Verde) - centratura precisa multi-riga
     titolo_txt = textwrap.fill(prodotto["titolo"][:55], width=22)
-    draw.text((738, 265), titolo_txt, fill="white", font=font_titolo, anchor="mm", align="center", stroke_width=2, stroke_fill="black")
+    draw_centrato(draw, 738, 265, titolo_txt, font_titolo, "white",
+                  stroke_width=2, stroke_fill="black")
 
     # 3. Prezzo Attuale (Box Arancione Grande)
-    draw.text((738, 510), f"{prodotto['prezzo_attuale']} €", fill="#111111", font=font_patt, anchor="mm", stroke_width=1, stroke_fill="white")
+    draw_centrato(draw, 738, 510, f"{prodotto['prezzo_attuale']} €", font_patt, "#111111",
+                  stroke_width=1, stroke_fill="white")
 
-    # 4. Prezzo Vecchio (Box Grigio - Abbassato al centro esatto: Y = 755)
+    # 4. Prezzo Vecchio (Box Grigio) + linea di sbarramento centrata sul testo reale
     if prodotto.get("prezzo_precedente"):
         p_vec = f"{prodotto['prezzo_precedente']} €"
-        box_grigio_center_y = 755  # Spostato più in basso
-        
-        draw.text((738, box_grigio_center_y), p_vec, fill="#333333", font=font_pvec, anchor="mm", stroke_width=1, stroke_fill="white")
-        
-        # Linea di sbarramento rossa perfettamente centrata sul testo
-        bbox = draw.textbbox((738, box_grigio_center_y), p_vec, font=font_pvec, anchor="mm")
-        draw.line([(bbox[0]-4, box_grigio_center_y), (bbox[2]+4, box_grigio_center_y)], fill="#CC0000", width=4)
+        box_grigio_center_y = 755
 
-    # 5. Sconto (Box Arancione Basso - Abbassato al centro esatto: Y = 860)
+        bbox, _ = draw_centrato(draw, 738, box_grigio_center_y, p_vec, font_pvec, "#333333",
+                                 stroke_width=1, stroke_fill="white")
+
+        w = bbox[2] - bbox[0]
+        draw.line(
+            [(738 - w / 2 - 4, box_grigio_center_y), (738 + w / 2 + 4, box_grigio_center_y)],
+            fill="#CC0000", width=4
+        )
+
+    # 5. Sconto (Box Arancione Basso)
     if prodotto.get("sconto") and prodotto["sconto"] > 0:
-        box_arancione_basso_center_y = 860  # Spostato più in basso
-        draw.text((738, box_arancione_basso_center_y), f"-{prodotto['sconto']}%", fill="white", font=font_sconto, anchor="mm", stroke_width=2, stroke_fill="black")
+        box_arancione_basso_center_y = 860
+        draw_centrato(draw, 738, box_arancione_basso_center_y, f"-{prodotto['sconto']}%", font_sconto, "white",
+                      stroke_width=2, stroke_fill="black")
 
     base_img.convert("RGB").save(OUTPUT_PATH, "PNG")
     return OUTPUT_PATH
@@ -222,7 +255,7 @@ async def main():
         segna_inviato(asin)
         foto = crea_immagine(p)
         url = f"https://www.amazon.it/dp/{p['asin']}?tag={AMAZON_TAG}"
-        
+
         msg = f"🪵 **Il Tarlo ha colpito ancora!**\n\n📦 **{p['titolo']}**\n"
         if p['sconto'] > 0:
             msg += f"📉 **Sconto:** -{p['sconto']}%\n💰 ~~{p['prezzo_precedente']} €~~ ➔ **{p['prezzo_attuale']} €**\n\n"
