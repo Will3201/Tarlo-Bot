@@ -4,3 +4,4 @@ flask
 pillow
 beautifulsoup4
 requests
+cairosvg
