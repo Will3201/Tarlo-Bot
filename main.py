@@ -148,45 +148,46 @@ def scarica_dettagli_amazon(asin):
         print(f"[ERRORE SCRAPING]: {e}")
         return None
 
-# --- GENERAZIONE IMMAGINE (COORDINATE CORRETTE) ---
+# --- GENERAZIONE IMMAGINE (NUOVO TEMPLATE NUOVE COORDINATE) ---
 def crea_immagine(prodotto):
     cairosvg.svg2png(url=str(SVG_TEMPLATE_PATH), write_to=str(OUTPUT_PATH))
     base_img = Image.open(OUTPUT_PATH).convert("RGBA")
     draw = ImageDraw.Draw(base_img)
 
-    font_titolo = carica_font_locale(36)
-    font_patt = carica_font_locale(80)
+    # Impostazione Font
+    font_titolo = carica_font_locale(34)
+    font_patt = carica_font_locale(88)
     font_pvec = carica_font_locale(42)
-    font_sconto = carica_font_locale(70)
+    font_sconto = carica_font_locale(68)
 
-    # Incolla Immagine Prodotto
+    # 1. Incolla Immagine Prodotto (Box Bianco Sinistro)
     if prodotto.get("immagine_url"):
         try:
             resp = requests.get(prodotto["immagine_url"], timeout=10)
             img_prod = Image.open(BytesIO(resp.content)).convert("RGBA")
-            box_x, box_y = 25, 240
-            box_w, box_h = 510, 770
+            box_x, box_y = 35, 175
+            box_w, box_h = 455, 720
             img_prod.thumbnail((box_w - 40, box_h - 40), Image.Resampling.LANCZOS)
             base_img.paste(img_prod, (box_x + (box_w - img_prod.width) // 2, box_y + (box_h - img_prod.height) // 2), img_prod)
         except: pass
 
-    # Titolo (Centro cartellino verde)
-    titolo_txt = textwrap.fill(prodotto["titolo"][:50], width=17)
-    draw.text((720, 315), titolo_txt, fill="white", font=font_titolo, anchor="mm", align="center", stroke_width=2, stroke_fill="black")
+    # 2. Titolo (Centro Box Verde - In alto a destra)
+    titolo_txt = textwrap.fill(prodotto["titolo"][:55], width=21)
+    draw.text((740, 270), titolo_txt, fill="white", font=font_titolo, anchor="mm", align="center", stroke_width=2, stroke_fill="black")
 
-    # Prezzo Attuale (Centro riquadro arancione grande)
-    draw.text((750, 565), f"{prodotto['prezzo_attuale']} €", fill="#111111", font=font_patt, anchor="mm", stroke_width=1, stroke_fill="white")
+    # 3. Prezzo Attuale (Centro Box Arancione Grande)
+    draw.text((740, 512), f"{prodotto['prezzo_attuale']} €", fill="#111111", font=font_patt, anchor="mm", stroke_width=1, stroke_fill="white")
 
-    # Prezzo Vecchio (Centro casella bianca)
+    # 4. Prezzo Vecchio (Centro Box Grigio Chiaro)
     if prodotto.get("prezzo_precedente"):
         p_vec = f"{prodotto['prezzo_precedente']} €"
-        draw.text((750, 760), p_vec, fill="#333333", font=font_pvec, anchor="mm", stroke_width=1, stroke_fill="white")
-        bbox = draw.textbbox((750, 760), p_vec, font=font_pvec, anchor="mm")
+        draw.text((740, 722), p_vec, fill="#333333", font=font_pvec, anchor="mm", stroke_width=1, stroke_fill="white")
+        bbox = draw.textbbox((740, 722), p_vec, font=font_pvec, anchor="mm")
         draw.line([(bbox[0]-6, (bbox[1]+bbox[3])//2), (bbox[2]+6, (bbox[1]+bbox[3])//2)], fill="#CC0000", width=4)
 
-    # Sconto (Centro fascia arancione in basso)
+    # 5. Sconto (Centro Box Arancione In Basso)
     if prodotto.get("sconto") and prodotto["sconto"] > 0:
-        draw.text((760, 890), f"-{prodotto['sconto']}%", fill="white", font=font_sconto, anchor="mm", stroke_width=3, stroke_fill="black")
+        draw.text((740, 842), f"-{prodotto['sconto']}%", fill="white", font=font_sconto, anchor="mm", stroke_width=3, stroke_fill="black")
 
     base_img.convert("RGB").save(OUTPUT_PATH, "PNG")
     return OUTPUT_PATH
@@ -225,7 +226,7 @@ async def main():
     await client.run_until_disconnected()
 
 if __name__ == "__main__":
-    # RESET AUTOMATICO DATABASE AD OGNI AVVIO PER TEST
+    # Reset automatico del database ad ogni avvio per i test
     if DB_PATH.exists():
         try:
             os.remove(DB_PATH)
