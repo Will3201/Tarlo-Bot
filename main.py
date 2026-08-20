@@ -4,7 +4,6 @@ import re
 import sqlite3
 import textwrap
 import threading
-import urllib.request
 from datetime import datetime, timedelta
 from io import BytesIO
 from pathlib import Path
@@ -42,21 +41,22 @@ BASE_DIR = Path(__file__).resolve().parent
 SVG_TEMPLATE_PATH = BASE_DIR / "template.svg"
 OUTPUT_PATH = BASE_DIR / "offerta_finale.png"
 DB_PATH = BASE_DIR / "offerte.db"
-FONT_PATH = BASE_DIR / "Roboto-Bold.ttf"
 
 bot = Bot(token=TELEGRAM_TOKEN)
 app = Flask(__name__)
 
-# --- DOWNLOAD FONT PER RENDER ---
-def scarica_font_se_manca():
-    if not FONT_PATH.exists():
+# --- RICERCA AUTOMATICA FONT NELLE CARTELLE ---
+def carica_font_locale(size):
+    # Cerca qualsiasi file .ttf o .otf nella cartella del progetto o nelle sue sottocartelle
+    font_files = list(BASE_DIR.rglob("*.ttf")) + list(BASE_DIR.rglob("*.otf"))
+    if font_files:
         try:
-            print("[INFO] Scaricamento font Roboto-Bold.ttf...")
-            url = "https://github.com/google/fonts/raw/main/apache/roboto/static/Roboto-Bold.ttf"
-            urllib.request.urlretrieve(url, FONT_PATH)
-            print("[OK] Font scaricato correttamente.")
+            return ImageFont.truetype(str(font_files[0]), size)
         except Exception as e:
-            print(f"[ERRORE DOWNLOAD FONT]: {e}")
+            print(f"[ERRORE CARICAMENTO FONT]: {e}")
+    
+    print("[ATTENZIONE] Nessun font .ttf/.otf trovato nel repository GitHub!")
+    return ImageFont.load_default()
 
 # --- WEB SERVER PER RENDER ---
 @app.route("/")
@@ -119,10 +119,7 @@ def scarica_dettagli_amazon(asin):
     }
     try:
         res = requests.get(url, headers=headers, timeout=12)
-        print(f"[DEBUG SCRAPER] Status Code Amazon: {res.status_code}")
-        
         if res.status_code != 200:
-            print(f"[ERRORE SCRAPER] Risposta non valida ({res.status_code}) da Amazon.")
             return None
 
         soup = BeautifulSoup(res.text, "html.parser")
@@ -144,7 +141,6 @@ def scarica_dettagli_amazon(asin):
                     prezzo_attuale = off_elem.get_text().replace("€", "").strip().replace(".", ",")
 
         if not prezzo_attuale: 
-            print("[ERRORE SCRAPER] Impossibile trovare il prezzo del prodotto.")
             return None
 
         p_att_clean = re.sub(r'[^\d,]', '', prezzo_attuale).replace(',', '.')
@@ -194,25 +190,19 @@ def scarica_dettagli_amazon(asin):
 
 # --- GENERAZIONE GRAFICA TRAMITE PILLOW ---
 def crea_immagine(prodotto):
-    scarica_font_se_manca()
-    
-    # 1. Converte SVG di base in PNG
+    # 1. Renderizza l'SVG pulito in PNG
     cairosvg.svg2png(url=str(SVG_TEMPLATE_PATH), write_to=str(OUTPUT_PATH))
     
     base_img = Image.open(OUTPUT_PATH).convert("RGBA")
     draw = ImageDraw.Draw(base_img)
 
-    # 2. Caricamento Font
-    try:
-        font_titolo = ImageFont.truetype(str(FONT_PATH), 30)
-        font_patt = ImageFont.truetype(str(FONT_PATH), 70)
-        font_pvec = ImageFont.truetype(str(FONT_PATH), 42)
-        font_sconto = ImageFont.truetype(str(FONT_PATH), 60)
-    except Exception as e:
-        print(f"[WARN FONT]: Usando font di sistema default ({e})")
-        font_titolo = font_patt = font_pvec = font_sconto = ImageFont.load_default()
+    # 2. Carica il font trovato nel repository con diverse dimensioni
+    font_titolo = carica_font_locale(32)
+    font_patt = carica_font_locale(75)
+    font_pvec = carica_font_locale(42)
+    font_sconto = carica_font_locale(60)
 
-    # 3. Incolla Immagine Prodotto a sinistra
+    # 3. Incolla Immagine Prodotto
     if prodotto.get("immagine_url"):
         try:
             resp = requests.get(prodotto["immagine_url"], timeout=10)
@@ -229,15 +219,15 @@ def crea_immagine(prodotto):
         except Exception as e:
             print(f"[ERRORE INCOLLA IMMAGINE]: {e}")
 
-    # 4. Scrittura Titolo (Targhetta Verde - Multi-riga centrato)
-    titolo_incolonnato = textwrap.fill(prodotto["titolo"][:55], width=20)
-    draw.text((730, 270), titolo_incolonnato, fill="white", font=font_titolo, anchor="mm", align="center")
+    # 4. Titolo (Targhetta Verde - Multi-riga centrato)
+    titolo_incolonnato = textwrap.fill(prodotto["titolo"][:50], width=18)
+    draw.text((720, 310), titolo_incolonnato, fill="white", font=font_titolo, anchor="mm", align="center")
 
-    # 5. Scrittura Prezzo Attuale (Targhetta Arancione Grande)
+    # 5. Prezzo Attuale (Targhetta Arancione)
     prezzo_att = f"{prodotto['prezzo_attuale']} €"
     draw.text((750, 550), prezzo_att, fill="#111111", font=font_patt, anchor="mm")
 
-    # 6. Scrittura Prezzo Vecchio (Targhetta Bianca con riga sbarrata)
+    # 6. Prezzo Vecchio (Targhetta Bianca sbarrata)
     if prodotto.get("prezzo_precedente"):
         prezzo_vec = f"{prodotto['prezzo_precedente']} €"
         draw.text((750, 715), prezzo_vec, fill="#555555", font=font_pvec, anchor="mm")
@@ -246,10 +236,10 @@ def crea_immagine(prodotto):
         bbox = draw.textbbox((750, 715), prezzo_vec, font=font_pvec, anchor="mm")
         draw.line([(bbox[0]-5, (bbox[1]+bbox[3])//2), (bbox[2]+5, (bbox[1]+bbox[3])//2)], fill="#CC0000", width=4)
 
-    # 7. Scrittura Sconto (Targhetta Arancione in Basso)
+    # 7. Sconto (Targhetta Arancione in Basso)
     if prodotto.get("sconto") and prodotto["sconto"] > 0:
         sconto_txt = f"-{prodotto['sconto']}%"
-        draw.text((820, 865), sconto_txt, fill="white", font=font_sconto, anchor="mm")
+        draw.text((800, 860), sconto_txt, fill="white", font=font_sconto, anchor="mm")
 
     base_img.convert("RGB").save(OUTPUT_PATH, "PNG")
     return OUTPUT_PATH
@@ -257,7 +247,6 @@ def crea_immagine(prodotto):
 # --- BOT TELEGRAM ---
 async def main():
     init_db()
-    scarica_font_se_manca()
     client = TelegramClient(StringSession(SESSION_STRING), TELEGRAM_API_ID, TELEGRAM_API_HASH)
     await client.start()
 
@@ -271,28 +260,18 @@ async def main():
             print(f"\n[NUOVO MESSAGGIO] Da chat: @{chat_username}")
 
             if chat_username not in canali_puliti:
-                print(f" -> Canale '{chat_username}' ignorato (non presente in CANALI_SPIA).")
                 return
 
             asin = estrai_asin(event.message.text)
-            if not asin:
-                print(" -> Nessun ASIN identificato nel messaggio.")
+            if not asin or gia_inviato(asin):
                 return
 
-            print(f" -> ASIN identificato: {asin}")
-
-            if gia_inviato(asin):
-                print(f" -> ASIN {asin} già processato e presente nel DB nelle ultime 24h.")
-                return
-
-            print(" -> Scraping Amazon in corso...")
+            print(f" -> ASIN identificato: {asin}. Scraping in corso...")
             p = await asyncio.to_thread(scarica_dettagli_amazon, asin)
             
             if not p:
-                print(" -> Impossibile ottenere i dettagli del prodotto.")
                 return
 
-            print(" -> Generazione immagine e composizione post...")
             segna_inviato(asin)
             foto = crea_immagine(p)
             
@@ -316,7 +295,7 @@ async def main():
                 caption=didascalia, 
                 parse_mode="Markdown"
             )
-            print(" -> [SUCCESS] Post pubblicato correttamente su Telegram!")
+            print(" -> [SUCCESS] Post pubblicato correttamente!")
 
         except Exception as e:
             print(f"[ERRORE HANDLER CRITICO]: {e}")
