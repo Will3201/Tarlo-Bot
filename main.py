@@ -2,6 +2,7 @@ import asyncio
 import os
 import re
 import sqlite3
+import textwrap
 import threading
 import urllib.request
 from datetime import datetime, timedelta
@@ -27,7 +28,6 @@ SESSION_STRING = os.getenv("TELEGRAM_SESSION_STRING", "")
 
 PORT = int(os.getenv("PORT", 10000))
 
-# Lista canali monitorati
 CANALI_SPIA = [
     "sparky_offerte", 
     "AstroHouse_Casa_Cucina", 
@@ -42,9 +42,21 @@ BASE_DIR = Path(__file__).resolve().parent
 SVG_TEMPLATE_PATH = BASE_DIR / "template.svg"
 OUTPUT_PATH = BASE_DIR / "offerta_finale.png"
 DB_PATH = BASE_DIR / "offerte.db"
+FONT_PATH = BASE_DIR / "Roboto-Bold.ttf"
 
 bot = Bot(token=TELEGRAM_TOKEN)
 app = Flask(__name__)
+
+# --- DOWNLOAD FONT PER RENDER ---
+def scarica_font_se_manca():
+    if not FONT_PATH.exists():
+        try:
+            print("[INFO] Scaricamento font Roboto-Bold.ttf...")
+            url = "https://github.com/google/fonts/raw/main/apache/roboto/static/Roboto-Bold.ttf"
+            urllib.request.urlretrieve(url, FONT_PATH)
+            print("[OK] Font scaricato correttamente.")
+        except Exception as e:
+            print(f"[ERRORE DOWNLOAD FONT]: {e}")
 
 # --- WEB SERVER PER RENDER ---
 @app.route("/")
@@ -180,24 +192,27 @@ def scarica_dettagli_amazon(asin):
         print(f"[ERRORE SCRAPING]: {e}")
         return None
 
-# --- GENERAZIONE GRAFICA TRAMITE PILLOW (PIL) ---
+# --- GENERAZIONE GRAFICA TRAMITE PILLOW ---
 def crea_immagine(prodotto):
-    # Converts SVG base image directly into PNG
+    scarica_font_se_manca()
+    
+    # 1. Converte SVG di base in PNG
     cairosvg.svg2png(url=str(SVG_TEMPLATE_PATH), write_to=str(OUTPUT_PATH))
     
     base_img = Image.open(OUTPUT_PATH).convert("RGBA")
     draw = ImageDraw.Draw(base_img)
 
-    # Caricamento Font
+    # 2. Caricamento Font
     try:
-        font_titolo = ImageFont.truetype("arial.ttf", 26)
-        font_patt = ImageFont.truetype("arialbd.ttf", 52)
-        font_pvec = ImageFont.truetype("arial.ttf", 32)
-        font_sconto = ImageFont.truetype("arialbd.ttf", 48)
-    except Exception:
+        font_titolo = ImageFont.truetype(str(FONT_PATH), 30)
+        font_patt = ImageFont.truetype(str(FONT_PATH), 70)
+        font_pvec = ImageFont.truetype(str(FONT_PATH), 42)
+        font_sconto = ImageFont.truetype(str(FONT_PATH), 60)
+    except Exception as e:
+        print(f"[WARN FONT]: Usando font di sistema default ({e})")
         font_titolo = font_patt = font_pvec = font_sconto = ImageFont.load_default()
 
-    # 1. Incolla Immagine Prodotto a sinistra
+    # 3. Incolla Immagine Prodotto a sinistra
     if prodotto.get("immagine_url"):
         try:
             resp = requests.get(prodotto["immagine_url"], timeout=10)
@@ -214,23 +229,27 @@ def crea_immagine(prodotto):
         except Exception as e:
             print(f"[ERRORE INCOLLA IMMAGINE]: {e}")
 
-    # 2. Scrittura Titolo (Targhetta Verde)
-    titolo_breve = prodotto["titolo"][:38]
-    draw.text((750, 300), titolo_breve, fill="white", font=font_titolo, anchor="mm")
+    # 4. Scrittura Titolo (Targhetta Verde - Multi-riga centrato)
+    titolo_incolonnato = textwrap.fill(prodotto["titolo"][:55], width=20)
+    draw.text((730, 270), titolo_incolonnato, fill="white", font=font_titolo, anchor="mm", align="center")
 
-    # 3. Scrittura Prezzo Attuale (Targhetta Arancione)
+    # 5. Scrittura Prezzo Attuale (Targhetta Arancione Grande)
     prezzo_att = f"{prodotto['prezzo_attuale']} €"
-    draw.text((750, 550), prezzo_att, fill="black", font=font_patt, anchor="mm")
+    draw.text((750, 550), prezzo_att, fill="#111111", font=font_patt, anchor="mm")
 
-    # 4. Scrittura Prezzo Vecchio (Targhetta Bianca)
+    # 6. Scrittura Prezzo Vecchio (Targhetta Bianca con riga sbarrata)
     if prodotto.get("prezzo_precedente"):
         prezzo_vec = f"{prodotto['prezzo_precedente']} €"
-        draw.text((750, 715), prezzo_vec, fill="#333333", font=font_pvec, anchor="mm")
+        draw.text((750, 715), prezzo_vec, fill="#555555", font=font_pvec, anchor="mm")
+        
+        # Disegna riga rossa sbarrata sopra il prezzo vecchio
+        bbox = draw.textbbox((750, 715), prezzo_vec, font=font_pvec, anchor="mm")
+        draw.line([(bbox[0]-5, (bbox[1]+bbox[3])//2), (bbox[2]+5, (bbox[1]+bbox[3])//2)], fill="#CC0000", width=4)
 
-    # 5. Scrittura Sconto (Targhetta In Basso)
+    # 7. Scrittura Sconto (Targhetta Arancione in Basso)
     if prodotto.get("sconto") and prodotto["sconto"] > 0:
         sconto_txt = f"-{prodotto['sconto']}%"
-        draw.text((780, 860), sconto_txt, fill="white", font=font_sconto, anchor="mm")
+        draw.text((820, 865), sconto_txt, fill="white", font=font_sconto, anchor="mm")
 
     base_img.convert("RGB").save(OUTPUT_PATH, "PNG")
     return OUTPUT_PATH
@@ -238,6 +257,7 @@ def crea_immagine(prodotto):
 # --- BOT TELEGRAM ---
 async def main():
     init_db()
+    scarica_font_se_manca()
     client = TelegramClient(StringSession(SESSION_STRING), TELEGRAM_API_ID, TELEGRAM_API_HASH)
     await client.start()
 
@@ -307,3 +327,4 @@ async def main():
 if __name__ == "__main__":
     threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT), daemon=True).start()
     asyncio.run(main())
+    
