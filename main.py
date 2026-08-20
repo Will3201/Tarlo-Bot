@@ -2,17 +2,17 @@ import asyncio
 import os
 import re
 import sqlite3
-import textwrap
 import threading
 import urllib.request
 from datetime import datetime, timedelta
 from io import BytesIO
 from pathlib import Path
 
+import cairosvg
 import requests
 from bs4 import BeautifulSoup
 from flask import Flask
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
 from telegram import Bot
 from telethon import TelegramClient, events
 from telethon.sessions import StringSession
@@ -37,12 +37,9 @@ CANALI_SPIA = [
 ]
 
 BASE_DIR = Path(__file__).resolve().parent
-TEMPLATE_PATH = BASE_DIR / "template.png"
+SVG_TEMPLATE_PATH = BASE_DIR / "template.svg"
 OUTPUT_PATH = BASE_DIR / "offerta_finale.png"
 DB_PATH = BASE_DIR / "offerte.db"
-
-FONT_DIR = BASE_DIR / "fonts"
-FONT_PATH = FONT_DIR / "Montserrat-ExtraBold.ttf"
 
 bot = Bot(token=TELEGRAM_TOKEN)
 app = Flask(__name__)
@@ -75,21 +72,6 @@ def segna_inviato(asin):
     with sqlite3.connect(DB_PATH) as conn:
         conn.execute("INSERT OR REPLACE INTO prodotti (asin, inviato_il) VALUES (?, ?)", 
                      (asin, datetime.now().isoformat()))
-
-# --- GESTIONE FONT ---
-def carica_font_extra_bold():
-    os.makedirs(FONT_DIR, exist_ok=True)
-    if not FONT_PATH.exists():
-        url = "https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/montserrat/static/Montserrat-ExtraBold.ttf"
-        try:
-            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-            with urllib.request.urlopen(req) as response, open(FONT_PATH, 'wb') as out_file:
-                out_file.write(response.read())
-            print("[INFO] Font Montserrat-ExtraBold scaricato correttamente.")
-        except Exception as e:
-            print(f"[WARNING] Impossibile scaricare Montserrat-ExtraBold: {e}")
-            
-    return str(FONT_PATH) if FONT_PATH.exists() else None
 
 # --- ESTRAZIONE ASIN ---
 def estrai_asin(testo):
@@ -190,91 +172,48 @@ def scarica_dettagli_amazon(asin):
         print(f"Errore scraping ASIN {asin}: {e}")
         return None
 
-# --- GENERAZIONE GRAFICA ---
+# --- GENERAZIONE GRAFICA TRAMITE CANVA SVG ---
 def crea_immagine(prodotto):
-    template = Image.open(TEMPLATE_PATH).convert("RGBA").resize((1080, 1080), Image.Resampling.LANCZOS)
+    # 1. Leggi il modello SVG generato da Canva
+    with open(SVG_TEMPLATE_PATH, "r", encoding="utf-8") as f:
+        svg_code = f.read()
+
+    # Prepara le stringhe per la sostituzione
+    titolo_breve = prodotto["titolo"][:42]
+    prezzo_att = f"{prodotto['prezzo_attuale']} €"
+    prezzo_vec = f"{prodotto['prezzo_precedente']} €" if prodotto.get("prezzo_precedente") else ""
+    sconto_txt = f"-{prodotto['sconto']}%" if prodotto.get("sconto") and prodotto["sconto"] > 0 else ""
+
+    # 2. Sostituisci i segnaposto di Canva con i dati reali
+    svg_modificato = (
+        svg_code.replace("TITOLO_PRODOTTO", titolo_breve)
+                .replace("PREZZO_ATTUALE", prezzo_att)
+                .replace("PREZZO_VECCHIO", prezzo_vec)
+                .replace("PERCENTUALE_SCONTO", sconto_txt)
+    )
+
+    # 3. Converti l'SVG in un'immagine PNG usando CairoSVG
+    cairosvg.svg2png(bytestring=svg_modificato.encode('utf-8'), write_to=str(OUTPUT_PATH))
     
-    # 1. Foto prodotto a sinistra
-    box_x, box_y = 25, 240
-    box_w, box_h = 510, 770
-    
+    # 4. Incolla l'immagine del prodotto a sinistra usando Pillow
     if prodotto.get("immagine_url"):
         try:
+            base_img = Image.open(OUTPUT_PATH).convert("RGBA")
             resp = requests.get(prodotto["immagine_url"], timeout=10)
             img_prod = Image.open(BytesIO(resp.content)).convert("RGBA")
-            img_prod.thumbnail((box_w - 40, box_h - 40), Image.Resampling.LANCZOS)
             
+            box_x, box_y = 25, 240
+            box_w, box_h = 510, 770
+            
+            img_prod.thumbnail((box_w - 40, box_h - 40), Image.Resampling.LANCZOS)
             offset_x = box_x + (box_w - img_prod.width) // 2
             offset_y = box_y + (box_h - img_prod.height) // 2
             
-            template.paste(img_prod, (offset_x, offset_y), img_prod)
+            base_img.paste(img_prod, (offset_x, offset_y), img_prod)
+            base_img.convert("RGB").save(OUTPUT_PATH, "PNG")
         except Exception as e:
-            print(f"[ERRORE INCOLLA IMMAGINE]: {e}")
+            print(f"[ERRORE INCOLLA IMMAGINE PRODOTTO]: {e}")
 
-    draw = ImageDraw.Draw(template)
-    font_file = carica_font_extra_bold()
-    
-    try:
-        font_titolo = ImageFont.truetype(font_file, 22)
-        font_prezzo_grande = ImageFont.truetype(font_file, 68)
-        font_prezzo_vecchio = ImageFont.truetype(font_file, 34)
-        font_sconto = ImageFont.truetype(font_file, 65)
-    except Exception as e:
-        font_titolo = font_prezzo_grande = font_prezzo_vecchio = font_sconto = ImageFont.load_default()
-
-    # A. TITOLO PRODOTTO (Cartellino verde)
-    titolo_breve = prodotto["titolo"][:42]
-    righe = textwrap.wrap(titolo_breve, width=18)[:3]
-    start_y = 330 - ((len(righe) - 1) * 12)
-    
-    for i, riga in enumerate(righe):
-        draw.text(
-            (730, start_y + (i * 24)),
-            riga,
-            fill=(255, 255, 255, 255),
-            stroke_width=1,
-            stroke_fill=(0, 0, 0, 120),
-            font=font_titolo,
-            anchor="mm"
-        )
-
-    # B. PREZZO ATTUALE SCONTATO (Pulsante arancione - centrato verticalmente a Y=595)
-    testo_prezzo = f"{prodotto['prezzo_attuale']} €"
-    draw.text(
-        (765, 595),
-        testo_prezzo,
-        fill=(255, 255, 255, 255),
-        stroke_width=2,
-        stroke_fill=(180, 60, 0, 255),
-        font=font_prezzo_grande,
-        anchor="mm"
-    )
-
-    # C. PREZZO VECCHIO (Allineato sopra la linea rossa già presente nel template)
-    if prodotto.get("prezzo_precedente"):
-        testo_vecchio = f"{prodotto['prezzo_precedente']} €"
-        draw.text(
-            (765, 715),
-            testo_vecchio,
-            fill=(40, 40, 40, 255),
-            font=font_prezzo_vecchio,
-            anchor="mm"
-        )
-
-    # D. PERCENTUALE SCONTO (Affiancata a sinistra del simbolo % dello sfondo)
-    if prodotto.get("sconto") and prodotto["sconto"] > 0:
-        testo_sconto = f"-{prodotto['sconto']}"
-        draw.text(
-            (710, 860),
-            testo_sconto,
-            fill=(255, 255, 255, 255),
-            stroke_width=3,
-            stroke_fill=(180, 60, 0, 255),
-            font=font_sconto,
-            anchor="mm"
-        )
-
-    template.convert("RGB").save(OUTPUT_PATH, "PNG")
     return OUTPUT_PATH
 
 # --- BOT TELEGRAM ---
@@ -326,4 +265,3 @@ async def main():
 if __name__ == "__main__":
     threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT), daemon=True).start()
     asyncio.run(main())
-    
