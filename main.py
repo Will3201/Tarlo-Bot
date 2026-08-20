@@ -148,18 +148,18 @@ def scarica_dettagli_amazon(asin):
         print(f"[ERRORE SCRAPING]: {e}")
         return None
 
-# --- GENERAZIONE IMMAGINE ---
+# --- GENERAZIONE IMMAGINE (COORDINATE CORRETTE) ---
 def crea_immagine(prodotto):
     cairosvg.svg2png(url=str(SVG_TEMPLATE_PATH), write_to=str(OUTPUT_PATH))
     base_img = Image.open(OUTPUT_PATH).convert("RGBA")
     draw = ImageDraw.Draw(base_img)
 
-    font_titolo = carica_font_locale(38)
-    font_patt = carica_font_locale(85)
-    font_pvec = carica_font_locale(45)
-    font_sconto = carica_font_locale(75)
+    font_titolo = carica_font_locale(36)
+    font_patt = carica_font_locale(80)
+    font_pvec = carica_font_locale(42)
+    font_sconto = carica_font_locale(70)
 
-    # Incolla Immagine
+    # Incolla Immagine Prodotto
     if prodotto.get("immagine_url"):
         try:
             resp = requests.get(prodotto["immagine_url"], timeout=10)
@@ -170,23 +170,23 @@ def crea_immagine(prodotto):
             base_img.paste(img_prod, (box_x + (box_w - img_prod.width) // 2, box_y + (box_h - img_prod.height) // 2), img_prod)
         except: pass
 
-    # Titolo (Centrato nel riquadro verde)
+    # Titolo (Centro cartellino verde)
     titolo_txt = textwrap.fill(prodotto["titolo"][:50], width=17)
-    draw.text((750, 260), titolo_txt, fill="white", font=font_titolo, anchor="mm", align="center", stroke_width=2, stroke_fill="black")
+    draw.text((720, 315), titolo_txt, fill="white", font=font_titolo, anchor="mm", align="center", stroke_width=2, stroke_fill="black")
 
-    # Prezzo Attuale (Centrato nel riquadro arancione grande)
-    draw.text((750, 550), f"{prodotto['prezzo_attuale']} €", fill="#111111", font=font_patt, anchor="mm", stroke_width=1, stroke_fill="white")
+    # Prezzo Attuale (Centro riquadro arancione grande)
+    draw.text((750, 565), f"{prodotto['prezzo_attuale']} €", fill="#111111", font=font_patt, anchor="mm", stroke_width=1, stroke_fill="white")
 
-    # Prezzo Vecchio (Centrato nella casella bianca)
+    # Prezzo Vecchio (Centro casella bianca)
     if prodotto.get("prezzo_precedente"):
         p_vec = f"{prodotto['prezzo_precedente']} €"
-        draw.text((750, 720), p_vec, fill="#333333", font=font_pvec, anchor="mm", stroke_width=1, stroke_fill="white")
-        bbox = draw.textbbox((750, 720), p_vec, font=font_pvec, anchor="mm")
+        draw.text((750, 760), p_vec, fill="#333333", font=font_pvec, anchor="mm", stroke_width=1, stroke_fill="white")
+        bbox = draw.textbbox((750, 760), p_vec, font=font_pvec, anchor="mm")
         draw.line([(bbox[0]-6, (bbox[1]+bbox[3])//2), (bbox[2]+6, (bbox[1]+bbox[3])//2)], fill="#CC0000", width=4)
 
-    # Sconto (Centrato nella fascia in basso)
+    # Sconto (Centro fascia arancione in basso)
     if prodotto.get("sconto") and prodotto["sconto"] > 0:
-        draw.text((750, 860), f"-{prodotto['sconto']}%", fill="white", font=font_sconto, anchor="mm", stroke_width=3, stroke_fill="black")
+        draw.text((760, 890), f"-{prodotto['sconto']}%", fill="white", font=font_sconto, anchor="mm", stroke_width=3, stroke_fill="black")
 
     base_img.convert("RGB").save(OUTPUT_PATH, "PNG")
     return OUTPUT_PATH
@@ -225,7 +225,7 @@ async def main():
     await client.run_until_disconnected()
 
 if __name__ == "__main__":
-    # --- CANCELLAZIONE AUTOMATICA DATABASE PER TEST ---
+    # RESET AUTOMATICO DATABASE AD OGNI AVVIO PER TEST
     if DB_PATH.exists():
         try:
             os.remove(DB_PATH)
@@ -235,4 +235,4 @@ if __name__ == "__main__":
 
     threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT), daemon=True).start()
     asyncio.run(main())
-        
+    
