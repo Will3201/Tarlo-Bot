@@ -45,20 +45,17 @@ DB_PATH = BASE_DIR / "offerte.db"
 bot = Bot(token=TELEGRAM_TOKEN)
 app = Flask(__name__)
 
-# --- RICERCA AUTOMATICA FONT NELLE CARTELLE ---
+# --- RICERCA AUTOMATICA FONT ---
 def carica_font_locale(size):
-    # Cerca qualsiasi file .ttf o .otf nella cartella del progetto o nelle sue sottocartelle
     font_files = list(BASE_DIR.rglob("*.ttf")) + list(BASE_DIR.rglob("*.otf"))
     if font_files:
         try:
             return ImageFont.truetype(str(font_files[0]), size)
         except Exception as e:
             print(f"[ERRORE CARICAMENTO FONT]: {e}")
-    
-    print("[ATTENZIONE] Nessun font .ttf/.otf trovato nel repository GitHub!")
     return ImageFont.load_default()
 
-# --- WEB SERVER PER RENDER ---
+# --- WEB SERVER ---
 @app.route("/")
 def home():
     return "Bot Online", 200
@@ -89,40 +86,28 @@ def segna_inviato(asin):
 
 # --- ESTRAZIONE ASIN ---
 def estrai_asin(testo):
-    if not testo:
-        return None
-        
+    if not testo: return None
     match = re.search(r'/(?:dp|gp/product)/([A-Z0-9]{10})', testo)
-    if match:
-        return match.group(1)
-        
+    if match: return match.group(1)
     urls = re.findall(r'https?://[^\s]+', testo)
-    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-    
+    headers = {"User-Agent": "Mozilla/5.0"}
     for url in urls:
         try:
             res = requests.head(url, allow_redirects=True, timeout=5, headers=headers)
             match_redirect = re.search(r'/(?:dp|gp/product)/([A-Z0-9]{10})', res.url)
-            if match_redirect:
-                return match_redirect.group(1)
-        except Exception as e:
-            print(f"Errore risoluzione link corto {url}: {e}")
-            
+            if match_redirect: return match_redirect.group(1)
+        except: continue
     return None
 
-# --- SCRAPER AMAZON ---
+# --- SCRAPER ---
 def scarica_dettagli_amazon(asin):
     url = f"https://www.amazon.it/dp/{asin}"
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-        "Accept-Language": "it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7"
-    }
+    headers = {"User-Agent": "Mozilla/5.0", "Accept-Language": "it-IT,it;q=0.9"}
     try:
         res = requests.get(url, headers=headers, timeout=12)
-        if res.status_code != 200:
-            return None
-
+        if res.status_code != 200: return None
         soup = BeautifulSoup(res.text, "html.parser")
+        
         titolo_elem = soup.find("span", {"id": "productTitle"})
         titolo = titolo_elem.get_text().strip() if titolo_elem else "Prodotto Amazon"
 
@@ -130,116 +115,78 @@ def scarica_dettagli_amazon(asin):
         p_elem = soup.find("span", {"class": "a-price", "data-a-size": "xl"}) or soup.find("span", {"class": "a-price", "data-a-size": "l"})
         if p_elem:
             off_elem = p_elem.find("span", class_="a-offscreen")
-            if off_elem:
-                prezzo_attuale = off_elem.get_text().replace("€", "").strip().replace(".", ",")
+            if off_elem: prezzo_attuale = off_elem.get_text().replace("€", "").strip().replace(".", ",")
 
         if not prezzo_attuale:
-            p_apex = soup.find("span", class_="apexPriceToPay") or soup.find("div", {"id": "corePrice_feature_div"})
+            p_apex = soup.find("span", class_="apexPriceToPay")
             if p_apex:
                 off_elem = p_apex.find("span", class_="a-offscreen")
-                if off_elem:
-                    prezzo_attuale = off_elem.get_text().replace("€", "").strip().replace(".", ",")
+                if off_elem: prezzo_attuale = off_elem.get_text().replace("€", "").strip().replace(".", ",")
 
-        if not prezzo_attuale: 
-            return None
+        if not prezzo_attuale: return None
 
-        p_att_clean = re.sub(r'[^\d,]', '', prezzo_attuale).replace(',', '.')
-        p_att_num = float(p_att_clean)
-
+        p_att_num = float(prezzo_attuale.replace(',', '.'))
         sconto = 0
         prezzo_precedente = None
         
-        strike_elem = (
-            soup.find("span", class_="a-text-strike") or 
-            soup.find("span", class_="a-text-price") or
-            soup.find("span", {"id": "listPrice"})
-        )
-        
+        strike_elem = soup.find("span", class_="a-text-strike") or soup.find("span", {"id": "listPrice"})
         if strike_elem:
             off_strike = strike_elem.find("span", class_="a-offscreen")
             val_strike = off_strike.get_text() if off_strike else strike_elem.get_text()
-            val_strike_clean = re.sub(r'[^\d,]', '', val_strike).replace(',', '.')
             try:
-                p_prec_num = float(val_strike_clean)
+                p_prec_num = float(re.sub(r'[^\d,]', '', val_strike).replace(',', '.'))
                 if p_prec_num > p_att_num:
-                    sconto_calc = int(round(((p_prec_num - p_att_num) / p_prec_num) * 100))
-                    if 0 < sconto_calc <= 85:
-                        prezzo_precedente = f"{p_prec_num:.2f}".replace(".", ",")
-                        sconto = sconto_calc
-            except ValueError:
-                pass
+                    sconto = int(round(((p_prec_num - p_att_num) / p_prec_num) * 100))
+                    prezzo_precedente = f"{p_prec_num:.2f}".replace(".", ",")
+            except: pass
 
-        img_elem = (
-            soup.find("img", {"id": "landingImage"}) or 
-            soup.find("img", {"id": "imgBlkFront"}) or 
-            soup.find("img", {"class": "a-dynamic-image"})
-        )
+        img_elem = soup.find("img", {"id": "landingImage"}) or soup.find("img", {"id": "imgBlkFront"})
         img_url = img_elem["src"] if img_elem else ""
 
-        return {
-            "asin": asin, 
-            "titolo": titolo, 
-            "prezzo_attuale": prezzo_attuale,
-            "prezzo_precedente": prezzo_precedente,
-            "sconto": sconto, 
-            "immagine_url": img_url
-        }
+        return {"asin": asin, "titolo": titolo, "prezzo_attuale": prezzo_attuale, "prezzo_precedente": prezzo_precedente, "sconto": sconto, "immagine_url": img_url}
     except Exception as e:
         print(f"[ERRORE SCRAPING]: {e}")
         return None
 
-# --- GENERAZIONE GRAFICA TRAMITE PILLOW ---
+# --- GENERAZIONE IMMAGINE (CON CONTORNI) ---
 def crea_immagine(prodotto):
-    # 1. Renderizza l'SVG pulito in PNG
     cairosvg.svg2png(url=str(SVG_TEMPLATE_PATH), write_to=str(OUTPUT_PATH))
-    
     base_img = Image.open(OUTPUT_PATH).convert("RGBA")
     draw = ImageDraw.Draw(base_img)
 
-    # 2. Carica il font trovato nel repository con diverse dimensioni
-    font_titolo = carica_font_locale(32)
-    font_patt = carica_font_locale(75)
-    font_pvec = carica_font_locale(42)
-    font_sconto = carica_font_locale(60)
+    font_titolo = carica_font_locale(34)
+    font_patt = carica_font_locale(72)
+    font_pvec = carica_font_locale(44)
+    font_sconto = carica_font_locale(68)
 
-    # 3. Incolla Immagine Prodotto
+    # Incolla Immagine
     if prodotto.get("immagine_url"):
         try:
             resp = requests.get(prodotto["immagine_url"], timeout=10)
             img_prod = Image.open(BytesIO(resp.content)).convert("RGBA")
-            
             box_x, box_y = 25, 240
             box_w, box_h = 510, 770
-            
             img_prod.thumbnail((box_w - 40, box_h - 40), Image.Resampling.LANCZOS)
-            offset_x = box_x + (box_w - img_prod.width) // 2
-            offset_y = box_y + (box_h - img_prod.height) // 2
-            
-            base_img.paste(img_prod, (offset_x, offset_y), img_prod)
-        except Exception as e:
-            print(f"[ERRORE INCOLLA IMMAGINE]: {e}")
+            base_img.paste(img_prod, (box_x + (box_w - img_prod.width) // 2, box_y + (box_h - img_prod.height) // 2), img_prod)
+        except: pass
 
-    # 4. Titolo (Targhetta Verde - Multi-riga centrato)
-    titolo_incolonnato = textwrap.fill(prodotto["titolo"][:50], width=18)
-    draw.text((720, 310), titolo_incolonnato, fill="white", font=font_titolo, anchor="mm", align="center")
+    # Titolo (Bianco con contorno nero)
+    titolo_txt = textwrap.fill(prodotto["titolo"][:50], width=17)
+    draw.text((720, 280), titolo_txt, fill="white", font=font_titolo, anchor="mm", align="center", stroke_width=2, stroke_fill="black")
 
-    # 5. Prezzo Attuale (Targhetta Arancione)
-    prezzo_att = f"{prodotto['prezzo_attuale']} €"
-    draw.text((750, 550), prezzo_att, fill="#111111", font=font_patt, anchor="mm")
+    # Prezzo Attuale (Scuro con contorno bianco)
+    draw.text((760, 550), f"{prodotto['prezzo_attuale']} €", fill="#111111", font=font_patt, anchor="mm", stroke_width=1, stroke_fill="white")
 
-    # 6. Prezzo Vecchio (Targhetta Bianca sbarrata)
+    # Prezzo Vecchio (Grigio con contorno bianco)
     if prodotto.get("prezzo_precedente"):
-        prezzo_vec = f"{prodotto['prezzo_precedente']} €"
-        draw.text((750, 715), prezzo_vec, fill="#555555", font=font_pvec, anchor="mm")
-        
-        # Disegna riga rossa sbarrata sopra il prezzo vecchio
-        bbox = draw.textbbox((750, 715), prezzo_vec, font=font_pvec, anchor="mm")
-        draw.line([(bbox[0]-5, (bbox[1]+bbox[3])//2), (bbox[2]+5, (bbox[1]+bbox[3])//2)], fill="#CC0000", width=4)
+        p_vec = f"{prodotto['prezzo_precedente']} €"
+        draw.text((760, 720), p_vec, fill="#333333", font=font_pvec, anchor="mm", stroke_width=1, stroke_fill="white")
+        bbox = draw.textbbox((760, 720), p_vec, font=font_pvec, anchor="mm")
+        draw.line([(bbox[0]-6, (bbox[1]+bbox[3])//2), (bbox[2]+6, (bbox[1]+bbox[3])//2)], fill="#CC0000", width=4)
 
-    # 7. Sconto (Targhetta Arancione in Basso)
+    # Sconto (Bianco con contorno nero)
     if prodotto.get("sconto") and prodotto["sconto"] > 0:
-        sconto_txt = f"-{prodotto['sconto']}%"
-        draw.text((800, 860), sconto_txt, fill="white", font=font_sconto, anchor="mm")
+        draw.text((820, 850), f"-{prodotto['sconto']}%", fill="white", font=font_sconto, anchor="mm", stroke_width=3, stroke_fill="black")
 
     base_img.convert("RGB").save(OUTPUT_PATH, "PNG")
     return OUTPUT_PATH
@@ -252,55 +199,29 @@ async def main():
 
     @client.on(events.NewMessage())
     async def handler(event):
-        try:
-            chat = await event.get_chat()
-            chat_username = (getattr(chat, 'username', '') or '').replace("@", "").lower()
-            canali_puliti = [c.replace("@", "").lower() for c in CANALI_SPIA]
-            
-            print(f"\n[NUOVO MESSAGGIO] Da chat: @{chat_username}")
+        chat = await event.get_chat()
+        chat_username = (getattr(chat, 'username', '') or '').replace("@", "").lower()
+        if chat_username not in [c.replace("@", "").lower() for c in CANALI_SPIA]: return
 
-            if chat_username not in canali_puliti:
-                return
+        asin = estrai_asin(event.message.text)
+        if not asin or gia_inviato(asin): return
 
-            asin = estrai_asin(event.message.text)
-            if not asin or gia_inviato(asin):
-                return
+        p = await asyncio.to_thread(scarica_dettagli_amazon, asin)
+        if not p: return
 
-            print(f" -> ASIN identificato: {asin}. Scraping in corso...")
-            p = await asyncio.to_thread(scarica_dettagli_amazon, asin)
-            
-            if not p:
-                return
+        segna_inviato(asin)
+        foto = crea_immagine(p)
+        url = f"https://www.amazon.it/dp/{p['asin']}?tag={AMAZON_TAG}"
+        
+        msg = f"🪵 **Il Tarlo ha colpito ancora!**\n\n📦 **{p['titolo']}**\n"
+        if p['sconto'] > 0:
+            msg += f"📉 **Sconto:** -{p['sconto']}%\n💰 ~~{p['prezzo_precedente']} €~~ ➔ **{p['prezzo_attuale']} €**\n\n"
+        else:
+            msg += f"💰 **Prezzo:** {p['prezzo_attuale']} €\n\n"
+        msg += f"👉 **[ACQUISTA SUBITO]({url})**\n\n#IlTarloDelRisparmio"
 
-            segna_inviato(asin)
-            foto = crea_immagine(p)
-            
-            url_affiliato = f"https://www.amazon.it/dp/{p['asin']}?tag={AMAZON_TAG}"
-            
-            didascalia = "🪵 **Il Tarlo ha colpito ancora!**\n\n"
-            didascalia += f"📦 **{p['titolo']}**\n"
-            
-            if p['sconto'] > 0 and p['prezzo_precedente']:
-                didascalia += f"📉 **Sconto:** -{p['sconto']}%\n"
-                didascalia += f"💰 ~~{p['prezzo_precedente']} €~~ ➔ **{p['prezzo_attuale']} €**\n\n"
-            else:
-                didascalia += f"💰 **Prezzo speciale:** {p['prezzo_attuale']} €\n\n"
-                
-            didascalia += f"👉 **[ACQUISTA SUBITO IN OFFERTA]({url_affiliato})**\n\n"
-            didascalia += "#IlTarloDelRisparmio"
+        await bot.send_photo(chat_id=CANALE_CHAT_ID, photo=open(foto, "rb"), caption=msg, parse_mode="Markdown")
 
-            await bot.send_photo(
-                chat_id=CANALE_CHAT_ID, 
-                photo=open(foto, "rb"), 
-                caption=didascalia, 
-                parse_mode="Markdown"
-            )
-            print(" -> [SUCCESS] Post pubblicato correttamente!")
-
-        except Exception as e:
-            print(f"[ERRORE HANDLER CRITICO]: {e}")
-
-    print("Bot Il Tarlo del Risparmio avviato...")
     await client.run_until_disconnected()
 
 if __name__ == "__main__":
