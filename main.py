@@ -148,18 +148,18 @@ def scarica_dettagli_amazon(asin):
         print(f"[ERRORE SCRAPING]: {e}")
         return None
 
-# --- GENERAZIONE IMMAGINE (COORDINATE CORRETTE SULL'IMMAGINE) ---
+# --- GENERAZIONE IMMAGINE (COORDINATE RICALIBRATE A ZERO ERRORE) ---
 def crea_immagine(prodotto):
     cairosvg.svg2png(url=str(SVG_TEMPLATE_PATH), write_to=str(OUTPUT_PATH))
     base_img = Image.open(OUTPUT_PATH).convert("RGBA")
     draw = ImageDraw.Draw(base_img)
 
-    font_titolo = carica_font_locale(28)
+    font_titolo = carica_font_locale(26)
     font_patt = carica_font_locale(75)
-    font_pvec = carica_font_locale(38)
+    font_pvec = carica_font_locale(36)
     font_sconto = carica_font_locale(55)
 
-    # 1. Immagine Prodotto (Box Bianco)
+    # 1. Immagine Prodotto (Box Bianco Sinistra)
     if prodotto.get("immagine_url"):
         try:
             resp = requests.get(prodotto["immagine_url"], timeout=10)
@@ -170,25 +170,25 @@ def crea_immagine(prodotto):
             base_img.paste(img_prod, (box_x + (box_w - img_prod.width) // 2, box_y + (box_h - img_prod.height) // 2), img_prod)
         except: pass
 
-    # Coordinate orizzontali centrali per i box a destra: X = 738
+    # Centro orizzontale della colonna di destra: X = 738
 
-    # 2. Titolo (Centro Box Verde - Y=270, abbassato leggermente e ridotto font)
+    # 2. Titolo (Box Verde: Y=190 -> 350 | Centro: Y=270)
     titolo_txt = textwrap.fill(prodotto["titolo"][:55], width=22)
-    draw.text((738, 270), titolo_txt, fill="white", font=font_titolo, anchor="mm", align="center", stroke_width=2, stroke_fill="black")
+    draw.text((738, 265), titolo_txt, fill="white", font=font_titolo, anchor="mm", align="center", stroke_width=2, stroke_fill="black")
 
-    # 3. Prezzo Attuale (Centro Box Arancione Grande - Y=512)
-    draw.text((738, 512), f"{prodotto['prezzo_attuale']} €", fill="#111111", font=font_patt, anchor="mm", stroke_width=1, stroke_fill="white")
+    # 3. Prezzo Attuale (Box Arancione Grande: Y=370 -> 650 | Centro: Y=510)
+    draw.text((738, 510), f"{prodotto['prezzo_attuale']} €", fill="#111111", font=font_patt, anchor="mm", stroke_width=1, stroke_fill="white")
 
-    # 4. Prezzo Vecchio (Centro Barra Grigia - Spostato in basso a Y=722)
+    # 4. Prezzo Vecchio (Barra Grigia: Y=680 -> 765 | Centro: Y=722)
     if prodotto.get("prezzo_precedente"):
         p_vec = f"{prodotto['prezzo_precedente']} €"
         draw.text((738, 722), p_vec, fill="#333333", font=font_pvec, anchor="mm", stroke_width=1, stroke_fill="white")
         bbox = draw.textbbox((738, 722), p_vec, font=font_pvec, anchor="mm")
         draw.line([(bbox[0]-4, (bbox[1]+bbox[3])//2), (bbox[2]+4, (bbox[1]+bbox[3])//2)], fill="#CC0000", width=4)
 
-    # 5. Sconto (Centro Box Arancione In Basso - Spostato in basso a Y=840)
+    # 5. Sconto (Box Arancione Basso: Y=790 -> 910 | Centro: Y=850)
     if prodotto.get("sconto") and prodotto["sconto"] > 0:
-        draw.text((738, 840), f"-{prodotto['sconto']}%", fill="white", font=font_sconto, anchor="mm", stroke_width=2, stroke_fill="black")
+        draw.text((738, 850), f"-{prodotto['sconto']}%", fill="white", font=font_sconto, anchor="mm", stroke_width=2, stroke_fill="black")
 
     base_img.convert("RGB").save(OUTPUT_PATH, "PNG")
     return OUTPUT_PATH
@@ -229,3 +229,4 @@ async def main():
 if __name__ == "__main__":
     threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT), daemon=True).start()
     asyncio.run(main())
+    
