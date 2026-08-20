@@ -148,7 +148,7 @@ def scarica_dettagli_amazon(asin):
         print(f"[ERRORE SCRAPING]: {e}")
         return None
 
-# --- GENERAZIONE IMMAGINE (COORDINATE RICALIBRATE A ZERO ERRORE) ---
+# --- GENERAZIONE IMMAGINE (TESTI PERFETTAMENTE CENTRATI NEI BOX) ---
 def crea_immagine(prodotto):
     cairosvg.svg2png(url=str(SVG_TEMPLATE_PATH), write_to=str(OUTPUT_PATH))
     base_img = Image.open(OUTPUT_PATH).convert("RGBA")
@@ -170,25 +170,30 @@ def crea_immagine(prodotto):
             base_img.paste(img_prod, (box_x + (box_w - img_prod.width) // 2, box_y + (box_h - img_prod.height) // 2), img_prod)
         except: pass
 
-    # Centro orizzontale della colonna di destra: X = 738
+    # Centro orizzontale comune della colonna di destra: X = 738
 
-    # 2. Titolo (Box Verde: Y=190 -> 350 | Centro: Y=270)
+    # 2. Titolo (Box Verde: Y=190 -> 350 | Centro: Y=265)
     titolo_txt = textwrap.fill(prodotto["titolo"][:55], width=22)
     draw.text((738, 265), titolo_txt, fill="white", font=font_titolo, anchor="mm", align="center", stroke_width=2, stroke_fill="black")
 
     # 3. Prezzo Attuale (Box Arancione Grande: Y=370 -> 650 | Centro: Y=510)
     draw.text((738, 510), f"{prodotto['prezzo_attuale']} €", fill="#111111", font=font_patt, anchor="mm", stroke_width=1, stroke_fill="white")
 
-    # 4. Prezzo Vecchio (Barra Grigia: Y=680 -> 765 | Centro: Y=722)
+    # 4. Prezzo Vecchio (Box Grigio corretto: Centro esatto a Y = 723)
     if prodotto.get("prezzo_precedente"):
         p_vec = f"{prodotto['prezzo_precedente']} €"
-        draw.text((738, 722), p_vec, fill="#333333", font=font_pvec, anchor="mm", stroke_width=1, stroke_fill="white")
-        bbox = draw.textbbox((738, 722), p_vec, font=font_pvec, anchor="mm")
-        draw.line([(bbox[0]-4, (bbox[1]+bbox[3])//2), (bbox[2]+4, (bbox[1]+bbox[3])//2)], fill="#CC0000", width=4)
+        box_grigio_center_y = 723
+        
+        draw.text((738, box_grigio_center_y), p_vec, fill="#333333", font=font_pvec, anchor="mm", stroke_width=1, stroke_fill="white")
+        
+        # Linea di sbarramento rossa perfettamente centrata sul testo
+        bbox = draw.textbbox((738, box_grigio_center_y), p_vec, font=font_pvec, anchor="mm")
+        draw.line([(bbox[0]-4, box_grigio_center_y), (bbox[2]+4, box_grigio_center_y)], fill="#CC0000", width=4)
 
-    # 5. Sconto (Box Arancione Basso: Y=790 -> 910 | Centro: Y=850)
+    # 5. Sconto (Box Arancione Basso corretto: Centro esatto a Y = 841)
     if prodotto.get("sconto") and prodotto["sconto"] > 0:
-        draw.text((738, 850), f"-{prodotto['sconto']}%", fill="white", font=font_sconto, anchor="mm", stroke_width=2, stroke_fill="black")
+        box_arancione_basso_center_y = 841
+        draw.text((738, box_arancione_basso_center_y), f"-{prodotto['sconto']}%", fill="white", font=font_sconto, anchor="mm", stroke_width=2, stroke_fill="black")
 
     base_img.convert("RGB").save(OUTPUT_PATH, "PNG")
     return OUTPUT_PATH
