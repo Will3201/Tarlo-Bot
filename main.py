@@ -1,7 +1,9 @@
 import asyncio
+import functools
 import os
 import re
 import sqlite3
+import sys
 import textwrap
 import threading
 from datetime import datetime, timedelta
@@ -16,6 +18,13 @@ from PIL import Image, ImageDraw, ImageFont
 from telegram import Bot
 from telethon import TelegramClient, events
 from telethon.sessions import StringSession
+
+# Forza il flush immediato di ogni print(): su Render/hosting cloud lo stdout
+# viene spesso bufferizzato quando non è un terminale interattivo, causando
+# righe di log mancanti o ritardate. Questo garantisce che ogni riga di debug
+# compaia subito nei log, nell'ordine corretto.
+print = functools.partial(print, flush=True)
+sys.stdout.reconfigure(line_buffering=True)
 
 # --- CONFIGURAZIONE ---
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "8670212259:AAFn_21_abtz4vL4WQ5TpekYby-hCnAjzeU")
@@ -224,6 +233,18 @@ def scarica_dettagli_amazon(asin):
             or soup  # se proprio non trovo nulla, uso l'intera pagina (comportamento precedente)
         )
 
+        # Debug: quale container ho effettivamente trovato?
+        for _id in ["corePriceDisplay_desktop_feature_div", "apex_desktop", "unifiedPrice_feature_div", "centerCol"]:
+            if contenitore_prezzo is soup.find("div", {"id": _id}):
+                print(f"[DEBUG SCRAPER] {asin} -> contenitore prezzo usato: #{_id}")
+                break
+        else:
+            print(f"[DEBUG SCRAPER] {asin} -> contenitore prezzo: NESSUNO trovato, uso pagina intera")
+
+        # Debug: il prodotto risulta indisponibile?
+        if "Attualmente non disponibile" in res.text or "Currently unavailable" in res.text:
+            print(f"[DEBUG SCRAPER] {asin} -> ATTENZIONE: pagina indica prodotto NON DISPONIBILE")
+
         # priceToPay/apexPriceToPay per primi: su Amazon indicano SEMPRE il prezzo
         # da pagare, mai quello barrato. Le classi generiche 'a-price' sono ultime
         # perché possono matchare anche il prezzo vecchio in pagine con offerte a tempo.
@@ -236,7 +257,9 @@ def scarica_dettagli_amazon(asin):
         for tag, attrs in candidati_prezzo:
             # cerco TUTTI gli elementi che matchano (non solo il primo), perché
             # il primo potrebbe essere un prezzo-per-unità o barrato e non quello reale
-            for p_elem in contenitore_prezzo.find_all(tag, attrs):
+            trovati_candidati = contenitore_prezzo.find_all(tag, attrs)
+            print(f"[DEBUG SCRAPER] {asin} -> candidato {attrs}: {len(trovati_candidati)} elementi trovati")
+            for p_elem in trovati_candidati:
                 if e_prezzo_barrato(p_elem):
                     continue
                 off_elem = p_elem.find("span", class_="a-offscreen")
@@ -251,7 +274,9 @@ def scarica_dettagli_amazon(asin):
         # Fallback: scansiona gli span a-offscreen SOLO dentro il contenitore prezzo
         # (non più su tutta la pagina, per evitare prezzi di prodotti correlati)
         if not prezzo_attuale_str:
-            for off_elem in contenitore_prezzo.find_all("span", class_="a-offscreen"):
+            tutti_offscreen = contenitore_prezzo.find_all("span", class_="a-offscreen")
+            print(f"[DEBUG SCRAPER] {asin} -> fallback: {len(tutti_offscreen)} span a-offscreen nel container")
+            for off_elem in tutti_offscreen:
                 if e_prezzo_barrato(off_elem):
                     continue
                 testo_prezzo = off_elem.get_text().strip()
