@@ -189,16 +189,30 @@ def scarica_dettagli_amazon(asin):
         print(f"[DEBUG SCRAPER] {asin} -> titolo trovato: {titolo_elem is not None} ('{titolo[:50]}')")
 
         prezzo_attuale_str = None
-        p_elem = soup.find("span", {"class": "a-price", "data-a-size": "xl"}) or soup.find("span", {"class": "a-price", "data-a-size": "l"})
-        if p_elem:
-            off_elem = p_elem.find("span", class_="a-offscreen")
-            if off_elem: prezzo_attuale_str = off_elem.get_text()
+        candidati_prezzo = [
+            ("span", {"class": "a-price", "data-a-size": "xl"}),
+            ("span", {"class": "a-price", "data-a-size": "l"}),
+            ("span", {"class": "apexPriceToPay"}),
+            ("span", {"class": "priceToPay"}),
+        ]
+        for tag, attrs in candidati_prezzo:
+            p_elem = soup.find(tag, attrs)
+            if p_elem:
+                off_elem = p_elem.find("span", class_="a-offscreen")
+                if off_elem:
+                    testo_prezzo = off_elem.get_text().strip()
+                    if testo_prezzo:  # scarta stringhe vuote/solo spazi
+                        prezzo_attuale_str = testo_prezzo
+                        break
 
+        # Fallback estremo: scansiona TUTTI gli span a-offscreen della pagina
+        # e prendi il primo che contiene un prezzo valido (es. "17,99 €")
         if not prezzo_attuale_str:
-            p_apex = soup.find("span", class_="apexPriceToPay")
-            if p_apex:
-                off_elem = p_apex.find("span", class_="a-offscreen")
-                if off_elem: prezzo_attuale_str = off_elem.get_text()
+            for off_elem in soup.find_all("span", class_="a-offscreen"):
+                testo_prezzo = off_elem.get_text().strip()
+                if testo_prezzo and re.search(r'\d', testo_prezzo):
+                    prezzo_attuale_str = testo_prezzo
+                    break
 
         p_att_num = parse_prezzo(prezzo_attuale_str)
         print(f"[DEBUG SCRAPER] {asin} -> prezzo_attuale_str={prezzo_attuale_str!r}, p_att_num={p_att_num}")
@@ -351,4 +365,4 @@ async def main():
 if __name__ == "__main__":
     threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT), daemon=True).start()
     asyncio.run(main())
-    
+        
