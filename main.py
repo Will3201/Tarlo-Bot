@@ -123,20 +123,46 @@ def segna_inviato(asin):
         conn.execute("INSERT OR REPLACE INTO prodotti (asin, inviato_il) VALUES (?, ?)",
                      (asin, datetime.now().isoformat()))
 
-# --- ESTRAZIONE ASIN ---
-def estrai_asin(testo):
-    if not testo: return None
-    match = re.search(r'/(?:dp|gp/product)/([A-Z0-9]{10})', testo)
-    if match: return match.group(1)
+# --- ESTRAZIONE ASIN (multipli per messaggio) ---
+def estrai_tutti_asin(testo):
+    """Estrae tutti gli ASIN presenti in un messaggio, gestendo sia link diretti
+    Amazon (con /dp/ o /gp/product/) sia link accorciati (es. amzlink.to, amzn.to).
+    Ritorna una lista di ASIN unici, nell'ordine in cui appaiono nel testo."""
+    if not testo: return []
+
+    trovati = []
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Accept-Language": "it-IT,it;q=0.9",
+    }
+
+    # 1) ASIN diretti già presenti nel testo (link non accorciati)
+    for m in re.finditer(r'/(?:dp|gp/product)/([A-Z0-9]{10})', testo):
+        asin = m.group(1)
+        if asin not in trovati:
+            trovati.append(asin)
+
+    # 2) Tutti gli URL nel messaggio: risolvo quelli che sembrano shortlink
     urls = re.findall(r'https?://[^\s]+', testo)
-    headers = {"User-Agent": "Mozilla/5.0"}
     for url in urls:
+        # Se l'URL contiene già l'ASIN, l'ho già preso al punto 1: salto
+        if re.search(r'/(?:dp|gp/product)/([A-Z0-9]{10})', url):
+            continue
         try:
-            res = requests.head(url, allow_redirects=True, timeout=5, headers=headers)
+            # GET invece di HEAD: molti shortener (incluso amzlink.to) non
+            # rispondono correttamente a HEAD o usano redirect via meta-refresh
+            res = requests.get(url, allow_redirects=True, timeout=8, headers=headers, stream=True)
+            res.close()
             match_redirect = re.search(r'/(?:dp|gp/product)/([A-Z0-9]{10})', res.url)
-            if match_redirect: return match_redirect.group(1)
-        except: continue
-    return None
+            if match_redirect:
+                asin = match_redirect.group(1)
+                if asin not in trovati:
+                    trovati.append(asin)
+        except Exception as e:
+            print(f"[ERRORE RISOLUZIONE LINK] {url}: {e}")
+            continue
+
+    return trovati
 
 # --- SCRAPER POTENZIATO ---
 def scarica_dettagli_amazon(asin):
@@ -214,11 +240,11 @@ def crea_immagine(prodotto):
         try:
             resp = requests.get(prodotto["immagine_url"], timeout=10)
             img_prod = Image.open(BytesIO(resp.content)).convert("RGBA")
-            box_x, box_y = 30, 170
-            box_w, box_h = 460, 730
+            box_x, box_y = 20, 155
+            box_w, box_h = 480, 760
 
-            # Margine ridotto a 3px per rendere l'immagine leggermente più grande nel box
-            margine = 3
+            # Margine azzerato per sfruttare al massimo lo spazio del box
+            margine = 0
             img_prod.thumbnail((box_w - margine * 2, box_h - margine * 2), Image.Resampling.LANCZOS)
 
             base_img.paste(
@@ -270,25 +296,28 @@ async def main():
         chat_username = (getattr(chat, 'username', '') or '').replace("@", "").lower()
         if chat_username not in [c.replace("@", "").lower() for c in CANALI_SPIA]: return
 
-        asin = estrai_asin(event.message.text)
-        if not asin or gia_inviato(asin): return
+        asin_list = estrai_tutti_asin(event.message.text)
+        if not asin_list: return
 
-        p = await asyncio.to_thread(scarica_dettagli_amazon, asin)
-        if not p: return
+        for asin in asin_list:
+            if gia_inviato(asin): continue
 
-        segna_inviato(asin)
-        foto = crea_immagine(p)
-        url = f"https://www.amazon.it/dp/{p['asin']}?tag={AMAZON_TAG}"
+            p = await asyncio.to_thread(scarica_dettagli_amazon, asin)
+            if not p: continue
 
-        msg = f"🛒 *{p['titolo']}*\n\n"
-        if p['sconto'] > 0:
-            msg += f"💰 *{p['prezzo_attuale']} €* anziché {p['prezzo_precedente']} €! (-{p['sconto']}%)\n"
-        else:
-            msg += f"💰 *{p['prezzo_attuale']} €*\n"
-        msg += f"👉 [Apri su Amazon]({url})\n\n"
-        msg += "🪵 Segnalata da Il Tarlo del Risparmio\n#IlTarloDelRisparmio"
+            segna_inviato(asin)
+            foto = crea_immagine(p)
+            url = f"https://www.amazon.it/dp/{p['asin']}?tag={AMAZON_TAG}"
 
-        await bot.send_photo(chat_id=CANALE_CHAT_ID, photo=open(foto, "rb"), caption=msg, parse_mode="Markdown")
+            msg = f"🛒 *{p['titolo']}*\n\n"
+            if p['sconto'] > 0:
+                msg += f"💰 *{p['prezzo_attuale']} €* anziché {p['prezzo_precedente']} €! (-{p['sconto']}%)\n"
+            else:
+                msg += f"💰 *{p['prezzo_attuale']} €*\n"
+            msg += f"👉 [Apri su Amazon]({url})\n\n"
+            msg += "🪵 Segnalata da Il Tarlo del Risparmio\n#IlTarloDelRisparmio"
+
+            await bot.send_photo(chat_id=CANALE_CHAT_ID, photo=open(foto, "rb"), caption=msg, parse_mode="Markdown")
 
     await client.run_until_disconnected()
 
