@@ -153,11 +153,14 @@ def estrai_tutti_asin(testo):
             # rispondono correttamente a HEAD o usano redirect via meta-refresh
             res = requests.get(url, allow_redirects=True, timeout=8, headers=headers, stream=True)
             res.close()
+            print(f"[DEBUG LINK] {url} -> status={res.status_code} -> url_finale={res.url}")
             match_redirect = re.search(r'/(?:dp|gp/product)/([A-Z0-9]{10})', res.url)
             if match_redirect:
                 asin = match_redirect.group(1)
                 if asin not in trovati:
                     trovati.append(asin)
+            else:
+                print(f"[DEBUG LINK] Nessun ASIN nell'URL finale: {res.url}")
         except Exception as e:
             print(f"[ERRORE RISOLUZIONE LINK] {url}: {e}")
             continue
@@ -294,16 +297,28 @@ async def main():
     async def handler(event):
         chat = await event.get_chat()
         chat_username = (getattr(chat, 'username', '') or '').replace("@", "").lower()
-        if chat_username not in [c.replace("@", "").lower() for c in CANALI_SPIA]: return
+        print(f"[DEBUG] Messaggio ricevuto dal canale: '{chat_username}'")
 
+        if chat_username not in [c.replace("@", "").lower() for c in CANALI_SPIA]:
+            print(f"[DEBUG] Canale '{chat_username}' NON è in CANALI_SPIA -> messaggio ignorato")
+            return
+
+        print(f"[DEBUG] Testo messaggio: {event.message.text!r}")
         asin_list = estrai_tutti_asin(event.message.text)
-        if not asin_list: return
+        print(f"[DEBUG] ASIN trovati: {asin_list}")
+        if not asin_list:
+            print("[DEBUG] Nessun ASIN estratto -> nulla da inviare")
+            return
 
         for asin in asin_list:
-            if gia_inviato(asin): continue
+            if gia_inviato(asin):
+                print(f"[DEBUG] ASIN {asin} già inviato nelle ultime 24h -> salto")
+                continue
 
             p = await asyncio.to_thread(scarica_dettagli_amazon, asin)
-            if not p: continue
+            if not p:
+                print(f"[DEBUG] Scraping fallito per ASIN {asin}")
+                continue
 
             segna_inviato(asin)
             foto = crea_immagine(p)
@@ -324,4 +339,4 @@ async def main():
 if __name__ == "__main__":
     threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT), daemon=True).start()
     asyncio.run(main())
-    
+            
