@@ -34,7 +34,10 @@ CANALI_SPIA = [
     "offerte5",
     "offerte_supermercato",
     "SpesaScontata",
-    "provawill32"
+    "provawill32",
+    "scontierrati",
+    "tempodisconti",
+    "offertedale"
 ]
 
 BASE_DIR = Path(__file__).resolve().parent
