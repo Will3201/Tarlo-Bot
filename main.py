@@ -196,6 +196,22 @@ def scarica_dettagli_amazon(asin):
             if re.search(r'\b(ml|kg|gr|g|l|pz|cad)\b', testo, re.IGNORECASE): return False
             return bool(re.search(r'\d', testo))
 
+        def e_prezzo_barrato(elem):
+            """Riconosce se un elemento è il prezzo VECCHIO/barrato (da NON usare
+            come prezzo attuale), guardando classi e attributi tipici di Amazon."""
+            classi = elem.get("class") or []
+            if "a-text-price" in classi: return True
+            if "a-text-strike" in classi: return True
+            if "basisPrice" in classi: return True
+            if elem.get("data-a-strike") == "true": return True
+            # Controllo anche il genitore diretto, spesso è lì che sta il flag
+            genitore = elem.parent
+            if genitore is not None:
+                classi_genitore = genitore.get("class") or []
+                if "basisPrice" in classi_genitore: return True
+                if genitore.get("data-a-strike") == "true": return True
+            return False
+
         prezzo_attuale_str = None
 
         # Prima individuo il CONTENITORE principale del box prezzo del prodotto,
@@ -208,16 +224,21 @@ def scarica_dettagli_amazon(asin):
             or soup  # se proprio non trovo nulla, uso l'intera pagina (comportamento precedente)
         )
 
+        # priceToPay/apexPriceToPay per primi: su Amazon indicano SEMPRE il prezzo
+        # da pagare, mai quello barrato. Le classi generiche 'a-price' sono ultime
+        # perché possono matchare anche il prezzo vecchio in pagine con offerte a tempo.
         candidati_prezzo = [
+            ("span", {"class": "priceToPay"}),
+            ("span", {"class": "apexPriceToPay"}),
             ("span", {"class": "a-price", "data-a-size": "xl"}),
             ("span", {"class": "a-price", "data-a-size": "l"}),
-            ("span", {"class": "apexPriceToPay"}),
-            ("span", {"class": "priceToPay"}),
         ]
         for tag, attrs in candidati_prezzo:
             # cerco TUTTI gli elementi che matchano (non solo il primo), perché
-            # il primo potrebbe essere un prezzo-per-unità e non quello reale
+            # il primo potrebbe essere un prezzo-per-unità o barrato e non quello reale
             for p_elem in contenitore_prezzo.find_all(tag, attrs):
+                if e_prezzo_barrato(p_elem):
+                    continue
                 off_elem = p_elem.find("span", class_="a-offscreen")
                 if off_elem:
                     testo_prezzo = off_elem.get_text().strip()
@@ -231,6 +252,8 @@ def scarica_dettagli_amazon(asin):
         # (non più su tutta la pagina, per evitare prezzi di prodotti correlati)
         if not prezzo_attuale_str:
             for off_elem in contenitore_prezzo.find_all("span", class_="a-offscreen"):
+                if e_prezzo_barrato(off_elem):
+                    continue
                 testo_prezzo = off_elem.get_text().strip()
                 if sembra_prezzo_valido(testo_prezzo):
                     prezzo_attuale_str = testo_prezzo
@@ -402,4 +425,4 @@ async def main():
 if __name__ == "__main__":
     threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT), daemon=True).start()
     asyncio.run(main())
-        
+    
