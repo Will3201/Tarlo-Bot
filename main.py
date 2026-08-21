@@ -78,12 +78,6 @@ def parse_prezzo(testo):
 
 # --- HELPER: CENTRATURA TESTO PRECISA ---
 def draw_centrato(draw, center_x, center_y, testo, font, fill, stroke_width=0, stroke_fill=None, align="center"):
-    """
-    Centra il testo (anche multi-riga) esattamente su (center_x, center_y),
-    usando il bounding box reale del testo renderizzato (comprensivo di stroke),
-    invece di affidarsi ad anchor='mm' che con stroke_width e testo multi-riga
-    puo' risultare impreciso.
-    """
     bbox = draw.multiline_textbbox(
         (0, 0), testo, font=font, stroke_width=stroke_width, align=align
     )
@@ -141,10 +135,10 @@ def estrai_asin(testo):
         except: continue
     return None
 
-# --- SCRAPER ---
+# --- SCRAPER POTENZIATO ---
 def scarica_dettagli_amazon(asin):
     url = f"https://www.amazon.it/dp/{asin}"
-    headers = {"User-Agent": "Mozilla/5.0", "Accept-Language": "it-IT,it;q=0.9"}
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)", "Accept-Language": "it-IT,it;q=0.9"}
     try:
         res = requests.get(url, headers=headers, timeout=12)
         if res.status_code != 200: return None
@@ -172,10 +166,23 @@ def scarica_dettagli_amazon(asin):
         sconto = 0
         prezzo_precedente = None
 
-        strike_elem = soup.find("span", class_="a-text-strike") or soup.find("span", {"id": "listPrice"})
+        strike_elem = (
+            soup.find("span", class_="a-text-strike") or 
+            soup.find("span", {"id": "listPrice"}) or
+            soup.find("span", class_="basisPrice")
+        )
+        
+        val_strike = None
         if strike_elem:
             off_strike = strike_elem.find("span", class_="a-offscreen")
             val_strike = off_strike.get_text() if off_strike else strike_elem.get_text()
+        else:
+            text_page = soup.get_text()
+            m_mediano = re.search(r'Prezzo\s+(?:mediano|più\s+basso\s+ultimi\s+30gg)[:\s]*([\d.,]+)\s*€', text_page, re.IGNORECASE)
+            if m_mediano:
+                val_strike = m_mediano.group(1)
+
+        if val_strike:
             p_prec_num = parse_prezzo(val_strike)
             if p_prec_num and p_prec_num > p_att_num:
                 sconto = int(round(((p_prec_num - p_att_num) / p_prec_num) * 100))
@@ -207,7 +214,8 @@ def crea_immagine(prodotto):
             box_x, box_y = 30, 170
             box_w, box_h = 460, 730
 
-            margine = 6
+            # Margine ridotto a 3px per rendere l'immagine leggermente più grande nel box
+            margine = 3
             img_prod.thumbnail((box_w - margine * 2, box_h - margine * 2), Image.Resampling.LANCZOS)
 
             base_img.paste(
@@ -284,3 +292,4 @@ async def main():
 if __name__ == "__main__":
     threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT), daemon=True).start()
     asyncio.run(main())
+    
