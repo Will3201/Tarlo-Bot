@@ -188,6 +188,14 @@ def scarica_dettagli_amazon(asin):
         titolo = titolo_elem.get_text().strip() if titolo_elem else "Prodotto Amazon"
         print(f"[DEBUG SCRAPER] {asin} -> titolo trovato: {titolo_elem is not None} ('{titolo[:50]}')")
 
+        def sembra_prezzo_valido(testo):
+            """Scarta prezzi-per-unità tipo '0,25 €/100 ml' o '4,50€/kg':
+            un prezzo reale del prodotto non contiene slash né unità di misura."""
+            if not testo: return False
+            if "/" in testo: return False
+            if re.search(r'\b(ml|kg|gr|g|l|pz|cad)\b', testo, re.IGNORECASE): return False
+            return bool(re.search(r'\d', testo))
+
         prezzo_attuale_str = None
 
         # Prima individuo il CONTENITORE principale del box prezzo del prodotto,
@@ -207,21 +215,24 @@ def scarica_dettagli_amazon(asin):
             ("span", {"class": "priceToPay"}),
         ]
         for tag, attrs in candidati_prezzo:
-            p_elem = contenitore_prezzo.find(tag, attrs)
-            if p_elem:
+            # cerco TUTTI gli elementi che matchano (non solo il primo), perché
+            # il primo potrebbe essere un prezzo-per-unità e non quello reale
+            for p_elem in contenitore_prezzo.find_all(tag, attrs):
                 off_elem = p_elem.find("span", class_="a-offscreen")
                 if off_elem:
                     testo_prezzo = off_elem.get_text().strip()
-                    if testo_prezzo:  # scarta stringhe vuote/solo spazi
+                    if sembra_prezzo_valido(testo_prezzo):
                         prezzo_attuale_str = testo_prezzo
                         break
+            if prezzo_attuale_str:
+                break
 
         # Fallback: scansiona gli span a-offscreen SOLO dentro il contenitore prezzo
         # (non più su tutta la pagina, per evitare prezzi di prodotti correlati)
         if not prezzo_attuale_str:
             for off_elem in contenitore_prezzo.find_all("span", class_="a-offscreen"):
                 testo_prezzo = off_elem.get_text().strip()
-                if testo_prezzo and re.search(r'\d', testo_prezzo):
+                if sembra_prezzo_valido(testo_prezzo):
                     prezzo_attuale_str = testo_prezzo
                     break
 
@@ -244,8 +255,11 @@ def scarica_dettagli_amazon(asin):
         val_strike = None
         if strike_elem:
             off_strike = strike_elem.find("span", class_="a-offscreen")
-            val_strike = off_strike.get_text() if off_strike else strike_elem.get_text()
-        else:
+            testo_strike = (off_strike.get_text() if off_strike else strike_elem.get_text()).strip()
+            if sembra_prezzo_valido(testo_strike):
+                val_strike = testo_strike
+
+        if not val_strike:
             text_page = soup.get_text()
             m_mediano = re.search(
                 r'Prezzo\s+(?:consigliato|mediano|più\s+basso\s+ultimi\s+30gg)[:\s]*([\d.,]+)\s*€',
@@ -388,4 +402,4 @@ async def main():
 if __name__ == "__main__":
     threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT), daemon=True).start()
     asyncio.run(main())
-    
+        
