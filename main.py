@@ -173,11 +173,20 @@ def scarica_dettagli_amazon(asin):
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)", "Accept-Language": "it-IT,it;q=0.9"}
     try:
         res = requests.get(url, headers=headers, timeout=12)
-        if res.status_code != 200: return None
+        print(f"[DEBUG SCRAPER] {asin} -> status_code={res.status_code}, lunghezza_html={len(res.text)}")
+        if res.status_code != 200:
+            print(f"[DEBUG SCRAPER] {asin} -> status non 200, primi 300 char risposta: {res.text[:300]!r}")
+            return None
         soup = BeautifulSoup(res.text, "html.parser")
+
+        # Rilevo pagine di blocco/captcha di Amazon
+        if soup.find("form", {"action": re.compile("validateCaptcha")}) or "Inserisci i caratteri" in res.text or "automated access" in res.text.lower():
+            print(f"[DEBUG SCRAPER] {asin} -> rilevata pagina CAPTCHA/blocco anti-bot di Amazon")
+            return None
 
         titolo_elem = soup.find("span", {"id": "productTitle"})
         titolo = titolo_elem.get_text().strip() if titolo_elem else "Prodotto Amazon"
+        print(f"[DEBUG SCRAPER] {asin} -> titolo trovato: {titolo_elem is not None} ('{titolo[:50]}')")
 
         prezzo_attuale_str = None
         p_elem = soup.find("span", {"class": "a-price", "data-a-size": "xl"}) or soup.find("span", {"class": "a-price", "data-a-size": "l"})
@@ -192,7 +201,10 @@ def scarica_dettagli_amazon(asin):
                 if off_elem: prezzo_attuale_str = off_elem.get_text()
 
         p_att_num = parse_prezzo(prezzo_attuale_str)
-        if not p_att_num: return None
+        print(f"[DEBUG SCRAPER] {asin} -> prezzo_attuale_str={prezzo_attuale_str!r}, p_att_num={p_att_num}")
+        if not p_att_num:
+            print(f"[DEBUG SCRAPER] {asin} -> NESSUN PREZZO TROVATO -> return None")
+            return None
         prezzo_attuale = f"{p_att_num:.2f}".replace(".", ",")
 
         sconto = 0
@@ -339,4 +351,4 @@ async def main():
 if __name__ == "__main__":
     threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT), daemon=True).start()
     asyncio.run(main())
-            
+    
