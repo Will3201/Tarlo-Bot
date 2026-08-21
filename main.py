@@ -245,14 +245,50 @@ def scarica_dettagli_amazon(asin):
         if "Attualmente non disponibile" in res.text or "Currently unavailable" in res.text:
             print(f"[DEBUG SCRAPER] {asin} -> ATTENZIONE: pagina indica prodotto NON DISPONIBILE")
 
-        # priceToPay/apexPriceToPay per primi: su Amazon indicano SEMPRE il prezzo
-        # da pagare, mai quello barrato. Le classi generiche 'a-price' sono ultime
-        # perché possono matchare anche il prezzo vecchio in pagine con offerte a tempo.
+        def e_prezzo_per_unita(elem):
+            """Riconosce il prezzo-per-unità (es. '0,25€ /100 ml'). Il testo dentro
+            a-offscreen è solo '0,25€', mentre '/100 ml' sta in un elemento vicino.
+            IMPORTANTE: guardo solo il genitore diretto e i fratelli immediati, non
+            l'intero contenitore, altrimenti scarterei anche il prezzo corretto."""
+            pattern_unita = r'/\s*\d*\s*(ml|l|kg|g|gr|cl|pz|conteggio|count)\b'
+
+            # 1) Dimensione esplicitamente piccola = non è mai il prezzo principale
+            if elem.get("data-a-size") in ("mini", "small"):
+                return True
+
+            # 2) Testo del genitore diretto, MA solo se è un involucro "stretto"
+            #    (contiene un solo prezzo). Se il genitore è il contenitore generale
+            #    che racchiude più prezzi, il suo testo includerebbe l'unità di un
+            #    ALTRO prezzo e scarterebbe per errore quello giusto.
+            genitore = elem.parent
+            if genitore is not None:
+                prezzi_nel_genitore = genitore.find_all("span", class_="a-offscreen")
+                if len(prezzi_nel_genitore) <= 1:
+                    if re.search(pattern_unita, genitore.get_text(" ", strip=True), re.IGNORECASE):
+                        return True
+
+            # 3) Fratelli immediatamente successivi: l'unità segue il prezzo.
+            #    Salto però i fratelli che contengono un PROPRIO prezzo, perché
+            #    sono blocchi-prezzo autonomi (es. il box del prezzo-per-unità)
+            #    e non il semplice suffisso "/100 ml" di QUESTO prezzo.
+            for fratello in list(elem.next_siblings)[:3]:
+                if hasattr(fratello, "find_all") and fratello.find_all("span", class_="a-offscreen"):
+                    continue
+                testo_fratello = fratello.get_text(" ", strip=True) if hasattr(fratello, "get_text") else str(fratello).strip()
+                if re.search(pattern_unita, testo_fratello, re.IGNORECASE):
+                    return True
+
+            return False
+
+        # I selettori per DIMENSIONE (xl/l) per primi: su Amazon il prezzo principale
+        # è sempre reso in grande, mentre il prezzo-per-unità è piccolo. Attenzione:
+        # la classe 'priceToPay' viene usata da Amazon ANCHE per il prezzo-per-unità,
+        # quindi non è affidabile come primo criterio (causava lo scambio 2,49€ -> 0,25€).
         candidati_prezzo = [
-            ("span", {"class": "priceToPay"}),
-            ("span", {"class": "apexPriceToPay"}),
             ("span", {"class": "a-price", "data-a-size": "xl"}),
             ("span", {"class": "a-price", "data-a-size": "l"}),
+            ("span", {"class": "apexPriceToPay"}),
+            ("span", {"class": "priceToPay"}),
         ]
         for tag, attrs in candidati_prezzo:
             # cerco TUTTI gli elementi che matchano (non solo il primo), perché
@@ -261,6 +297,9 @@ def scarica_dettagli_amazon(asin):
             print(f"[DEBUG SCRAPER] {asin} -> candidato {attrs}: {len(trovati_candidati)} elementi trovati")
             for p_elem in trovati_candidati:
                 if e_prezzo_barrato(p_elem):
+                    continue
+                if e_prezzo_per_unita(p_elem):
+                    print(f"[DEBUG SCRAPER] {asin} -> scartato prezzo-per-unità in {attrs}")
                     continue
                 off_elem = p_elem.find("span", class_="a-offscreen")
                 if off_elem:
@@ -278,6 +317,8 @@ def scarica_dettagli_amazon(asin):
             print(f"[DEBUG SCRAPER] {asin} -> fallback: {len(tutti_offscreen)} span a-offscreen nel container")
             for off_elem in tutti_offscreen:
                 if e_prezzo_barrato(off_elem):
+                    continue
+                if e_prezzo_per_unita(off_elem):
                     continue
                 testo_prezzo = off_elem.get_text().strip()
                 if sembra_prezzo_valido(testo_prezzo):
@@ -418,36 +459,4 @@ async def main():
         asin_list = estrai_tutti_asin(event.message.text)
         print(f"[DEBUG] ASIN trovati: {asin_list}")
         if not asin_list:
-            print("[DEBUG] Nessun ASIN estratto -> nulla da inviare")
-            return
-
-        for asin in asin_list:
-            if gia_inviato(asin):
-                print(f"[DEBUG] ASIN {asin} già inviato nelle ultime 24h -> salto")
-                continue
-
-            p = await asyncio.to_thread(scarica_dettagli_amazon, asin)
-            if not p:
-                print(f"[DEBUG] Scraping fallito per ASIN {asin}")
-                continue
-
-            segna_inviato(asin)
-            foto = crea_immagine(p)
-            url = f"https://www.amazon.it/dp/{p['asin']}?tag={AMAZON_TAG}"
-
-            msg = f"🛒 *{p['titolo']}*\n\n"
-            if p['sconto'] > 0:
-                msg += f"💰 *{p['prezzo_attuale']} €* anziché {p['prezzo_precedente']} €! (-{p['sconto']}%)\n"
-            else:
-                msg += f"💰 *{p['prezzo_attuale']} €*\n"
-            msg += f"👉 [Apri su Amazon]({url})\n\n"
-            msg += "🪵 Segnalata da Il Tarlo del Risparmio\n#IlTarloDelRisparmio"
-
-            await bot.send_photo(chat_id=CANALE_CHAT_ID, photo=open(foto, "rb"), caption=msg, parse_mode="Markdown")
-
-    await client.run_until_disconnected()
-
-if __name__ == "__main__":
-    threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT), daemon=True).start()
-    asyncio.run(main())
-    
+            print("[DEBUG] Nessun ASI
