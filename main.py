@@ -189,6 +189,17 @@ def scarica_dettagli_amazon(asin):
         print(f"[DEBUG SCRAPER] {asin} -> titolo trovato: {titolo_elem is not None} ('{titolo[:50]}')")
 
         prezzo_attuale_str = None
+
+        # Prima individuo il CONTENITORE principale del box prezzo del prodotto,
+        # per evitare di pescare prezzi di prodotti correlati/suggeriti altrove in pagina
+        contenitore_prezzo = (
+            soup.find("div", {"id": "corePriceDisplay_desktop_feature_div"})
+            or soup.find("div", {"id": "apex_desktop"})
+            or soup.find("div", {"id": "unifiedPrice_feature_div"})
+            or soup.find("div", {"id": "centerCol"})  # colonna centrale come ultima risorsa
+            or soup  # se proprio non trovo nulla, uso l'intera pagina (comportamento precedente)
+        )
+
         candidati_prezzo = [
             ("span", {"class": "a-price", "data-a-size": "xl"}),
             ("span", {"class": "a-price", "data-a-size": "l"}),
@@ -196,7 +207,7 @@ def scarica_dettagli_amazon(asin):
             ("span", {"class": "priceToPay"}),
         ]
         for tag, attrs in candidati_prezzo:
-            p_elem = soup.find(tag, attrs)
+            p_elem = contenitore_prezzo.find(tag, attrs)
             if p_elem:
                 off_elem = p_elem.find("span", class_="a-offscreen")
                 if off_elem:
@@ -205,10 +216,10 @@ def scarica_dettagli_amazon(asin):
                         prezzo_attuale_str = testo_prezzo
                         break
 
-        # Fallback estremo: scansiona TUTTI gli span a-offscreen della pagina
-        # e prendi il primo che contiene un prezzo valido (es. "17,99 €")
+        # Fallback: scansiona gli span a-offscreen SOLO dentro il contenitore prezzo
+        # (non più su tutta la pagina, per evitare prezzi di prodotti correlati)
         if not prezzo_attuale_str:
-            for off_elem in soup.find_all("span", class_="a-offscreen"):
+            for off_elem in contenitore_prezzo.find_all("span", class_="a-offscreen"):
                 testo_prezzo = off_elem.get_text().strip()
                 if testo_prezzo and re.search(r'\d', testo_prezzo):
                     prezzo_attuale_str = testo_prezzo
@@ -225,20 +236,25 @@ def scarica_dettagli_amazon(asin):
         prezzo_precedente = None
 
         strike_elem = (
-            soup.find("span", class_="a-text-strike") or 
-            soup.find("span", {"id": "listPrice"}) or
-            soup.find("span", class_="basisPrice")
+            contenitore_prezzo.find("span", class_="a-text-strike") or
+            contenitore_prezzo.find("span", {"id": "listPrice"}) or
+            contenitore_prezzo.find("span", class_="basisPrice")
         )
-        
+
         val_strike = None
         if strike_elem:
             off_strike = strike_elem.find("span", class_="a-offscreen")
             val_strike = off_strike.get_text() if off_strike else strike_elem.get_text()
         else:
             text_page = soup.get_text()
-            m_mediano = re.search(r'Prezzo\s+(?:mediano|più\s+basso\s+ultimi\s+30gg)[:\s]*([\d.,]+)\s*€', text_page, re.IGNORECASE)
+            m_mediano = re.search(
+                r'Prezzo\s+(?:consigliato|mediano|più\s+basso\s+ultimi\s+30gg)[:\s]*([\d.,]+)\s*€',
+                text_page, re.IGNORECASE
+            )
             if m_mediano:
                 val_strike = m_mediano.group(1)
+
+        print(f"[DEBUG SCRAPER] {asin} -> val_strike={val_strike!r}")
 
         if val_strike:
             p_prec_num = parse_prezzo(val_strike)
@@ -325,6 +341,13 @@ async def main():
         chat_username = (getattr(chat, 'username', '') or '').replace("@", "").lower()
         print(f"[DEBUG] Messaggio ricevuto dal canale: '{chat_username}'")
 
+        if not chat_username:
+            # Log extra per capire da dove arriva davvero il messaggio
+            chat_id = getattr(chat, 'id', None)
+            chat_title = getattr(chat, 'title', None)
+            chat_tipo = type(chat).__name__
+            print(f"[DEBUG] Username vuoto -> chat_id={chat_id}, titolo='{chat_title}', tipo={chat_tipo}")
+
         if chat_username not in [c.replace("@", "").lower() for c in CANALI_SPIA]:
             print(f"[DEBUG] Canale '{chat_username}' NON è in CANALI_SPIA -> messaggio ignorato")
             return
@@ -365,4 +388,4 @@ async def main():
 if __name__ == "__main__":
     threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT), daemon=True).start()
     asyncio.run(main())
-        
+    
