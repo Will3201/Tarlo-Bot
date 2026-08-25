@@ -35,8 +35,8 @@ sys.stdout.reconfigure(line_buffering=True)
 # - CANALE_CHAT_ID: username del nuovo canale dedicato alla pesca
 # Questo bot NON ha più bisogno di API_ID/API_HASH/SESSION_STRING: non ascolta
 # altri canali, cerca direttamente su Amazon, quindi gli basta il solo token bot.
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN_PESCA", "INSERISCI_NUOVO_TOKEN_QUI")
-CANALE_CHAT_ID = os.getenv("CANALE_CHAT_ID_PESCA", "@NomeCanalePesca")
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN_PESCA", "8879365110:AAH9i2KJSvffnHc-FfR8K35kL9oPTkPxiyk")
+CANALE_CHAT_ID = os.getenv("CANALE_CHAT_ID_PESCA", "@TarloDellaPesca")
 AMAZON_TAG = os.getenv("AMAZON_TAG", "tarlodelrispa-21")
 
 PORT = int(os.getenv("PORT_PESCA", 10001))  # porta diversa se sullo stesso host
