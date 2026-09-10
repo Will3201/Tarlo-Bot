@@ -21,6 +21,10 @@ from bs4 import BeautifulSoup
 from flask import Flask
 from PIL import Image, ImageDraw, ImageFont
 from telegram import Bot
+from telegram.error import NetworkError
+from telegram.helpers import escape_markdown
+from tarlo_daily import ArchivioOfferte, estrai_metriche
+from daily_pipeline import DailyPipeline, register_routes
 from telethon import TelegramClient, events
 from telethon.sessions import StringSession
 
@@ -29,15 +33,16 @@ from telethon.sessions import StringSession
 # righe di log mancanti o ritardate. Questo garantisce che ogni riga di debug
 # compaia subito nei log, nell'ordine corretto.
 print = functools.partial(print, flush=True)
-sys.stdout.reconfigure(line_buffering=True)
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(line_buffering=True)
 
 # --- CONFIGURAZIONE ---
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "8670212259:AAFn_21_abtz4vL4WQ5TpekYby-hCnAjzeU")
+TELEGRAM_TOKEN = os.environ["TELEGRAM_TOKEN"]
 CANALE_CHAT_ID = os.getenv("CANALE_CHAT_ID", "@TarloDelRisparmio")
 AMAZON_TAG = os.getenv("AMAZON_TAG", "tarlodelrispa-21")
-TELEGRAM_API_ID = int(os.getenv("TELEGRAM_API_ID", "31134748"))
-TELEGRAM_API_HASH = os.getenv("TELEGRAM_API_HASH", "ba4265cff56d0687c6c5171b47f76e02")
-SESSION_STRING = os.getenv("TELEGRAM_SESSION_STRING", "")
+TELEGRAM_API_ID = int(os.environ["TELEGRAM_API_ID"])
+TELEGRAM_API_HASH = os.environ["TELEGRAM_API_HASH"]
+SESSION_STRING = os.environ["TELEGRAM_SESSION_STRING"]
 
 PORT = int(os.getenv("PORT", 10000))
 
@@ -62,7 +67,9 @@ DB_PATH = BASE_DIR / "offerte.db"
 # persistente che sopravvive ai deploy. Se assente, usa SQLite locale come
 # prima (funziona, ma si azzera ad ogni deploy su Render free tier).
 DATABASE_URL = os.getenv("DATABASE_URL", "")
-USA_POSTGRES = bool(DATABASE_URL) and PSYCOPG2_DISPONIBILE
+if DATABASE_URL and not PSYCOPG2_DISPONIBILE:
+    raise RuntimeError("DATABASE_URL impostata: installare psycopg2-binary")
+USA_POSTGRES = bool(DATABASE_URL)
 
 from telegram.request import HTTPXRequest
 
@@ -252,7 +259,7 @@ def pulisci_titolo(titolo):
     return base
 
 # --- SCRAPER POTENZIATO ---
-def scarica_dettagli_amazon(asin):
+def scarica_dettagli_amazon(asin, strict=False):
     url = f"https://www.amazon.it/dp/{asin}"
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)", "Accept-Language": "it-IT,it;q=0.9"}
     try:
@@ -263,12 +270,19 @@ def scarica_dettagli_amazon(asin):
             return None
         soup = BeautifulSoup(res.text, "html.parser")
 
+        if strict:
+            selected_asin = soup.select_one('input#ASIN, input[name="ASIN"]')
+            if selected_asin is None or selected_asin.get("value", "").upper() != asin:
+                return None
+
         # Rilevo pagine di blocco/captcha di Amazon
         if soup.find("form", {"action": re.compile("validateCaptcha")}) or "Inserisci i caratteri" in res.text or "automated access" in res.text.lower():
             print(f"[DEBUG SCRAPER] {asin} -> rilevata pagina CAPTCHA/blocco anti-bot di Amazon")
             return None
 
         titolo_elem = soup.find("span", {"id": "productTitle"})
+        if strict and titolo_elem is None:
+            return None
         titolo = titolo_elem.get_text().strip() if titolo_elem else "Prodotto Amazon"
         titolo = pulisci_titolo(titolo)
         print(f"[DEBUG SCRAPER] {asin} -> titolo trovato: {titolo_elem is not None} ('{titolo[:50]}')")
@@ -282,19 +296,10 @@ def scarica_dettagli_amazon(asin):
             return bool(re.search(r'\d', testo))
 
         def e_prezzo_barrato(elem):
-            """Riconosce se un elemento è il prezzo VECCHIO/barrato (da NON usare
-            come prezzo attuale), guardando classi e attributi tipici di Amazon."""
-            classi = elem.get("class") or []
-            if "a-text-price" in classi: return True
-            if "a-text-strike" in classi: return True
-            if "basisPrice" in classi: return True
-            if elem.get("data-a-strike") == "true": return True
-            # Controllo anche il genitore diretto, spesso è lì che sta il flag
-            genitore = elem.parent
-            if genitore is not None:
-                classi_genitore = genitore.get("class") or []
-                if "basisPrice" in classi_genitore: return True
-                if genitore.get("data-a-strike") == "true": return True
+            for ancestor in [elem, *list(elem.parents)[:3]]:
+                classes = ancestor.get("class") or []
+                if set(classes) & {"a-text-price", "a-text-strike", "basisPrice"} or ancestor.get("data-a-strike") == "true":
+                    return True
             return False
 
         prezzo_attuale_str = None
@@ -308,6 +313,11 @@ def scarica_dettagli_amazon(asin):
             or soup.find("div", {"id": "centerCol"})  # colonna centrale come ultima risorsa
             or soup  # se proprio non trovo nulla, uso l'intera pagina (comportamento precedente)
         )
+
+        if strict and contenitore_prezzo.get("id") not in (
+            "corePriceDisplay_desktop_feature_div", "apex_desktop", "unifiedPrice_feature_div"
+        ):
+            return None
 
         # Debug: quale container ho effettivamente trovato?
         for _id in ["corePriceDisplay_desktop_feature_div", "apex_desktop", "unifiedPrice_feature_div", "centerCol"]:
@@ -424,7 +434,7 @@ def scarica_dettagli_amazon(asin):
 
         # Fallback: scansiona gli span a-offscreen SOLO dentro il contenitore prezzo
         # (non più su tutta la pagina, per evitare prezzi di prodotti correlati)
-        if not prezzo_attuale_str:
+        if not prezzo_attuale_str and not strict:
             tutti_offscreen = contenitore_prezzo.find_all("span", class_="a-offscreen")
             print(f"[DEBUG SCRAPER] {asin} -> fallback: {len(tutti_offscreen)} span a-offscreen nel container")
             for off_elem in tutti_offscreen:
@@ -450,7 +460,8 @@ def scarica_dettagli_amazon(asin):
         strike_elem = (
             contenitore_prezzo.find("span", class_="a-text-strike") or
             contenitore_prezzo.find("span", {"id": "listPrice"}) or
-            contenitore_prezzo.find("span", class_="basisPrice")
+            contenitore_prezzo.find("span", class_="basisPrice") or
+            contenitore_prezzo.find("span", class_="a-text-price")
         )
 
         val_strike = None
@@ -461,7 +472,7 @@ def scarica_dettagli_amazon(asin):
                 val_strike = testo_strike
 
         if not val_strike:
-            text_page = soup.get_text()
+            text_page = contenitore_prezzo.get_text(" ", strip=True)
             m_mediano = re.search(
                 r'Prezzo\s+(?:consigliato|mediano|più\s+basso\s+ultimi\s+30gg)[:\s]*([\d.,]+)\s*€',
                 text_page, re.IGNORECASE
@@ -480,15 +491,34 @@ def scarica_dettagli_amazon(asin):
         img_elem = soup.find("img", {"id": "landingImage"}) or soup.find("img", {"id": "imgBlkFront"})
         img_url = img_elem["src"] if img_elem else ""
 
-        return {"asin": asin, "titolo": titolo, "prezzo_attuale": prezzo_attuale, "prezzo_precedente": prezzo_precedente, "sconto": sconto, "immagine_url": img_url}
+        reference_text = contenitore_prezzo.get_text(" ", strip=True).lower()
+        tipo_riferimento = "non_identificato"
+        # La classificazione richiede una sola etichetta nel box principale.
+        patterns = {
+            "consigliato": r"prezzo\s+consigliato",
+            "mediano": r"prezzo\s+mediano",
+            "piu_basso_30gg": r"prezzo\s+più\s+basso.*?30",
+            "precedente": r"prezzo\s+precedente",
+        }
+        labels = [key for key, pattern in patterns.items() if re.search(pattern, reference_text)]
+        if len(labels) == 1:
+            tipo_riferimento = labels[0]
+        availability = soup.select_one("#availability")
+        availability_text = availability.get_text(" ", strip=True).lower() if availability else ""
+        unavailable = bool(re.search(r"non disponibile|unavailable|esaurito", availability_text))
+        available = bool(soup.select_one("#add-to-cart-button, #buy-now-button")) and not unavailable
+        return {"asin": asin, "titolo": titolo, "prezzo_attuale": prezzo_attuale,
+                "prezzo_precedente": prezzo_precedente, "sconto": sconto,
+                "immagine_url": img_url, "tipo_riferimento": tipo_riferimento,
+                "disponibile": available, **estrai_metriche(soup)}
     except Exception as e:
         print(f"[ERRORE SCRAPING]: {e}")
         return None
 
 # --- GENERAZIONE IMMAGINE ---
-def crea_immagine(prodotto):
-    cairosvg.svg2png(url=str(SVG_TEMPLATE_PATH), write_to=str(OUTPUT_PATH))
-    base_img = Image.open(OUTPUT_PATH).convert("RGBA")
+def crea_immagine(prodotto, require_image=False):
+    template_bytes = cairosvg.svg2png(url=str(SVG_TEMPLATE_PATH))
+    base_img = Image.open(BytesIO(template_bytes)).convert("RGBA")
     draw = ImageDraw.Draw(base_img)
 
     font_titolo = carica_font_locale(26)
@@ -499,6 +529,7 @@ def crea_immagine(prodotto):
     if prodotto.get("immagine_url"):
         try:
             resp = requests.get(prodotto["immagine_url"], timeout=10)
+            resp.raise_for_status()
             img_prod = Image.open(BytesIO(resp.content)).convert("RGBA")
             box_x, box_y = 20, 155
             box_w, box_h = 480, 760
@@ -512,7 +543,11 @@ def crea_immagine(prodotto):
                 (box_x + (box_w - img_prod.width) // 2, box_y + (box_h - img_prod.height) // 2),
                 img_prod
             )
-        except: pass
+        except Exception:
+            if require_image:
+                raise
+    elif require_image:
+        raise ValueError("Immagine prodotto mancante")
 
     CENTRO_X = 797
     Y_TITOLO = 291
@@ -541,12 +576,21 @@ def crea_immagine(prodotto):
         draw_centrato(draw, CENTRO_X, Y_SCONTO, f"-{prodotto['sconto']}%", font_sconto, "white",
                       stroke_width=2, stroke_fill="black")
 
-    base_img.convert("RGB").save(OUTPUT_PATH, "PNG")
-    return OUTPUT_PATH
+    result = BytesIO()
+    base_img.convert("RGB").save(result, "PNG")
+    return result.getvalue()
 
 # --- BOT TELEGRAM ---
 async def main():
     init_db()
+    archive = ArchivioOfferte()
+    pipeline = DailyPipeline(archive, scarica_dettagli_amazon,
+                             lambda p: crea_immagine(p, require_image=True),
+                             os.getenv("DAILY_PREPARE_TIME", "18:00"))
+    register_routes(app, pipeline)
+    threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT), daemon=True).start()
+    daily_task = asyncio.create_task(pipeline.run()) if os.getenv("DAILY_ENABLED") == "true" else None
+    processing = set()  # Una sola istanza Telethon, come il servizio corrente.
     client = TelegramClient(StringSession(SESSION_STRING), TELEGRAM_API_ID, TELEGRAM_API_HASH)
     await client.start()
 
@@ -568,71 +612,52 @@ async def main():
             return
 
         print(f"[DEBUG] Testo messaggio: {event.message.text!r}")
-        asin_list = estrai_tutti_asin(event.message.text)
+        asin_list = await asyncio.to_thread(estrai_tutti_asin, event.message.text)
         print(f"[DEBUG] ASIN trovati: {asin_list}")
         if not asin_list:
             print("[DEBUG] Nessun ASIN estratto -> nulla da inviare")
             return
 
         for asin in asin_list:
-            if gia_inviato(asin):
-                print(f"[DEBUG] ASIN {asin} già inviato nelle ultime 24h -> salto")
+            if asin in processing or gia_inviato(asin):
                 continue
-
-            # Segno SUBITO come inviato, prima dello scraping: lo scraping è
-            # un'operazione asincrona che richiede secondi, durante i quali un
-            # messaggio duplicato dello stesso ASIN (da un altro canale spia)
-            # potrebbe passare il controllo gia_inviato() qui sopra prima che
-            # questo processo abbia scritto qualcosa nel DB, causando un doppio
-            # invio. Marcando prima, chiudiamo questa finestra di race condition.
-            segna_inviato(asin)
-
-            p = await asyncio.to_thread(scarica_dettagli_amazon, asin)
-            if not p:
-                print(f"[DEBUG] Scraping fallito per ASIN {asin}")
-                continue
-
-            foto = crea_immagine(p)
-            url = f"https://www.amazon.it/dp/{p['asin']}?tag={AMAZON_TAG}"
-
-            def frase_iniziale(sconto):
-                """Sceglie la frase ad effetto in base alla percentuale di sconto.
-                Controllo dal più alto al più basso: uno sconto del 60% deve
-                prendere 'errore di prezzo', non anche le soglie inferiori."""
-                if sconto > 50:
-                    return "🚨 ERRORE DI PREZZO?! 🚨\n\n"
-                elif sconto > 30:
-                    return "🌟 OFFERTA SPECIALE! 🌟\n\n"
-                elif sconto > 10:
-                    return "🐛 Il Tarlo ha colpito ancora! 🐛\n\n"
-                return ""
-
-            msg = frase_iniziale(p['sconto'])
-            msg += f"🛒 *{p['titolo']}*\n\n"
-            if p['sconto'] > 0:
-                msg += f"💰 *{p['prezzo_attuale']} €* anziché {p['prezzo_precedente']} €! (-{p['sconto']}%)\n"
-            else:
-                msg += f"💰 *{p['prezzo_attuale']} €*\n"
-            msg += f"👉 [Apri su Amazon]({url})\n\n"
-            msg += "🪵 Segnalata da Il Tarlo del Risparmio\n#IlTarloDelRisparmio"
-
-            # Retry: su Render i timeout di rete sono frequenti, senza retry
-            # l'offerta andrebbe persa (ma resta marcata come già inviata)
-            for tentativo in range(1, 4):
+            processing.add(asin)
+            try:
+                p = await asyncio.to_thread(scarica_dettagli_amazon, asin)
+                if not p:
+                    continue
+                foto = await asyncio.to_thread(crea_immagine, p)
+                url = f"https://www.amazon.it/dp/{p['asin']}?tag={AMAZON_TAG}"
+                title = escape_markdown(p['titolo'][:180], version=1)
+                msg = f"🐛 Il Tarlo ha colpito ancora!\n\n🛒 *{title}*\n\n💰 *{p['prezzo_attuale']} €*\n"
+                if p['sconto'] > 0:
+                    msg += f"Riferimento Amazon: {p['prezzo_precedente']} € (-{p['sconto']}%).\n"
+                msg += f"👉 [Apri su Amazon]({url})\n\n🪵 Il Tarlo del Risparmio\n#IlTarloDelRisparmio"
                 try:
-                    with open(foto, "rb") as f:
-                        await bot.send_photo(chat_id=CANALE_CHAT_ID, photo=f, caption=msg, parse_mode="Markdown")
-                    print(f"[DEBUG] Inviato con successo ASIN {asin}")
-                    break
-                except Exception as e:
-                    print(f"[ERRORE INVIO] tentativo {tentativo}/3 per {asin}: {type(e).__name__}: {e}")
-                    if tentativo < 3:
-                        await asyncio.sleep(5 * tentativo)
-                    else:
-                        print(f"[ERRORE INVIO] {asin} definitivamente non inviato")
+                    sent = await bot.send_photo(chat_id=CANALE_CHAT_ID, photo=BytesIO(foto),
+                                                caption=msg, parse_mode="Markdown")
+                except NetworkError:
+                    # Esito ambiguo: potrebbe essere stato pubblicato. Evitare retry ciechi.
+                    segna_inviato(asin)
+                    print(f"[INVIO INCERTO] {asin}: controllare il canale; nessun retry automatico")
+                    continue
+                segna_inviato(asin)
+                try:
+                    await asyncio.to_thread(archive.registra, p, sent.message_id, CANALE_CHAT_ID)
+                except Exception as exc:
+                    print(f"[DAILY ARCHIVIO FALLITO] {asin}: {type(exc).__name__}")
+                print(f"[INVIATO] {asin}")
+            except Exception as exc:
+                print(f"[ERRORE PRODOTTO] {asin}: {type(exc).__name__}")
+            finally:
+                processing.discard(asin)
 
-    await client.run_until_disconnected()
+    try:
+        await client.run_until_disconnected()
+    finally:
+        if daily_task:
+            daily_task.cancel()
+            await asyncio.gather(daily_task, return_exceptions=True)
 
 if __name__ == "__main__":
-    threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT), daemon=True).start()
     asyncio.run(main())
