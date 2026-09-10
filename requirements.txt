@@ -1,9 +1,0 @@
-python-telegram-bot
-telethon
-flask
-pillow
-beautifulsoup4
-requests
-cairosvg
-psycopg2-binary
-tzdata

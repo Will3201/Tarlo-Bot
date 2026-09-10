@@ -1,8 +1,0 @@
-__pycache__/
-*.py[cod]
-*.db
-*.sqlite
-*.session
-*.session-journal
-.env
-offerta_finale.png
