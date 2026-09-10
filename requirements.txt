@@ -5,3 +5,5 @@ pillow
 beautifulsoup4
 requests
 cairosvg
+psycopg2-binary
+tzdata
