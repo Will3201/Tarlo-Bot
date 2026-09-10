@@ -4,10 +4,13 @@ import unittest
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import Mock
+from unittest.mock import Mock, AsyncMock
+from io import BytesIO
+from PIL import Image
 
 from flask import Flask
-from free_daily import product_from_message, recover_today, register_free_routes
+from free_daily import product_from_message, recover_today, register_free_routes, prepare_reported_offer
+from daily_pipeline import DailyPipeline
 from tarlo_daily import ArchivioOfferte
 
 
@@ -57,3 +60,38 @@ class FreeTests(unittest.TestCase):
         self.assertEqual(client.post('/daily/prepare', headers={'Origin':'https://example.com'}).status_code,400)
         self.assertEqual(client.post('/daily/prepare').status_code,202)
         coordinator.request.assert_called_once()
+
+    def test_reported_price_is_explicit_and_image_preserved(self):
+        msg = self.message()
+        msg.photo = True
+        raw = BytesIO()
+        Image.new('RGB',(80,80),'green').save(raw,'JPEG')
+        client = SimpleNamespace(get_messages=AsyncMock(return_value=msg),
+                                 download_media=AsyncMock(return_value=raw.getvalue()))
+        with tempfile.TemporaryDirectory() as directory:
+            archive = ArchivioOfferte(Path(directory)/'db',database_url='')
+            archive.registra(product_from_message(msg),msg.id,when=msg.date)
+            pipeline = DailyPipeline(archive,lambda *a:None,lambda p:None)
+            self.assertEqual(asyncio.run(prepare_reported_offer(pipeline,client,'TarloDelRisparmio')),
+                             'ready_reported_price')
+            data = pipeline.latest()
+            self.assertFalse(data['live_verified'])
+            self.assertIn('Prezzo segnalato alle', data['caption'])
+            self.assertIn('da ricontrollare', data['caption'])
+            self.assertNotIn('Valutazione', data['caption'])
+            self.assertEqual(asyncio.run(prepare_reported_offer(pipeline,client,'TarloDelRisparmio')),
+                             'already_claimed_or_ready')
+
+    def test_changed_reported_price_skipped(self):
+        msg = self.message()
+        msg.photo = True
+        product = product_from_message(msg)
+        msg.raw_text = msg.raw_text.replace('20,00','25,00')
+        client = SimpleNamespace(get_messages=AsyncMock(return_value=msg),download_media=AsyncMock())
+        with tempfile.TemporaryDirectory() as directory:
+            archive = ArchivioOfferte(Path(directory)/'db',database_url='')
+            archive.registra(product,msg.id,when=msg.date)
+            pipeline = DailyPipeline(archive,lambda *a:None,lambda p:None)
+            self.assertEqual(asyncio.run(prepare_reported_offer(pipeline,client,'TarloDelRisparmio')),
+                             'no_recent_offer')
+            client.download_media.assert_not_called()

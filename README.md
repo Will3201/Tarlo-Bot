@@ -11,6 +11,15 @@ pubblicati oggi (Europe/Rome). Non ripubblica i post recuperati. I dati del
 messaggio servono a scegliere una shortlist; prezzi, recensioni e disponibilità
 vengono poi ricontrollati su Amazon prima di preparare il contenuto.
 
+Se nessuno dei candidati è verificabile su Amazon, viene considerata una
+segnalazione del canale delle ultime 6 ore, con foto originale e prezzo ancora
+coerente con il messaggio. La caption dice esplicitamente «Prezzo segnalato
+alle…», «Prezzo e disponibilità da ricontrollare» e che la promozione potrebbe
+essere cambiata. Il feed marca `live_verified=false` e
+`price_source=telegram_snapshot`. La classifica usa solo le metriche realmente
+disponibili; quando mancano recensioni/vendite, non è una classifica di bestseller.
+Senza una segnalazione recente adatta, non viene preparato alcun post.
+
 - `POST /daily/prepare`, senza corpo, query o Origin: avvia il recupero e la preparazione.
 - `GET /daily/status`: stato del lavoro (`preparing`, `ready`, `no_verified_offer`, `failed`).
 - `GET /daily/latest`: contenuto pronto oppure `not_ready` / `expired`.
@@ -145,7 +154,7 @@ pubblica autonomamente su TikTok.
 
 ## Verifica eseguita e limiti
 
-`python -m unittest discover -s tests -v`: 21 test superati con SQLite e dati simulati, incluso lo scraper su fixture HTML, il rendering PNG reale, il feed HTTP Flask e la riapertura dell'archivio nella cartella dati configurata.
+`python -m unittest discover -s tests -v`: 23 test superati con SQLite e dati simulati, incluso lo scraper su fixture HTML, il rendering PNG reale, il feed HTTP Flask e la riapertura dell'archivio nella cartella dati configurata.
 `python -m py_compile main.py tarlo_daily.py daily_pipeline.py`: sintassi valida.
 I test coprono recupero della cronologia Telegram, rifiuto di parametri esterni, concorrenza della preparazione, recupero lease, prezzo cambiato,
 indisponibilità, riferimento sconosciuto, immagine fallita, scadenza, accesso media,

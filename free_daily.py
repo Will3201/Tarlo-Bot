@@ -4,11 +4,18 @@ Non pubblica messaggi. Il POST accetta solo un comando fisso, senza URL o prodot
 forniti dal chiamante, e limita le preparazioni a una ogni 15 minuti per processo.
 """
 import asyncio
+import base64
+import hashlib
+import json
 import logging
 import re
 import threading
 import time
-from datetime import datetime, timezone
+import uuid
+from datetime import datetime, timezone, timedelta
+from io import BytesIO
+
+from PIL import Image
 
 from tarlo_daily import ROME, number
 
@@ -47,6 +54,74 @@ async def recover_today(client, archive, channel, now=None):
     return count
 
 
+async def prepare_reported_offer(pipeline, client, channel, now=None):
+    """Fallback dichiarato: prezzo storico nel post, mai spacciato per prezzo live."""
+    now = now or datetime.now(timezone.utc)
+    day = now.astimezone(ROME).date().isoformat()
+    owner = pipeline.claim(day, now)
+    if owner is None:
+        return 'already_claimed_or_ready'
+    try:
+        for entry in pipeline.archive.candidati(now):
+            product = entry['prodotto']
+            published = datetime.fromisoformat(product['pubblicato_il'])
+            if now - published > timedelta(hours=6) or not entry['analisi']['sconto_calcolato']:
+                continue
+            mid = int(product['telegram_post_url'].rsplit('/',1)[1])
+            message = await client.get_messages(channel, ids=mid)
+            current = product_from_message(message) if message else None
+            if not current or current['asin'] != product['asin'] or not getattr(message, 'photo', None):
+                continue
+            if any(number(current.get(key)) != number(product.get(key))
+                   for key in ('prezzo_attuale','prezzo_precedente')):
+                continue
+            raw = await client.download_media(message, file=bytes)
+            if not raw or len(raw) > 8_000_000:
+                continue
+            with Image.open(BytesIO(raw)) as photo:
+                if photo.width > 4096 or photo.height > 4096:
+                    continue
+                output = BytesIO()
+                photo.convert('RGB').save(output, 'PNG')
+                image = output.getvalue()
+            if len(image) > 8_000_000:
+                continue
+            at = published.astimezone(ROME).strftime('%H:%M')
+            discount = entry['analisi']['sconto_calcolato']
+            caption = (f"🐛 La segnalazione del Tarlo di oggi: {product['titolo']}\n"
+                       f"Prezzo segnalato alle {at}: {product['prezzo_attuale']} €.\n"
+                       f"Riferimento riportato nel post: {product['prezzo_precedente']} € (-{discount:g}%).\n"
+                       "Prezzo e disponibilità da ricontrollare: la promozione potrebbe essere cambiata.\n"
+                       "Scopri Il Tarlo del Risparmio per altre segnalazioni.\n"
+                       "Link affiliati: potremmo ricevere una commissione.\n"
+                       f"#Pubblicità #IlTarloDelRisparmio #OfferteAmazon #Tarlo{day.replace('-','')}")
+            ident = uuid.uuid4().hex
+            checked = datetime.now(timezone.utc)
+            payload = {'id':f'tarlo-{day}', 'day':day, 'timezone':'Europe/Rome',
+                       'prepared_at':checked.isoformat(),
+                       'valid_until':(checked+timedelta(minutes=30)).isoformat(),
+                       'product':product, 'caption':caption,
+                       'media_path':f'/daily/media/{day}/{ident}.png',
+                       'sha256':hashlib.sha256(image).hexdigest(), 'format':'photo',
+                       'status':'ready', 'commercial_content':True, 'live_verified':False,
+                       'selection_scope':'segnalazioni del canale nelle ultime 6 ore; metriche disponibili',
+                       'price_source':'telegram_snapshot', 'price_observed_at':published.isoformat()}
+            with pipeline.archive.connection() as conn:
+                cur = conn.cursor()
+                pipeline.archive.execute(cur, 'UPDATE tarlo_daily_ready SET payload=?, image=? '
+                    'WHERE day=? AND owner=? AND payload IS NULL',
+                    (json.dumps(payload,ensure_ascii=False),base64.b64encode(image).decode(),day,owner))
+                if cur.rowcount != 1:
+                    return 'lease_lost'
+            pipeline.cleanup()
+            return 'ready_reported_price'
+        return 'no_recent_offer'
+    finally:
+        with pipeline.archive.connection() as conn:
+            pipeline.archive.execute(conn.cursor(), 'DELETE FROM tarlo_daily_ready '
+                'WHERE day=? AND owner=? AND payload IS NULL', (day,owner))
+
+
 class FreeDaily:
     def __init__(self, pipeline, client, channel, loop, connected):
         self.pipeline, self.client, self.channel = pipeline, client, channel
@@ -79,6 +154,8 @@ class FreeDaily:
             recovered = await asyncio.wait_for(
                 recover_today(self.client, self.pipeline.archive, self.channel), timeout=90)
             result = await asyncio.to_thread(self.pipeline.prepare)
+            if result == 'no_verified_offer':
+                result = await prepare_reported_offer(self.pipeline, self.client, self.channel)
             self.state = {'status': result, 'recovered_posts': recovered}
             LOG.warning('Preparazione gratuita: %s; post recuperati: %s', result, recovered)
         except Exception:
