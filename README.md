@@ -4,10 +4,12 @@ Bot Telegram con archivio e preparazione quotidiana di una foto e una caption pe
 
 ## Stato della modifica
 
-Proposta sul ramo `feat/offerta-giornaliera-tiktok`, a partire dal commit
-`5dfc96593993de27081671e843d8b6a269d61577`. Il deploy su Render resta da eseguire.
-Non è stata creata l'automazione ChatGPT di pubblicazione: prima serve il deploy
-con un feed funzionante e una prova completa del contenuto.
+L'archivio e il feed sono stati distribuiti su Render il 10 settembre 2026,
+commit `9e015dd5f079e118f9a391a4da414337e4ecb9c6`. Il feed risponde HTTP 200
+con stato `not_ready`, coerente con la preparazione disabilitata.
+Il supporto opzionale al disco tramite `DATA_DIR` è predisposto con questa modifica.
+Non è stata creata l'automazione ChatGPT di pubblicazione: prima servono la
+configurazione operativa e una prova completa su un'offerta reale.
 
 La connessione Metricool di ChatGPT NON diventa una credenziale disponibile al bot.
 Questo codice prepara il contenuto; l'automazione ChatGPT userà il collegamento
@@ -45,8 +47,10 @@ nella vecchia cronologia: la rimozione non sostituisce la revoca su BotFather.
 
 Variabili della preparazione giornaliera:
 
-- `DATABASE_URL`: Postgres persistente, necessario per funzionamento affidabile
-  su Render con disco effimero. Senza variabile il codice usa SQLite per test locali.
+- `DATABASE_URL`: alternativa Postgres persistente. Se assente usa SQLite.
+- `DATA_DIR`: cartella dei due database SQLite, ad esempio `/var/data/tarlo`.
+  Va impostata solo dopo aver montato un disco persistente su `/var/data`.
+  Creare la cartella o impostare la variabile da sole NON rendono persistenti i dati.
 - `DAILY_ENABLED=true`: abilita il ciclo giornaliero; assente = disabilitato.
 - `DAILY_PREPARE_TIME=18:00`: orario iniziale proposto, fuso Europe/Rome (ora legale inclusa).
 
@@ -55,6 +59,15 @@ un post pronto. Se il processo non è in esecuzione non può raccogliere le offe
 né preparare il contenuto. Un Render Free può sospendersi; per affidabilità serve
 un'istanza sempre attiva. Non è stato cambiato alcun piano o costo.
 Documentazione: https://render.com/docs/free
+
+Configurazione economica proposta, non ancora attivata: istanza sempre attiva
+da 7 USD/mese e disco da 1 GB a 0,25 USD/mese, totale base 7,25 USD/mese,
+oltre eventuali imposte e consumi extra. Prezzi verificati il 10 settembre 2026:
+https://render.com/pricing . Nessun piano a pagamento va attivato senza consenso.
+Montare il disco su `/var/data`, poi impostare `DATA_DIR=/var/data/tarlo`.
+I database della versione su disco effimero non vengono migrati automaticamente:
+il primo avvio su disco inizia un nuovo archivio. Il disco conserva dati ai
+riavvii successivi. Gli snapshot del disco non sostituiscono backup SQLite coerenti.
 
 ## Selezione e ricontrollo
 
@@ -119,13 +132,16 @@ pubblica autonomamente su TikTok.
 
 ## Verifica eseguita e limiti
 
-`python -m unittest discover -s tests -v`: 16 test superati con SQLite e dati simulati, incluso lo scraper su fixture HTML, il rendering PNG reale e il feed HTTP Flask.
+`python -m unittest discover -s tests -v`: 17 test superati con SQLite e dati simulati, incluso lo scraper su fixture HTML, il rendering PNG reale, il feed HTTP Flask e la riapertura dell'archivio nella cartella dati configurata.
 `python -m py_compile main.py tarlo_daily.py daily_pipeline.py`: sintassi valida.
 I test coprono concorrenza della preparazione, recupero lease, prezzo cambiato,
 indisponibilità, riferimento sconosciuto, immagine fallita, scadenza, accesso media,
 metriche mancanti e confine del giorno italiano.
 
-Non verificati in questo ambiente: selettori Amazon live, Postgres, avvio Telethon e invio Metricool.
+Verificati su Render: deploy live, avvio Flask, risposta HTTP 200 del feed.
+Verificati in Metricool: account TikTok collegato, lettura planner e analytics.
+Non verificati: selettori Amazon live, Postgres, ricezione Telegram dopo il nuovo
+deploy, conservazione dopo riavvio su un disco Render effettivo e invio Metricool.
 
 L'invio Telegram ora marca il prodotto dopo il successo. In caso di errore di rete
 con esito ambiguo lo marca per 24 ore e segnala di controllare il canale, evitando

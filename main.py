@@ -23,7 +23,7 @@ from PIL import Image, ImageDraw, ImageFont
 from telegram import Bot
 from telegram.error import NetworkError
 from telegram.helpers import escape_markdown
-from tarlo_daily import ArchivioOfferte, estrai_metriche
+from tarlo_daily import ArchivioOfferte, database_path, estrai_metriche
 from daily_pipeline import DailyPipeline, register_routes
 from telethon import TelegramClient, events
 from telethon.sessions import StringSession
@@ -62,7 +62,7 @@ CANALI_SPIA = [
 BASE_DIR = Path(__file__).resolve().parent
 SVG_TEMPLATE_PATH = BASE_DIR / "template.svg"
 OUTPUT_PATH = BASE_DIR / "offerta_finale.png"
-DB_PATH = BASE_DIR / "offerte.db"
+DB_PATH = database_path("offerte.db")
 # Se impostata (es. connection string di Neon/Postgres), il bot usa un DB
 # persistente che sopravvive ai deploy. Se assente, usa SQLite locale come
 # prima (funziona, ma si azzera ad ogni deploy su Render free tier).
@@ -156,7 +156,7 @@ def init_db():
                     inviato_il DATETIME
                 )
             """)
-        print("[DEBUG] Database: SQLite locale (ATTENZIONE: si azzera ad ogni deploy su Render free)")
+        print(f"[DEBUG] Database: SQLite in {DB_PATH}; persistenza solo con disco montato")
 
 def gia_inviato(asin):
     if USA_POSTGRES:
