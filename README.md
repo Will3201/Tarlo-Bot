@@ -119,15 +119,13 @@ pubblica autonomamente su TikTok.
 
 ## Verifica eseguita e limiti
 
-`python -m unittest discover -s tests -v`: 11 test superati con SQLite e dati simulati.
+`python -m unittest discover -s tests -v`: 16 test superati con SQLite e dati simulati, incluso lo scraper su fixture HTML, il rendering PNG reale e il feed HTTP Flask.
 `python -m py_compile main.py tarlo_daily.py daily_pipeline.py`: sintassi valida.
 I test coprono concorrenza della preparazione, recupero lease, prezzo cambiato,
 indisponibilità, riferimento sconosciuto, immagine fallita, scadenza, accesso media,
 metriche mancanti e confine del giorno italiano.
 
-Non verificati in questo ambiente: selettori Amazon live, rendering effettivo,
-server Flask, Postgres, avvio Telethon e invio Metricool. L'installazione delle
-dipendenze di rete nell'ambiente di lavoro non è andata a buon fine.
+Non verificati in questo ambiente: selettori Amazon live, Postgres, avvio Telethon e invio Metricool.
 
 L'invio Telegram ora marca il prodotto dopo il successo. In caso di errore di rete
 con esito ambiguo lo marca per 24 ore e segnala di controllare il canale, evitando
