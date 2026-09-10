@@ -18,6 +18,13 @@ from zoneinfo import ZoneInfo
 ROME = ZoneInfo('Europe/Rome')
 
 
+def database_path(filename):
+    """DATA_DIR deve puntare al disco montato per resistere ai deploy."""
+    directory = Path(os.getenv('DATA_DIR') or Path(__file__).resolve().parent)
+    directory.mkdir(parents=True, exist_ok=True)
+    return directory / filename
+
+
 def number(value):
     if value is None or isinstance(value, bool):
         return None
@@ -103,7 +110,7 @@ def valuta(p):
 
 class ArchivioOfferte:
     def __init__(self, db_path=None, database_url=None):
-        self.db_path = str(db_path or Path(__file__).with_name('offerte_daily.db'))
+        self.db_path = str(db_path or database_path('offerte_daily.db'))
         self.database_url = os.getenv('DATABASE_URL', '') if database_url is None else database_url
         if self.database_url:
             import psycopg2  # Errore esplicito: niente fallback silenzioso a SQLite.

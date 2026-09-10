@@ -1,11 +1,12 @@
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from tarlo_daily import ArchivioOfferte, ROME, valuta
+from tarlo_daily import ArchivioOfferte, ROME, database_path, valuta
 from daily_pipeline import DailyPipeline
 
 
@@ -30,6 +31,20 @@ class PipelineTests(unittest.TestCase):
         self.assertIn('prezzo consigliato', first['caption'])
         self.assertNotIn('più venduto', first['caption'])
         self.assertEqual(first['status'], 'ready')
+
+    def test_data_directory_survives_archive_reopen(self):
+        directory = str(Path(self.temp.name) / 'mounted-data')
+        with patch.dict('os.environ', {'DATA_DIR': directory}):
+            archive = ArchivioOfferte(database_url='')
+            archive.registra(self.p, 123)
+            pipeline = DailyPipeline(archive, lambda asin, strict: dict(self.p), lambda p: b'test-image')
+            self.assertEqual(pipeline.prepare(), 'ready')
+            reopened = ArchivioOfferte(database_url='')
+            ready = DailyPipeline(reopened, lambda *args: None, lambda p: None).latest()
+            self.assertEqual(ready['status'], 'ready')
+            self.assertEqual(len(reopened.candidati()), 1)
+            self.assertEqual(database_path('offerte.db').parent, Path(directory))
+            self.assertEqual(Path(reopened.db_path).parent, Path(directory))
 
     def test_claim_excludes_second_worker(self):
         now = datetime.now(timezone.utc)

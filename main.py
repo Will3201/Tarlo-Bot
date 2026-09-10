@@ -23,8 +23,9 @@ from PIL import Image, ImageDraw, ImageFont
 from telegram import Bot
 from telegram.error import NetworkError
 from telegram.helpers import escape_markdown
-from tarlo_daily import ArchivioOfferte, estrai_metriche
+from tarlo_daily import ArchivioOfferte, database_path, estrai_metriche
 from daily_pipeline import DailyPipeline, register_routes
+from free_daily import FreeDaily, register_free_routes
 from telethon import TelegramClient, events
 from telethon.sessions import StringSession
 
@@ -62,7 +63,7 @@ CANALI_SPIA = [
 BASE_DIR = Path(__file__).resolve().parent
 SVG_TEMPLATE_PATH = BASE_DIR / "template.svg"
 OUTPUT_PATH = BASE_DIR / "offerta_finale.png"
-DB_PATH = BASE_DIR / "offerte.db"
+DB_PATH = database_path("offerte.db")
 # Se impostata (es. connection string di Neon/Postgres), il bot usa un DB
 # persistente che sopravvive ai deploy. Se assente, usa SQLite locale come
 # prima (funziona, ma si azzera ad ogni deploy su Render free tier).
@@ -156,7 +157,7 @@ def init_db():
                     inviato_il DATETIME
                 )
             """)
-        print("[DEBUG] Database: SQLite locale (ATTENZIONE: si azzera ad ogni deploy su Render free)")
+        print(f"[DEBUG] Database: SQLite in {DB_PATH}; persistenza solo con disco montato")
 
 def gia_inviato(asin):
     if USA_POSTGRES:
@@ -588,11 +589,17 @@ async def main():
                              lambda p: crea_immagine(p, require_image=True),
                              os.getenv("DAILY_PREPARE_TIME", "18:00"))
     register_routes(app, pipeline)
+    client = TelegramClient(StringSession(SESSION_STRING), TELEGRAM_API_ID, TELEGRAM_API_HASH)
+    connected = asyncio.Event()
+    if os.getenv('FREE_DAILY_ENABLED') == 'true':
+        coordinator = FreeDaily(pipeline, client, CANALE_CHAT_ID, asyncio.get_running_loop(), connected)
+        register_free_routes(app, coordinator)
     threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT), daemon=True).start()
     daily_task = asyncio.create_task(pipeline.run()) if os.getenv("DAILY_ENABLED") == "true" else None
     processing = set()  # Una sola istanza Telethon, come il servizio corrente.
-    client = TelegramClient(StringSession(SESSION_STRING), TELEGRAM_API_ID, TELEGRAM_API_HASH)
     await client.start()
+    connected.set()
+    print('[DAILY] Client Telegram connesso')
 
     @client.on(events.NewMessage())
     async def handler(event):
