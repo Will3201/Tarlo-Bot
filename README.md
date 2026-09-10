@@ -2,19 +2,35 @@
 
 Bot Telegram con archivio e preparazione quotidiana di una foto e una caption per TikTok.
 
-## Stato della modifica
+## Modalità gratuita
 
-L'archivio e il feed sono stati distribuiti su Render il 10 settembre 2026,
-commit `9e015dd5f079e118f9a391a4da414337e4ecb9c6`. Il feed risponde HTTP 200
-con stato `not_ready`, coerente con la preparazione disabilitata.
-Il supporto opzionale al disco tramite `DATA_DIR` è predisposto con questa modifica.
-Non è stata creata l'automazione ChatGPT di pubblicazione: prima servono la
-configurazione operativa e una prova completa su un'offerta reale.
+Render resta sul piano Free, senza dischi o database a pagamento.
+`FREE_DAILY_ENABLED=true` abilita una preparazione su richiesta: il processo
+legge fino a 500 post recenti del proprio canale Telegram e recupera quelli
+pubblicati oggi (Europe/Rome). Non ripubblica i post recuperati. I dati del
+messaggio servono a scegliere una shortlist; prezzi, recensioni e disponibilità
+vengono poi ricontrollati su Amazon prima di preparare il contenuto.
 
-La connessione Metricool di ChatGPT NON diventa una credenziale disponibile al bot.
-Questo codice prepara il contenuto; l'automazione ChatGPT userà il collegamento
-Metricool per programmare il singolo post. Non ci sono endpoint Metricool inventati
-né un token Metricool da incollare nel repository.
+- `POST /daily/prepare`, senza corpo, query o Origin: avvia il recupero e la preparazione.
+- `GET /daily/status`: stato del lavoro (`preparing`, `ready`, `no_verified_offer`, `failed`).
+- `GET /daily/latest`: contenuto pronto oppure `not_ready` / `expired`.
+
+Il POST avvia solo un lavoro fisso sul canale configurato: non accetta URL o
+prodotti esterni e non invia messaggi. Una richiesta per volta e almeno 15 minuti
+fra tentativi nello stesso processo. Un contenuto pronto è riutilizzato; se è
+scaduto, non viene rigenerato automaticamente nello stesso giorno.
+Il risveglio di Render Free può richiedere circa un minuto. Un'automazione
+ChatGPT può fare la richiesta quotidiana, attendere lo stato e inviare la foto
+tramite Metricool. Il collegamento Metricool resta in ChatGPT, non nel bot.
+
+I file temporanei si perdono ai riavvii, ma il canale conserva le offerte da
+recuperare. Anche le immagini del feed sono temporanee: prima di programmare
+il post va salvata la creatività su una fonte durevole, o verificato che Metricool
+la acquisisca al momento della programmazione. La verifica dei duplicati deve
+usare Metricool e un registro durevole, non il database temporaneo di Render.
+I limiti gratuiti di Render/Metricool/ChatGPT continuano ad applicarsi; non si
+può garantire un post ogni giorno se il servizio è sospeso, Amazon non risponde
+o non ci sono offerte verificabili. Nessun piano a pagamento è stato attivato.
 
 ## Cosa cambia
 
@@ -60,14 +76,8 @@ né preparare il contenuto. Un Render Free può sospendersi; per affidabilità s
 un'istanza sempre attiva. Non è stato cambiato alcun piano o costo.
 Documentazione: https://render.com/docs/free
 
-Configurazione economica proposta, non ancora attivata: istanza sempre attiva
-da 7 USD/mese e disco da 1 GB a 0,25 USD/mese, totale base 7,25 USD/mese,
-oltre eventuali imposte e consumi extra. Prezzi verificati il 10 settembre 2026:
-https://render.com/pricing . Nessun piano a pagamento va attivato senza consenso.
-Montare il disco su `/var/data`, poi impostare `DATA_DIR=/var/data/tarlo`.
-I database della versione su disco effimero non vengono migrati automaticamente:
-il primo avvio su disco inizia un nuovo archivio. Il disco conserva dati ai
-riavvii successivi. Gli snapshot del disco non sostituiscono backup SQLite coerenti.
+`DATA_DIR` resta un'opzione tecnica inutilizzata nella configurazione gratuita.
+Non impostarla per simulare una persistenza che Render Free non offre.
 
 ## Selezione e ricontrollo
 
@@ -105,6 +115,7 @@ Il contenuto pronto è pubblico come la pubblicità destinata al canale:
 - `GET /daily/media/<giorno>/<id-casuale>.png`: immagine del post.
 
 I GET non avviano scraping, non modificano dati e non attivano pubblicazioni.
+Il POST /daily/prepare avvia il lavoro fisso descritto sopra.
 Nessun token/sessione/account è presente nel feed. L'archivio completo non viene esposto.
 La bozza scade dopo 30 minuti. L'immagine resta 7 giorni per il recupero di Metricool;
 le offerte sono conservate 30 giorni, con pulizia dopo una preparazione riuscita.
@@ -114,7 +125,9 @@ le offerte sono conservate 30 giorni, con pulizia dopo una preparazione riuscita
 Dopo una prova positiva del feed, creare UNA automazione giornaliera ChatGPT,
 orientativamente poco dopo le 18, che:
 
-1. Legga `https://tarlo-bot-1.onrender.com/daily/latest` senza cache.
+1. Avvii `POST https://tarlo-bot-1.onrender.com/daily/prepare` senza corpo,
+   poi legga `/daily/status` e `/daily/latest` senza cache, attendendo al massimo
+   6 minuti. Gestisca il risveglio del servizio e risposte HTTP 202/429.
 2. Proceda solo con stato `ready`, giorno italiano corrente e validità non scaduta.
 3. Verifichi che Metricool brand 6911341 abbia ancora TikTok `tarlodelrisparmio`.
 4. Controlli il planner di quel giorno e i post TikTok già pubblicati, cercando
@@ -132,9 +145,9 @@ pubblica autonomamente su TikTok.
 
 ## Verifica eseguita e limiti
 
-`python -m unittest discover -s tests -v`: 17 test superati con SQLite e dati simulati, incluso lo scraper su fixture HTML, il rendering PNG reale, il feed HTTP Flask e la riapertura dell'archivio nella cartella dati configurata.
+`python -m unittest discover -s tests -v`: 21 test superati con SQLite e dati simulati, incluso lo scraper su fixture HTML, il rendering PNG reale, il feed HTTP Flask e la riapertura dell'archivio nella cartella dati configurata.
 `python -m py_compile main.py tarlo_daily.py daily_pipeline.py`: sintassi valida.
-I test coprono concorrenza della preparazione, recupero lease, prezzo cambiato,
+I test coprono recupero della cronologia Telegram, rifiuto di parametri esterni, concorrenza della preparazione, recupero lease, prezzo cambiato,
 indisponibilità, riferimento sconosciuto, immagine fallita, scadenza, accesso media,
 metriche mancanti e confine del giorno italiano.
 

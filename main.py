@@ -25,6 +25,7 @@ from telegram.error import NetworkError
 from telegram.helpers import escape_markdown
 from tarlo_daily import ArchivioOfferte, database_path, estrai_metriche
 from daily_pipeline import DailyPipeline, register_routes
+from free_daily import FreeDaily, register_free_routes
 from telethon import TelegramClient, events
 from telethon.sessions import StringSession
 
@@ -588,11 +589,17 @@ async def main():
                              lambda p: crea_immagine(p, require_image=True),
                              os.getenv("DAILY_PREPARE_TIME", "18:00"))
     register_routes(app, pipeline)
+    client = TelegramClient(StringSession(SESSION_STRING), TELEGRAM_API_ID, TELEGRAM_API_HASH)
+    connected = asyncio.Event()
+    if os.getenv('FREE_DAILY_ENABLED') == 'true':
+        coordinator = FreeDaily(pipeline, client, CANALE_CHAT_ID, asyncio.get_running_loop(), connected)
+        register_free_routes(app, coordinator)
     threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT), daemon=True).start()
     daily_task = asyncio.create_task(pipeline.run()) if os.getenv("DAILY_ENABLED") == "true" else None
     processing = set()  # Una sola istanza Telethon, come il servizio corrente.
-    client = TelegramClient(StringSession(SESSION_STRING), TELEGRAM_API_ID, TELEGRAM_API_HASH)
     await client.start()
+    connected.set()
+    print('[DAILY] Client Telegram connesso')
 
     @client.on(events.NewMessage())
     async def handler(event):
