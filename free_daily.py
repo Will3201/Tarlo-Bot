@@ -87,7 +87,8 @@ async def prepare_reported_offer(pipeline, client, channel, now=None):
             if len(image) > 8_000_000:
                 continue
             at = published.astimezone(ROME).strftime('%H:%M')
-            discount = entry['analisi']['sconto_calcolato']
+            reference = number(product['prezzo_precedente'])
+            discount = round((reference - number(product['prezzo_attuale'])) / reference * 100)
             caption = (f"🐛 La segnalazione del Tarlo di oggi: {product['titolo']}\n"
                        f"Prezzo segnalato alle {at}: {product['prezzo_attuale']} €.\n"
                        f"Riferimento riportato nel post: {product['prezzo_precedente']} € (-{discount:g}%).\n"
