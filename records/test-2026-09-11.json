@@ -1,9 +1,13 @@
 {
+  "brand_id": "6911341",
+  "created_at": "2026-09-11T07:03:01Z",
+  "image_blob": "0e0c6be49522b2d0b9293732b9e6292cdf0b26d7",
   "kind": "technical_test",
   "marker": "#TarloTest20260911",
-  "state": "prepared",
   "media_path": "media/test-2026-09-11.png",
-  "image_blob": "0e0c6be49522b2d0b9293732b9e6292cdf0b26d7",
-  "brand_id": "6911341",
-  "created_at": "2026-09-11T07:03:01Z"
+  "state": "attempted",
+  "media_url": "https://raw.githubusercontent.com/Will3201/Tarlo-Bot/a52391797efd8b0ab682147ebe384ecb7f322259/media/test-2026-09-11.png",
+  "publication_date": "2026-09-11T09:08:00",
+  "timezone": "Europe/Rome",
+  "caption": "🐛 Prova tecnica di pubblicazione di Il Tarlo del Risparmio.\nStiamo preparando le prossime segnalazioni!\nQuesto post serve a verificare il collegamento automatico e non contiene un’offerta.\n#IlTarloDelRisparmio #TarloTest20260911"
 }
