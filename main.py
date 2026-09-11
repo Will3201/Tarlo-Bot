@@ -21,6 +21,7 @@ from bs4 import BeautifulSoup
 from flask import Flask
 from PIL import Image, ImageDraw, ImageFont
 from product_layout import posiziona_prodotto
+from text_layout import disegna_testi
 from telegram import Bot
 from telegram.error import NetworkError
 from telegram.helpers import escape_markdown
@@ -523,11 +524,6 @@ def crea_immagine(prodotto, require_image=False):
     base_img = Image.open(BytesIO(template_bytes)).convert("RGBA")
     draw = ImageDraw.Draw(base_img)
 
-    font_titolo = carica_font_locale(26)
-    font_patt = carica_font_locale(92)
-    font_pvec = carica_font_locale(36)
-    font_sconto = carica_font_locale(55)
-
     if prodotto.get("immagine_url"):
         try:
             resp = requests.get(prodotto["immagine_url"], timeout=10)
@@ -540,32 +536,7 @@ def crea_immagine(prodotto, require_image=False):
     elif require_image:
         raise ValueError("Immagine prodotto mancante")
 
-    CENTRO_X = 797
-    Y_TITOLO = 291
-    Y_PREZZO_ATTUALE = 557
-    Y_PREZZO_VECCHIO = 781
-    Y_SCONTO = 918
-
-    titolo_txt = textwrap.fill(prodotto["titolo"][:55], width=22)
-    draw_centrato(draw, CENTRO_X, Y_TITOLO, titolo_txt, font_titolo, "white",
-                  stroke_width=2, stroke_fill="black")
-
-    draw_centrato(draw, CENTRO_X, Y_PREZZO_ATTUALE, f"{prodotto['prezzo_attuale']} €", font_patt, "#111111",
-                  stroke_width=1, stroke_fill="white")
-
-    if prodotto.get("prezzo_precedente"):
-        p_vec = f"{prodotto['prezzo_precedente']} €"
-        bbox, _ = draw_centrato(draw, CENTRO_X, Y_PREZZO_VECCHIO, p_vec, font_pvec, "#333333",
-                                 stroke_width=1, stroke_fill="white")
-        w = bbox[2] - bbox[0]
-        draw.line(
-            [(CENTRO_X - w / 2 - 4, Y_PREZZO_VECCHIO), (CENTRO_X + w / 2 + 4, Y_PREZZO_VECCHIO)],
-            fill="#CC0000", width=4
-        )
-
-    if prodotto.get("sconto") and prodotto["sconto"] > 0:
-        draw_centrato(draw, CENTRO_X, Y_SCONTO, f"-{prodotto['sconto']}%", font_sconto, "white",
-                      stroke_width=2, stroke_fill="black")
+    disegna_testi(draw, prodotto)
 
     result = BytesIO()
     base_img.convert("RGB").save(result, "PNG")
