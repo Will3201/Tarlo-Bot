@@ -22,6 +22,7 @@ from flask import Flask
 from PIL import Image, ImageDraw, ImageFont
 from product_layout import posiziona_prodotto
 from text_layout import disegna_testi
+from coupon_notice import estrai_coupon, avviso_coupon
 from telegram import Bot
 from telegram.error import NetworkError
 from telegram.helpers import escape_markdown
@@ -594,12 +595,16 @@ async def main():
                 p = await asyncio.to_thread(scarica_dettagli_amazon, asin)
                 if not p:
                     continue
+                coupon = estrai_coupon(event.message.text, len(asin_list))
+                if coupon:
+                    p['coupon'] = coupon
                 foto = await asyncio.to_thread(crea_immagine, p)
                 url = f"https://www.amazon.it/dp/{p['asin']}?tag={AMAZON_TAG}"
                 title = escape_markdown(p['titolo'][:180], version=1)
                 msg = f"🐛 Il Tarlo ha colpito ancora!\n\n🛒 *{title}*\n\n💰 *{p['prezzo_attuale']} €*\n"
                 if p['sconto'] > 0:
                     msg += f"Riferimento Amazon: {p['prezzo_precedente']} € (-{p['sconto']}%).\n"
+                msg += avviso_coupon(coupon)
                 msg += f"👉 [Apri su Amazon]({url})\n\n🪵 Il Tarlo del Risparmio\n#IlTarloDelRisparmio"
                 try:
                     sent = await bot.send_photo(chat_id=CANALE_CHAT_ID, photo=BytesIO(foto),
