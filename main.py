@@ -23,6 +23,7 @@ from PIL import Image, ImageDraw, ImageFont
 from product_layout import posiziona_prodotto
 from text_layout import disegna_testi
 from coupon_notice import estrai_coupon, avviso_coupon
+from daily_dedup import DailyDedup
 from telegram import Bot
 from telegram.error import NetworkError
 from telegram.helpers import escape_markdown
@@ -560,6 +561,12 @@ async def main():
     daily_task = asyncio.create_task(pipeline.run()) if os.getenv("DAILY_ENABLED") == "true" else None
     processing = set()  # Una sola istanza Telethon, come il servizio corrente.
     await client.start()
+    daily_dedup = DailyDedup(client, CANALE_CHAT_ID)
+    try:
+        await daily_dedup.refresh()
+        print(f'[ANTI DUPLICATI] Recuperati {len(daily_dedup.seen)} ASIN pubblicati oggi.')
+    except Exception as exc:
+        print(f'[ANTI DUPLICATI] Storico non disponibile: invii sospesi fino al recupero ({type(exc).__name__}).')
     connected.set()
     print('[DAILY] Client Telegram connesso')
 
@@ -607,8 +614,15 @@ async def main():
                 msg += avviso_coupon(coupon)
                 msg += f"👉 [Apri su Amazon]({url})\n\n🪵 Il Tarlo del Risparmio\n#IlTarloDelRisparmio"
                 try:
-                    sent = await bot.send_photo(chat_id=CANALE_CHAT_ID, photo=BytesIO(foto),
-                                                caption=msg, parse_mode="Markdown")
+                    sent = await daily_dedup.send_once(
+                        asin,
+                        lambda: bot.send_photo(chat_id=CANALE_CHAT_ID, photo=BytesIO(foto),
+                                               caption=msg, parse_mode="Markdown"),
+                        segna_inviato,
+                    )
+                    if sent is None:
+                        print(f"[ANTI DUPLICATI] {asin} già pubblicato o tentato oggi: salto.")
+                        continue
                 except NetworkError:
                     # Esito ambiguo: potrebbe essere stato pubblicato. Evitare retry ciechi.
                     segna_inviato(asin)
