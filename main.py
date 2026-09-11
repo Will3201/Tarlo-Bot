@@ -544,6 +544,18 @@ def crea_immagine(prodotto, require_image=False):
     base_img.convert("RGB").save(result, "PNG")
     return result.getvalue()
 
+def frase_iniziale(sconto):
+    """Sceglie una sola apertura, dalla fascia di sconto più alta."""
+    sconto = float(sconto or 0)
+    if sconto > 50:
+        return "🚨 ERRORE DI PREZZO?! 🚨"
+    if sconto >= 30:
+        return "🌟 OFFERTA SONTUOSA! 🌟"
+    if sconto > 15:
+        return "🔥 OFFERTA SPECIALE! 🔥"
+    return "🐛 Il Tarlo ha colpito ancora! 🐛"
+
+
 # --- BOT TELEGRAM ---
 async def main():
     init_db()
@@ -608,7 +620,7 @@ async def main():
                 foto = await asyncio.to_thread(crea_immagine, p)
                 url = f"https://www.amazon.it/dp/{p['asin']}?tag={AMAZON_TAG}"
                 title = escape_markdown(p['titolo'][:180], version=1)
-                msg = f"🐛 Il Tarlo ha colpito ancora!\n\n🛒 *{title}*\n\n💰 *{p['prezzo_attuale']} €*\n"
+                msg = f"{frase_iniziale(p.get('sconto'))}\n\n🛒 *{title}*\n\n💰 *{p['prezzo_attuale']} €*\n"
                 if p['sconto'] > 0:
                     msg += f"Riferimento Amazon: {p['prezzo_precedente']} € (-{p['sconto']}%).\n"
                 msg += avviso_coupon(coupon)
