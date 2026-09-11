@@ -20,6 +20,7 @@ import requests
 from bs4 import BeautifulSoup
 from flask import Flask
 from PIL import Image, ImageDraw, ImageFont
+from product_layout import posiziona_prodotto
 from telegram import Bot
 from telegram.error import NetworkError
 from telegram.helpers import escape_markdown
@@ -532,18 +533,7 @@ def crea_immagine(prodotto, require_image=False):
             resp = requests.get(prodotto["immagine_url"], timeout=10)
             resp.raise_for_status()
             img_prod = Image.open(BytesIO(resp.content)).convert("RGBA")
-            box_x, box_y = 20, 155
-            box_w, box_h = 480, 760
-
-            # Margine azzerato per sfruttare al massimo lo spazio del box
-            margine = 0
-            img_prod.thumbnail((box_w - margine * 2, box_h - margine * 2), Image.Resampling.LANCZOS)
-
-            base_img.paste(
-                img_prod,
-                (box_x + (box_w - img_prod.width) // 2, box_y + (box_h - img_prod.height) // 2),
-                img_prod
-            )
+            posiziona_prodotto(base_img, img_prod)
         except Exception:
             if require_image:
                 raise
