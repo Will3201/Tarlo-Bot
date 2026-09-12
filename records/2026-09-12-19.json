@@ -1,9 +1,5 @@
 {
-  "status": "attempted",
-  "slot": "2026-09-12-19",
   "asin": "B0FC2G9TX3",
-  "window_start": "2026-09-12T11:04:38.956486+00:00",
-  "window_end": "2026-09-12T17:04:38.956486+00:00",
   "caption": "La scelta del Tarlo delle ultime 6 ore: Neutrogena Hydro Boost Fluido Idratante\n2,36 € — sconto 64% rispetto al prezzo consigliato di 6,49 €.\nValutazione 4.4/5 su 54 valutazioni Amazon.\nPrezzo rilevato alla preparazione: può variare.\nAltre offerte su Il Tarlo del Risparmio. Link affiliati: potremmo ricevere una commissione.\n#IlTarloDelRisparmio #OfferteAmazon #Tarlo2026091219\nScopri le offerte su Telegram: t.me/TarloDelRisparmio",
   "feed": {
     "caption": "La scelta del Tarlo delle ultime 6 ore: Neutrogena Hydro Boost Fluido Idratante\n2,36 € — sconto 64% rispetto al prezzo consigliato di 6,49 €.\nValutazione 4.4/5 su 54 valutazioni Amazon.\nPrezzo rilevato alla preparazione: può variare.\nAltre offerte su Il Tarlo del Risparmio. Link affiliati: potremmo ricevere una commissione.\n#IlTarloDelRisparmio #OfferteAmazon #Tarlo2026091219",
@@ -38,5 +34,16 @@
     "valid_until": "2026-09-12T17:35:37.657041+00:00",
     "window_end": "2026-09-12T17:04:38.956486+00:00",
     "window_start": "2026-09-12T11:04:38.956486+00:00"
+  },
+  "slot": "2026-09-12-19",
+  "status": "scheduled",
+  "window_end": "2026-09-12T17:04:38.956486+00:00",
+  "window_start": "2026-09-12T11:04:38.956486+00:00",
+  "metricool_id": 374941657,
+  "uuid": "-5136497497000753772",
+  "planner_url": "https://app.metricool.com/planner/calendar?blogId=6911341&openWithPostUuid=-5136497497000753772",
+  "publicationDate": {
+    "dateTime": "2026-09-12T19:10:00",
+    "timezone": "Europe/Rome"
   }
 }
