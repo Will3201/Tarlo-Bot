@@ -163,7 +163,7 @@ class ArchivioOfferte:
         now = now or datetime.now(timezone.utc)
         if now.tzinfo is None:
             raise ValueError('Usare una data con timezone')
-        start = now.astimezone(ROME).replace(hour=0, minute=0, second=0, microsecond=0)
+        start = now - timedelta(hours=6)
         with self.connection() as conn:
             cur = conn.cursor()
             self.execute(cur, 'SELECT payload FROM tarlo_offerte_daily '

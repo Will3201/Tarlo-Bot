@@ -18,6 +18,17 @@ from tarlo_daily import ROME, number, valuta
 LOG = logging.getLogger(__name__)
 
 
+def publication_slot(now):
+    local = now.astimezone(ROME)
+    # Orari italiani 01, 07, 13, 19; prima dell'una appartiene alla fascia precedente.
+    if local.hour < 1:
+        local -= timedelta(days=1)
+        hour = 19
+    else:
+        hour = 1 + ((local.hour - 1) // 6) * 6
+    return f"{local.date().isoformat()}-{hour:02d}"
+
+
 class DailyPipeline:
     def __init__(self, archive, scrape, render, hour='18:00'):
         self.archive, self.scrape, self.render = archive, scrape, render
@@ -46,7 +57,7 @@ class DailyPipeline:
 
     def prepare(self, now=None):
         now = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
-        day = now.astimezone(ROME).date().isoformat()
+        day = publication_slot(now)
         owner = self.claim(day, now)
         if owner is None:
             return 'already_claimed_or_ready'
@@ -69,6 +80,7 @@ class DailyPipeline:
                 if product.get('tipo_riferimento') not in ('consigliato', 'mediano', 'piu_basso_30gg', 'precedente'):
                     continue
                 product['telegram_post_url'] = old['telegram_post_url']
+                product['pubblicato_il'] = old['pubblicato_il']
                 fresh.append((score['punteggio'], product))
             fresh.sort(key=lambda item: (-item[0], item[1]['asin']))
             for _, product in fresh:
@@ -89,14 +101,15 @@ class DailyPipeline:
                 checked = datetime.now(timezone.utc)
                 ident = uuid.uuid4().hex
                 payload = {
-                    'id': f'tarlo-{day}', 'day': day, 'timezone': 'Europe/Rome',
+                    'id': f'tarlo-{day}', 'day': now.astimezone(ROME).date().isoformat(), 'slot': day, 'timezone': 'Europe/Rome',
+                    'window_start': (now-timedelta(hours=6)).isoformat(), 'window_end': now.isoformat(),
                     'prepared_at': checked.isoformat(),
                     'valid_until': (checked + timedelta(minutes=30)).isoformat(),
                     'product': product, 'caption': caption(product, day),
                     'media_path': f'/daily/media/{day}/{ident}.png',
                     'sha256': hashlib.sha256(image).hexdigest(),
                     'format': 'photo', 'status': 'ready',
-                    'selection_scope': 'migliore tra i candidati ricontrollati',
+                    'selection_scope': 'migliore tra i candidati delle ultime 6 ore ricontrollati',
                     'commercial_content': True,
                 }
                 with self.archive.connection() as conn:
@@ -117,7 +130,7 @@ class DailyPipeline:
 
     def latest(self, now=None):
         now = now or datetime.now(timezone.utc)
-        day = now.astimezone(ROME).date().isoformat()
+        day = publication_slot(now)
         with self.archive.connection() as conn:
             cur = conn.cursor()
             self.archive.execute(cur, 'SELECT payload FROM tarlo_daily_ready WHERE day=?', (day,))
@@ -168,7 +181,7 @@ def caption(p, day):
               'piu_basso_30gg': 'prezzo più basso degli ultimi 30 giorni',
               'precedente': 'prezzo precedente'}
     reference = labels[p['tipo_riferimento']]
-    text = (f"La scelta del Tarlo di oggi: {p['titolo']}\n"
+    text = (f"La scelta del Tarlo delle ultime 6 ore: {p['titolo']}\n"
             f"{p['prezzo_attuale']} € — sconto {p['sconto']}% rispetto al {reference} "
             f"di {p['prezzo_precedente']} €.\n")
     if p.get('stelle') is not None and p.get('numero_recensioni'):

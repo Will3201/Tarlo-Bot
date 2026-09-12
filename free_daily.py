@@ -18,6 +18,7 @@ from io import BytesIO
 from PIL import Image
 
 from tarlo_daily import ROME, number
+from daily_pipeline import publication_slot
 
 LOG = logging.getLogger(__name__)
 
@@ -40,9 +41,9 @@ def product_from_message(message):
 
 async def recover_today(client, archive, channel, now=None):
     now = now or datetime.now(timezone.utc)
-    start = now.astimezone(ROME).replace(hour=0, minute=0, second=0, microsecond=0)
+    start = now - timedelta(hours=6)
     count = 0
-    async for message in client.iter_messages(channel, limit=500):
+    async for message in client.iter_messages(channel, limit=None):
         if message.date < start:
             break
         if message.date > now:
@@ -57,7 +58,7 @@ async def recover_today(client, archive, channel, now=None):
 async def prepare_reported_offer(pipeline, client, channel, now=None):
     """Fallback dichiarato: prezzo storico nel post, mai spacciato per prezzo live."""
     now = now or datetime.now(timezone.utc)
-    day = now.astimezone(ROME).date().isoformat()
+    day = publication_slot(now)
     owner = pipeline.claim(day, now)
     if owner is None:
         return 'already_claimed_or_ready'
@@ -89,7 +90,7 @@ async def prepare_reported_offer(pipeline, client, channel, now=None):
             at = published.astimezone(ROME).strftime('%H:%M')
             reference = number(product['prezzo_precedente'])
             discount = round((reference - number(product['prezzo_attuale'])) / reference * 100)
-            caption = (f"🐛 La segnalazione del Tarlo di oggi: {product['titolo']}\n"
+            caption = (f"🐛 La segnalazione del Tarlo delle ultime 6 ore: {product['titolo']}\n"
                        f"Prezzo segnalato alle {at}: {product['prezzo_attuale']} €.\n"
                        f"Riferimento riportato nel post: {product['prezzo_precedente']} € (-{discount:g}%).\n"
                        "Prezzo e disponibilità da ricontrollare: la promozione potrebbe essere cambiata.\n"
@@ -98,7 +99,8 @@ async def prepare_reported_offer(pipeline, client, channel, now=None):
                        f"#Pubblicità #IlTarloDelRisparmio #OfferteAmazon #Tarlo{day.replace('-','')}")
             ident = uuid.uuid4().hex
             checked = datetime.now(timezone.utc)
-            payload = {'id':f'tarlo-{day}', 'day':day, 'timezone':'Europe/Rome',
+            payload = {'id':f'tarlo-{day}', 'day':now.astimezone(ROME).date().isoformat(), 'slot':day, 'timezone':'Europe/Rome',
+                       'window_start':(now-timedelta(hours=6)).isoformat(), 'window_end':now.isoformat(),
                        'prepared_at':checked.isoformat(),
                        'valid_until':(checked+timedelta(minutes=30)).isoformat(),
                        'product':product, 'caption':caption,
