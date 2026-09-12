@@ -1,0 +1,42 @@
+{
+  "status": "attempted",
+  "slot": "2026-09-12-19",
+  "asin": "B0FC2G9TX3",
+  "window_start": "2026-09-12T11:04:38.956486+00:00",
+  "window_end": "2026-09-12T17:04:38.956486+00:00",
+  "caption": "La scelta del Tarlo delle ultime 6 ore: Neutrogena Hydro Boost Fluido Idratante\n2,36 € — sconto 64% rispetto al prezzo consigliato di 6,49 €.\nValutazione 4.4/5 su 54 valutazioni Amazon.\nPrezzo rilevato alla preparazione: può variare.\nAltre offerte su Il Tarlo del Risparmio. Link affiliati: potremmo ricevere una commissione.\n#IlTarloDelRisparmio #OfferteAmazon #Tarlo2026091219\nScopri le offerte su Telegram: t.me/TarloDelRisparmio",
+  "feed": {
+    "caption": "La scelta del Tarlo delle ultime 6 ore: Neutrogena Hydro Boost Fluido Idratante\n2,36 € — sconto 64% rispetto al prezzo consigliato di 6,49 €.\nValutazione 4.4/5 su 54 valutazioni Amazon.\nPrezzo rilevato alla preparazione: può variare.\nAltre offerte su Il Tarlo del Risparmio. Link affiliati: potremmo ricevere una commissione.\n#IlTarloDelRisparmio #OfferteAmazon #Tarlo2026091219",
+    "commercial_content": true,
+    "day": "2026-09-12",
+    "format": "photo",
+    "id": "tarlo-2026-09-12-19",
+    "media_path": "/daily/media/2026-09-12-19/00408d70ce85441694945749d9fc6cf9.png",
+    "prepared_at": "2026-09-12T17:05:37.657041+00:00",
+    "product": {
+      "acquisti_mese_min": 400,
+      "acquisti_mese_testo": "400+ acquistati nel mese scorso",
+      "asin": "B0FC2G9TX3",
+      "coupon": null,
+      "disponibile": true,
+      "immagine_url": "https://m.media-amazon.com/images/I/711HfI1B4sL._AC_SY300_SX300_QL70_ML2_.jpg",
+      "numero_recensioni": 54,
+      "prezzo_attuale": "2,36",
+      "prezzo_precedente": "6,49",
+      "pubblicato_il": "2026-09-12T16:22:06.985335+00:00",
+      "sconto": 64,
+      "stelle": 4.4,
+      "telegram_post_url": "https://t.me/TarloDelRisparmio/903",
+      "tipo_riferimento": "consigliato",
+      "titolo": "Neutrogena Hydro Boost Fluido Idratante"
+    },
+    "selection_scope": "migliore tra i candidati delle ultime 6 ore ricontrollati",
+    "sha256": "c714bec69bc2bceb8b0c7b0074589bceb05083d7c01d6932d59f05c96926b389",
+    "slot": "2026-09-12-19",
+    "status": "ready",
+    "timezone": "Europe/Rome",
+    "valid_until": "2026-09-12T17:35:37.657041+00:00",
+    "window_end": "2026-09-12T17:04:38.956486+00:00",
+    "window_start": "2026-09-12T11:04:38.956486+00:00"
+  }
+}
