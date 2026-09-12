@@ -79,12 +79,17 @@ def disegna_testi(draw, prodotto):
     result['titolo'] = draw_fitted(draw, prodotto['titolo'], (570, 224, 1034, 378),
                                    56, min_size=22, max_lines=3, stroke=2)
     result['prezzo'] = draw_fitted(draw, f"{prodotto['prezzo_attuale']} €",
-                                   (580, 478, 1024, 672), 120, fill='#111111', stroke_fill='white')
+                                   (580, 478, 1024, 620 if prodotto.get('coupon_applicato') else 672), 120, fill='#111111', stroke_fill='white')
     if prodotto.get('prezzo_precedente'):
         result['precedente'] = draw_fitted(draw, f"{prodotto['prezzo_precedente']} €",
-                                           (580, 733, 1024, 807), 60, fill='#333333',
+                                           (580, 750 if prodotto.get('coupon_applicato') else 733, 1024, 807), 60, fill='#333333',
                                            stroke_fill='white', strike=True)
     if prodotto.get('sconto', 0) > 0:
         result['sconto'] = draw_fitted(draw, f"-{prodotto['sconto']}%",
                                        (703, 858, 985, 946), 86, stroke=2)
+    if prodotto.get('coupon_applicato'):
+        result['coupon'] = draw_fitted(draw, 'CON COUPON', (595, 632, 1010, 677),
+                                       32, fill='#111111', stroke=0)
+        result['base_coupon'] = draw_fitted(draw, 'SENZA COUPON', (590, 716, 1014, 739),
+                                            19, fill='#333333', stroke=0)
     return result

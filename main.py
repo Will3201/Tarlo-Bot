@@ -23,6 +23,7 @@ from PIL import Image, ImageDraw, ImageFont
 from product_layout import posiziona_prodotto
 from text_layout import disegna_testi
 from coupon_notice import estrai_coupon, avviso_coupon
+from coupon_pricing import leggi_coupon_amazon, prezzo_con_coupon
 from daily_dedup import DailyDedup
 from telegram import Bot
 from telegram.error import NetworkError
@@ -515,7 +516,7 @@ def scarica_dettagli_amazon(asin, strict=False):
         return {"asin": asin, "titolo": titolo, "prezzo_attuale": prezzo_attuale,
                 "prezzo_precedente": prezzo_precedente, "sconto": sconto,
                 "immagine_url": img_url, "tipo_riferimento": tipo_riferimento,
-                "disponibile": available, **estrai_metriche(soup)}
+                "disponibile": available, "coupon": leggi_coupon_amazon(soup), **estrai_metriche(soup)}
     except Exception as e:
         print(f"[ERRORE SCRAPING]: {e}")
         return None
@@ -614,16 +615,22 @@ async def main():
                 p = await asyncio.to_thread(scarica_dettagli_amazon, asin)
                 if not p:
                     continue
-                coupon = estrai_coupon(event.message.text, len(asin_list))
+                coupon = p.get('coupon') or estrai_coupon(event.message.text, len(asin_list))
                 if coupon:
                     p['coupon'] = coupon
-                foto = await asyncio.to_thread(crea_immagine, p)
+                visual = prezzo_con_coupon(p)
+                foto = await asyncio.to_thread(crea_immagine, visual)
                 url = f"https://www.amazon.it/dp/{p['asin']}?tag={AMAZON_TAG}"
                 title = escape_markdown(p['titolo'][:180], version=1)
-                msg = f"{frase_iniziale(p.get('sconto'))}\n\n🛒 *{title}*\n\n💰 *{p['prezzo_attuale']} €*\n"
-                if p['sconto'] > 0:
+                msg = f"{frase_iniziale(visual.get('sconto'))}\n\n🛒 *{title}*\n\n💰 *{visual['prezzo_attuale']} €*"
+                msg += " con coupon attivato\n" if visual.get('coupon_applicato') else "\n"
+                if visual.get('coupon_applicato'):
+                    msg += f"Prezzo senza coupon: {p['prezzo_attuale']} € (-{visual['sconto']}% con coupon).\n"
+                    msg += f"🎟️ Coupon: {coupon['importo']} {coupon['unita']} di sconto.\n✅ Spunta la casella coupon su Amazon.\nℹ️ Prezzo calcolato con coupon: verifica requisiti e totale al carrello.\n"
+                elif p['sconto'] > 0:
                     msg += f"Riferimento Amazon: {p['prezzo_precedente']} € (-{p['sconto']}%).\n"
-                msg += avviso_coupon(coupon)
+                if not visual.get('coupon_applicato'):
+                    msg += avviso_coupon(coupon)
                 msg += f"👉 [Apri su Amazon]({url})\n\n🪵 Il Tarlo del Risparmio\n#IlTarloDelRisparmio"
                 try:
                     sent = await daily_dedup.send_once(
