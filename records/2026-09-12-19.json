@@ -35,15 +35,17 @@
     "window_end": "2026-09-12T17:04:38.956486+00:00",
     "window_start": "2026-09-12T11:04:38.956486+00:00"
   },
-  "slot": "2026-09-12-19",
-  "status": "scheduled",
-  "window_end": "2026-09-12T17:04:38.956486+00:00",
-  "window_start": "2026-09-12T11:04:38.956486+00:00",
   "metricool_id": 374941657,
-  "uuid": "-5136497497000753772",
   "planner_url": "https://app.metricool.com/planner/calendar?blogId=6911341&openWithPostUuid=-5136497497000753772",
   "publicationDate": {
     "dateTime": "2026-09-12T19:10:00",
     "timezone": "Europe/Rome"
-  }
+  },
+  "slot": "2026-09-12-19",
+  "status": "published",
+  "uuid": "-5136497497000753772",
+  "window_end": "2026-09-12T17:04:38.956486+00:00",
+  "window_start": "2026-09-12T11:04:38.956486+00:00",
+  "tiktok_id": "7684697392628731158",
+  "publicUrl": "https://www.tiktok.com/@tarlodelrisparmio/video/7684697392628731158"
 }
