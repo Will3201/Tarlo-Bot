@@ -1,0 +1,37 @@
+{
+  "status": "attempted",
+  "recovers_day": "2026-09-11",
+  "publication_day": "2026-09-12",
+  "asin": "B0F5BGZ4Q9",
+  "caption": "🐛 La scelta del Tarlo: Suavinex, Ciuccio Colour Essence\n9,49 € — sconto 63% rispetto al prezzo consigliato di 25,35 €.\nValutazione 4.6/5 su 583 valutazioni Amazon.\nPrezzo rilevato alla preparazione: può variare.\nAltre offerte su Il Tarlo del Risparmio. Link affiliati: potremmo ricevere una commissione.\n#IlTarloDelRisparmio #OfferteAmazon #TarloRecupero20260911\nScopri il prodotto e le altre offerte su Telegram: t.me/TarloDelRisparmio",
+  "feed": {
+    "caption": "La scelta del Tarlo di oggi: Suavinex, Ciuccio Colour Essence\n9,49 € — sconto 63% rispetto al prezzo consigliato di 25,35 €.\nValutazione 4.6/5 su 583 valutazioni Amazon.\nPrezzo rilevato alla preparazione: può variare.\nAltre offerte su Il Tarlo del Risparmio. Link affiliati: potremmo ricevere una commissione.\n#IlTarloDelRisparmio #OfferteAmazon #Tarlo20260912",
+    "commercial_content": true,
+    "day": "2026-09-12",
+    "format": "photo",
+    "id": "tarlo-2026-09-12",
+    "media_path": "/daily/media/2026-09-12/61d0f123543d44aab00889ada0ce4776.png",
+    "prepared_at": "2026-09-12T10:11:41.177880+00:00",
+    "product": {
+      "acquisti_mese_min": null,
+      "acquisti_mese_testo": null,
+      "asin": "B0F5BGZ4Q9",
+      "disponibile": true,
+      "immagine_url": "https://m.media-amazon.com/images/I/61glHtkW0qL._AC_SY300_SX300_QL70_ML2_.jpg",
+      "numero_recensioni": 583,
+      "prezzo_attuale": "9,49",
+      "prezzo_precedente": "25,35",
+      "sconto": 63,
+      "stelle": 4.6,
+      "telegram_post_url": "https://t.me/TarloDelRisparmio/873",
+      "tipo_riferimento": "consigliato",
+      "titolo": "Suavinex, Ciuccio Colour Essence"
+    },
+    "selection_scope": "migliore tra i candidati ricontrollati",
+    "sha256": "5b25258b109943329e0352acea8c0d50d18940253d70f9b23de85375300a9632",
+    "status": "ready",
+    "timezone": "Europe/Rome",
+    "valid_until": "2026-09-12T10:41:41.177880+00:00"
+  },
+  "media_path": "media/recupero-2026-09-11.jpg"
+}
