@@ -1,7 +1,4 @@
 {
-  "status": "attempted",
-  "recovers_day": "2026-09-11",
-  "publication_day": "2026-09-12",
   "asin": "B0F5BGZ4Q9",
   "caption": "🐛 La scelta del Tarlo: Suavinex, Ciuccio Colour Essence\n9,49 € — sconto 63% rispetto al prezzo consigliato di 25,35 €.\nValutazione 4.6/5 su 583 valutazioni Amazon.\nPrezzo rilevato alla preparazione: può variare.\nAltre offerte su Il Tarlo del Risparmio. Link affiliati: potremmo ricevere una commissione.\n#IlTarloDelRisparmio #OfferteAmazon #TarloRecupero20260911\nScopri il prodotto e le altre offerte su Telegram: t.me/TarloDelRisparmio",
   "feed": {
@@ -33,5 +30,15 @@
     "timezone": "Europe/Rome",
     "valid_until": "2026-09-12T10:41:41.177880+00:00"
   },
-  "media_path": "media/recupero-2026-09-11.jpg"
+  "media_path": "media/recupero-2026-09-11.jpg",
+  "publication_day": "2026-09-12",
+  "recovers_day": "2026-09-11",
+  "status": "scheduled",
+  "metricool_id": 374836070,
+  "uuid": "-2198217947732753485",
+  "planner_url": "https://app.metricool.com/planner/calendar?blogId=6911341&openWithPostUuid=-2198217947732753485",
+  "publicationDate": {
+    "dateTime": "2026-09-12T12:15:00",
+    "timezone": "Europe/Rome"
+  }
 }
