@@ -31,14 +31,16 @@
     "valid_until": "2026-09-12T10:41:41.177880+00:00"
   },
   "media_path": "media/recupero-2026-09-11.jpg",
-  "publication_day": "2026-09-12",
-  "recovers_day": "2026-09-11",
-  "status": "scheduled",
   "metricool_id": 374836070,
-  "uuid": "-2198217947732753485",
   "planner_url": "https://app.metricool.com/planner/calendar?blogId=6911341&openWithPostUuid=-2198217947732753485",
   "publicationDate": {
     "dateTime": "2026-09-12T12:15:00",
     "timezone": "Europe/Rome"
-  }
+  },
+  "publication_day": "2026-09-12",
+  "recovers_day": "2026-09-11",
+  "status": "published",
+  "uuid": "-2198217947732753485",
+  "tiktok_url": "https://www.tiktok.com/@tarlodelrisparmio/video/7684590405916134678",
+  "tiktok_id": "7684590405916134678"
 }
