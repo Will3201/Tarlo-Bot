@@ -1,9 +1,5 @@
 {
-  "status": "attempted",
-  "slot": "2026-09-13-13",
   "asin": "B003UMCTBI",
-  "window_start": "2026-09-13T05:05:18.143677+00:00",
-  "window_end": "2026-09-13T11:05:18.143677+00:00",
   "caption": "La scelta del Tarlo delle ultime 6 ore: Mulino Bianco Fette Biscottate Integrali\n0,97 € — sconto 16% rispetto al prezzo mediano di 1,15 €.\nValutazione 4.4/5 su 710 valutazioni Amazon.\nPrezzo rilevato alla preparazione: può variare.\nAltre offerte su Il Tarlo del Risparmio. Link affiliati: potremmo ricevere una commissione.\n#IlTarloDelRisparmio #OfferteAmazon #Tarlo2026091313\nScopri le offerte su Telegram: t.me/TarloDelRisparmio",
   "feed": {
     "caption": "La scelta del Tarlo delle ultime 6 ore: Mulino Bianco Fette Biscottate Integrali\n0,97 € — sconto 16% rispetto al prezzo mediano di 1,15 €.\nValutazione 4.4/5 su 710 valutazioni Amazon.\nPrezzo rilevato alla preparazione: può variare.\nAltre offerte su Il Tarlo del Risparmio. Link affiliati: potremmo ricevere una commissione.\n#IlTarloDelRisparmio #OfferteAmazon #Tarlo2026091313",
@@ -38,5 +34,16 @@
     "valid_until": "2026-09-13T11:35:51.156505+00:00",
     "window_end": "2026-09-13T11:05:18.143677+00:00",
     "window_start": "2026-09-13T05:05:18.143677+00:00"
+  },
+  "slot": "2026-09-13-13",
+  "status": "scheduled",
+  "window_end": "2026-09-13T11:05:18.143677+00:00",
+  "window_start": "2026-09-13T05:05:18.143677+00:00",
+  "metricool_id": 375153346,
+  "uuid": "2850083648127255075",
+  "planner_url": "https://app.metricool.com/planner/calendar?blogId=6911341&openWithPostUuid=2850083648127255075",
+  "publicationDate": {
+    "dateTime": "2026-09-13T13:09:00",
+    "timezone": "Europe/Rome"
   }
 }
