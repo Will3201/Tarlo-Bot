@@ -1,5 +1,6 @@
 {
   "asin": "B0F7ZFWVTC",
+  "attempted_at": "2026-09-13T17:03:49Z",
   "caption": "La scelta del Tarlo delle ultime 6 ore: Fire TV Stick 4K Plus di Amazon\n38,99 € — sconto 54% rispetto al prezzo consigliato di 84,99 €.\nValutazione 4.7/5 su 39780 valutazioni Amazon.\nPrezzo rilevato alla preparazione: può variare.\nAltre offerte su Il Tarlo del Risparmio. Link affiliati: potremmo ricevere una commissione.\n#IlTarloDelRisparmio #OfferteAmazon #Tarlo2026091319\nScopri le offerte su Telegram: t.me/TarloDelRisparmio",
   "feed": {
     "caption": "La scelta del Tarlo delle ultime 6 ore: Fire TV Stick 4K Plus di Amazon\n38,99 € — sconto 54% rispetto al prezzo consigliato di 84,99 €.\nValutazione 4.7/5 su 39780 valutazioni Amazon.\nPrezzo rilevato alla preparazione: può variare.\nAltre offerte su Il Tarlo del Risparmio. Link affiliati: potremmo ricevere una commissione.\n#IlTarloDelRisparmio #OfferteAmazon #Tarlo2026091319",
@@ -41,8 +42,12 @@
     "timezone": "Europe/Rome"
   },
   "slot": "2026-09-13-19",
-  "status": "attempted",
-  "window_start": "2026-09-13T11:01:54.993766+00:00",
+  "status": "scheduled",
   "window_end": "2026-09-13T17:01:54.993766+00:00",
-  "attempted_at": "2026-09-13T17:03:49Z"
+  "window_start": "2026-09-13T11:01:54.993766+00:00",
+  "metricool_id": 375251777,
+  "uuid": "-2405583146805804399",
+  "planner_url": "https://app.metricool.com/planner/calendar?blogId=6911341&openWithPostUuid=-2405583146805804399",
+  "scheduled_at": "2026-09-13T17:04:00Z",
+  "archived_media_url": "https://raw.githubusercontent.com/Will3201/Tarlo-Bot/39055c075ac87fb20427353cf7078c385a9777d2/media/2026-09-13-19.jpg"
 }
