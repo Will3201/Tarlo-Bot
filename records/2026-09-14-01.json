@@ -1,4 +1,5 @@
 {
+  "archived_media_url": "https://raw.githubusercontent.com/Will3201/Tarlo-Bot/fd80a2c7079ce6945c15e980f222296c01bfc74b/media/2026-09-14-01.jpg",
   "asin": "B0BLNWFZ7Z",
   "attempted_at": "2026-09-13T23:08:18Z",
   "caption": "La scelta del Tarlo delle ultime 6 ore: Pril Gel All In One Limone & Lime Detersivo lavastoviglie\n4,27 € — sconto 29% rispetto al prezzo consigliato di 5,99 €.\nValutazione 4.6/5 su 2282 valutazioni Amazon.\nPrezzo rilevato alla preparazione: può variare.\nAltre offerte su Il Tarlo del Risparmio. Link affiliati: potremmo ricevere una commissione.\n#IlTarloDelRisparmio #OfferteAmazon #Tarlo2026091401\nScopri le offerte su Telegram: t.me/TarloDelRisparmio",
@@ -37,17 +38,19 @@
     "window_start": "2026-09-13T17:06:06.454068+00:00"
   },
   "media_path": "media/2026-09-14-01.jpg",
+  "metricool_id": 375352097,
+  "planner_url": "https://app.metricool.com/planner/calendar?blogId=6911341&openWithPostUuid=-3101292233691150171",
   "publicationDate": {
     "dateTime": "2026-09-14T01:12:00",
     "timezone": "Europe/Rome"
   },
+  "scheduled_at": "2026-09-13T23:09:00Z",
   "slot": "2026-09-14-01",
-  "status": "scheduled",
+  "status": "published",
+  "uuid": "-3101292233691150171",
   "window_end": "2026-09-13T23:06:06.454068+00:00",
   "window_start": "2026-09-13T17:06:06.454068+00:00",
-  "metricool_id": 375352097,
-  "uuid": "-3101292233691150171",
-  "planner_url": "https://app.metricool.com/planner/calendar?blogId=6911341&openWithPostUuid=-3101292233691150171",
-  "scheduled_at": "2026-09-13T23:09:00Z",
-  "archived_media_url": "https://raw.githubusercontent.com/Will3201/Tarlo-Bot/fd80a2c7079ce6945c15e980f222296c01bfc74b/media/2026-09-14-01.jpg"
+  "published_at": "2026-09-13T23:13:19Z",
+  "tiktok_id": "7685161615745994006",
+  "publicUrl": "https://www.tiktok.com/@tarlodelrisparmio/video/7685161615745994006"
 }
