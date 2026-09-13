@@ -1,0 +1,42 @@
+{
+  "status": "attempted",
+  "slot": "2026-09-13-13",
+  "asin": "B003UMCTBI",
+  "window_start": "2026-09-13T05:05:18.143677+00:00",
+  "window_end": "2026-09-13T11:05:18.143677+00:00",
+  "caption": "La scelta del Tarlo delle ultime 6 ore: Mulino Bianco Fette Biscottate Integrali\n0,97 € — sconto 16% rispetto al prezzo mediano di 1,15 €.\nValutazione 4.4/5 su 710 valutazioni Amazon.\nPrezzo rilevato alla preparazione: può variare.\nAltre offerte su Il Tarlo del Risparmio. Link affiliati: potremmo ricevere una commissione.\n#IlTarloDelRisparmio #OfferteAmazon #Tarlo2026091313\nScopri le offerte su Telegram: t.me/TarloDelRisparmio",
+  "feed": {
+    "caption": "La scelta del Tarlo delle ultime 6 ore: Mulino Bianco Fette Biscottate Integrali\n0,97 € — sconto 16% rispetto al prezzo mediano di 1,15 €.\nValutazione 4.4/5 su 710 valutazioni Amazon.\nPrezzo rilevato alla preparazione: può variare.\nAltre offerte su Il Tarlo del Risparmio. Link affiliati: potremmo ricevere una commissione.\n#IlTarloDelRisparmio #OfferteAmazon #Tarlo2026091313",
+    "commercial_content": true,
+    "day": "2026-09-13",
+    "format": "photo",
+    "id": "tarlo-2026-09-13-13",
+    "media_path": "/daily/media/2026-09-13-13/e1f0d582a8fd46b3b0e0c594b7111a33.png",
+    "prepared_at": "2026-09-13T11:05:51.156505+00:00",
+    "product": {
+      "acquisti_mese_min": 600,
+      "acquisti_mese_testo": "600+ acquistati nel mese scorso",
+      "asin": "B003UMCTBI",
+      "coupon": null,
+      "disponibile": true,
+      "immagine_url": "https://m.media-amazon.com/images/I/9192I82mZJL._AC_SY300_SX300_QL70_ML2_.jpg",
+      "numero_recensioni": 710,
+      "prezzo_attuale": "0,97",
+      "prezzo_precedente": "1,15",
+      "pubblicato_il": "2026-09-13T08:56:53.453354+00:00",
+      "sconto": 16,
+      "stelle": 4.4,
+      "telegram_post_url": "https://t.me/TarloDelRisparmio/906",
+      "tipo_riferimento": "mediano",
+      "titolo": "Mulino Bianco Fette Biscottate Integrali"
+    },
+    "selection_scope": "migliore tra i candidati delle ultime 6 ore ricontrollati",
+    "sha256": "b0c12e604839d4639c0e0ad6b0c5ca280dab54bdf9942102b8343054551e0b68",
+    "slot": "2026-09-13-13",
+    "status": "ready",
+    "timezone": "Europe/Rome",
+    "valid_until": "2026-09-13T11:35:51.156505+00:00",
+    "window_end": "2026-09-13T11:05:18.143677+00:00",
+    "window_start": "2026-09-13T05:05:18.143677+00:00"
+  }
+}
