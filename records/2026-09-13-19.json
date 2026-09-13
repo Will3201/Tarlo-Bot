@@ -1,0 +1,48 @@
+{
+  "asin": "B0F7ZFWVTC",
+  "caption": "La scelta del Tarlo delle ultime 6 ore: Fire TV Stick 4K Plus di Amazon\n38,99 € — sconto 54% rispetto al prezzo consigliato di 84,99 €.\nValutazione 4.7/5 su 39780 valutazioni Amazon.\nPrezzo rilevato alla preparazione: può variare.\nAltre offerte su Il Tarlo del Risparmio. Link affiliati: potremmo ricevere una commissione.\n#IlTarloDelRisparmio #OfferteAmazon #Tarlo2026091319\nScopri le offerte su Telegram: t.me/TarloDelRisparmio",
+  "feed": {
+    "caption": "La scelta del Tarlo delle ultime 6 ore: Fire TV Stick 4K Plus di Amazon\n38,99 € — sconto 54% rispetto al prezzo consigliato di 84,99 €.\nValutazione 4.7/5 su 39780 valutazioni Amazon.\nPrezzo rilevato alla preparazione: può variare.\nAltre offerte su Il Tarlo del Risparmio. Link affiliati: potremmo ricevere una commissione.\n#IlTarloDelRisparmio #OfferteAmazon #Tarlo2026091319",
+    "commercial_content": true,
+    "day": "2026-09-13",
+    "format": "photo",
+    "id": "tarlo-2026-09-13-19",
+    "media_path": "/daily/media/2026-09-13-19/a9715838adcc4e40b785ea1891477483.png",
+    "prepared_at": "2026-09-13T17:02:52.563490+00:00",
+    "product": {
+      "acquisti_mese_min": 5000,
+      "acquisti_mese_testo": "5000+ acquistati nel mese scorso",
+      "asin": "B0F7ZFWVTC",
+      "coupon": null,
+      "disponibile": true,
+      "immagine_url": "https://m.media-amazon.com/images/I/61HJPS6elbL._AC_SY300_SX300_QL70_ML2_.jpg",
+      "numero_recensioni": 39780,
+      "prezzo_attuale": "38,99",
+      "prezzo_precedente": "84,99",
+      "pubblicato_il": "2026-09-13T16:55:08.521866+00:00",
+      "sconto": 54,
+      "stelle": 4.7,
+      "telegram_post_url": "https://t.me/TarloDelRisparmio/916",
+      "tipo_riferimento": "consigliato",
+      "titolo": "Fire TV Stick 4K Plus di Amazon"
+    },
+    "selection_scope": "migliore tra i candidati delle ultime 6 ore ricontrollati",
+    "sha256": "372afa9376411b97f5daea8f0ec63f4433710e225133af06e71165dfaf9bb3cb",
+    "slot": "2026-09-13-19",
+    "status": "ready",
+    "timezone": "Europe/Rome",
+    "valid_until": "2026-09-13T17:32:52.563490+00:00",
+    "window_end": "2026-09-13T17:01:54.993766+00:00",
+    "window_start": "2026-09-13T11:01:54.993766+00:00"
+  },
+  "media_path": "media/2026-09-13-19.jpg",
+  "publicationDate": {
+    "dateTime": "2026-09-13T19:08:00",
+    "timezone": "Europe/Rome"
+  },
+  "slot": "2026-09-13-19",
+  "status": "attempted",
+  "window_start": "2026-09-13T11:01:54.993766+00:00",
+  "window_end": "2026-09-13T17:01:54.993766+00:00",
+  "attempted_at": "2026-09-13T17:03:49Z"
+}
