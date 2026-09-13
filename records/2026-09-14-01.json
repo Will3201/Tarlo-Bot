@@ -1,0 +1,48 @@
+{
+  "asin": "B0BLNWFZ7Z",
+  "caption": "La scelta del Tarlo delle ultime 6 ore: Pril Gel All In One Limone & Lime Detersivo lavastoviglie\n4,27 € — sconto 29% rispetto al prezzo consigliato di 5,99 €.\nValutazione 4.6/5 su 2282 valutazioni Amazon.\nPrezzo rilevato alla preparazione: può variare.\nAltre offerte su Il Tarlo del Risparmio. Link affiliati: potremmo ricevere una commissione.\n#IlTarloDelRisparmio #OfferteAmazon #Tarlo2026091401\nScopri le offerte su Telegram: t.me/TarloDelRisparmio",
+  "feed": {
+    "caption": "La scelta del Tarlo delle ultime 6 ore: Pril Gel All In One Limone & Lime Detersivo lavastoviglie\n4,27 € — sconto 29% rispetto al prezzo consigliato di 5,99 €.\nValutazione 4.6/5 su 2282 valutazioni Amazon.\nPrezzo rilevato alla preparazione: può variare.\nAltre offerte su Il Tarlo del Risparmio. Link affiliati: potremmo ricevere una commissione.\n#IlTarloDelRisparmio #OfferteAmazon #Tarlo2026091401",
+    "commercial_content": true,
+    "day": "2026-09-14",
+    "format": "photo",
+    "id": "tarlo-2026-09-14-01",
+    "media_path": "/daily/media/2026-09-14-01/e6cc5ab9bea543258c0d03b8e9a972c5.png",
+    "prepared_at": "2026-09-13T23:06:49.052470+00:00",
+    "product": {
+      "acquisti_mese_min": 1000,
+      "acquisti_mese_testo": "1000+ acquistati nel mese scorso",
+      "asin": "B0BLNWFZ7Z",
+      "coupon": null,
+      "disponibile": true,
+      "immagine_url": "https://m.media-amazon.com/images/I/71WA973K0aL._AC_SY300_SX300_QL70_ML2_.jpg",
+      "numero_recensioni": 2282,
+      "prezzo_attuale": "4,27",
+      "prezzo_precedente": "5,99",
+      "pubblicato_il": "2026-09-13T18:31:03.724536+00:00",
+      "sconto": 29,
+      "stelle": 4.6,
+      "telegram_post_url": "https://t.me/TarloDelRisparmio/922",
+      "tipo_riferimento": "consigliato",
+      "titolo": "Pril Gel All In One Limone & Lime Detersivo lavastoviglie"
+    },
+    "selection_scope": "migliore tra i candidati delle ultime 6 ore ricontrollati",
+    "sha256": "26bb3381a8348f25a6ebf371397c6ef715244a26aedfa2863b302815d2a096af",
+    "slot": "2026-09-14-01",
+    "status": "ready",
+    "timezone": "Europe/Rome",
+    "valid_until": "2026-09-13T23:36:49.052470+00:00",
+    "window_end": "2026-09-13T23:06:06.454068+00:00",
+    "window_start": "2026-09-13T17:06:06.454068+00:00"
+  },
+  "media_path": "media/2026-09-14-01.jpg",
+  "publicationDate": {
+    "dateTime": "2026-09-14T01:12:00",
+    "timezone": "Europe/Rome"
+  },
+  "slot": "2026-09-14-01",
+  "status": "attempted",
+  "window_start": "2026-09-13T17:06:06.454068+00:00",
+  "window_end": "2026-09-13T23:06:06.454068+00:00",
+  "attempted_at": "2026-09-13T23:08:18Z"
+}
