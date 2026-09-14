@@ -1,0 +1,23 @@
+{
+  "request_id": "repair-selftest-20260914",
+  "kind": "self_test",
+  "started_at": "2026-09-14T21:22:24.065254+00:00",
+  "publication": false,
+  "status": "self_test_passed",
+  "checks": [
+    "JPEG_RGB_max1080",
+    "hash_mismatch_rejected",
+    "Italian_midnight_slot",
+    "Italian_01_slot"
+  ],
+  "source_sha256": "2ba6ab80619f5375814b820c11baa3031ba2827706e4a88d1341c4b45291cacb",
+  "jpeg_sha256": "20afe994a7e3e561f87e6333315a62539377a818065a74c6de1940e9587152a3",
+  "jpeg_dimensions": [
+    1080,
+    1080
+  ],
+  "jpeg_mode": "RGB",
+  "jpeg_bytes": 495002,
+  "media_path": "prepared/repair-selftest-20260914/conversion-test.jpg",
+  "finished_at": "2026-09-14T21:22:24.124033+00:00"
+}
