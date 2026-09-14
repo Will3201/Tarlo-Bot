@@ -1,0 +1,57 @@
+{
+  "request_id": "repair-live-20260914-19",
+  "kind": "single",
+  "started_at": "2026-09-14T21:24:14.913124+00:00",
+  "publication": false,
+  "status": "ready",
+  "feed": {
+    "caption": "La scelta del Tarlo delle ultime 6 ore: Logitech Brio 300 Webcam Full HD con Otturatore Privacy\n34,64 € — sconto 51% rispetto al prezzo consigliato di 69,99 €.\nValutazione 4.4/5 su 903 valutazioni Amazon.\nPrezzo rilevato alla preparazione: può variare.\nAltre offerte su Il Tarlo del Risparmio. Link affiliati: potremmo ricevere una commissione.\n#IlTarloDelRisparmio #OfferteAmazon #Tarlo2026091419",
+    "commercial_content": true,
+    "day": "2026-09-14",
+    "format": "photo",
+    "id": "tarlo-2026-09-14-19",
+    "media_path": "/daily/media/2026-09-14-19/3476a87d6f874bd6a4962625ec1e0484.png",
+    "prepared_at": "2026-09-14T21:19:54.963623+00:00",
+    "product": {
+      "acquisti_mese_min": null,
+      "acquisti_mese_testo": null,
+      "asin": "B07W7KSC8N",
+      "coupon": null,
+      "disponibile": true,
+      "immagine_url": "https://m.media-amazon.com/images/I/51Vbpx-vl0L._AC_SY300_SX300_QL70_ML2_.jpg",
+      "numero_recensioni": 903,
+      "prezzo_attuale": "34,64",
+      "prezzo_precedente": "69,99",
+      "pubblicato_il": "2026-09-14T17:04:14.185322+00:00",
+      "sconto": 51,
+      "stelle": 4.4,
+      "telegram_post_url": "https://t.me/TarloDelRisparmio/946",
+      "tipo_riferimento": "consigliato",
+      "titolo": "Logitech Brio 300 Webcam Full HD con Otturatore Privacy"
+    },
+    "selection_scope": "migliore tra i candidati delle ultime 6 ore ricontrollati",
+    "sha256": "7837ea98811f5e90a7f9657755d61664f800a374eaf5274dab57efd0bcde8d9e",
+    "slot": "2026-09-14-19",
+    "status": "ready",
+    "timezone": "Europe/Rome",
+    "valid_until": "2026-09-14T21:49:54.963623+00:00",
+    "window_end": "2026-09-14T21:18:58.860119+00:00",
+    "window_start": "2026-09-14T15:18:58.860119+00:00"
+  },
+  "source_sha256": "7837ea98811f5e90a7f9657755d61664f800a374eaf5274dab57efd0bcde8d9e",
+  "jpeg_sha256": "347dfc4758e56422d39694318c36247e59534be949c23b4de04d9d053d3588c5",
+  "jpeg_dimensions": [
+    1080,
+    1080
+  ],
+  "jpeg_mode": "RGB",
+  "jpeg_bytes": 458958,
+  "media_path": "prepared/repair-live-20260914-19/offer.jpg",
+  "original_media_path": "prepared/repair-live-20260914-19/source.png",
+  "post": {
+    "http_status": 200,
+    "status": "ready"
+  },
+  "visual_review_required": true,
+  "finished_at": "2026-09-14T21:24:16.420469+00:00"
+}
