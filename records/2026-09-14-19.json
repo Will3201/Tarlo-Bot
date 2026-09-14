@@ -1,0 +1,66 @@
+{
+  "slot": "2026-09-14-19",
+  "day": "2026-09-14",
+  "asin": "B07W7KSC8N",
+  "asins": [
+    "B07W7KSC8N"
+  ],
+  "status": "attempted",
+  "attempted_at": "2026-09-14T21:27:00.308Z",
+  "window_start": "2026-09-14T15:18:58.860119+00:00",
+  "window_end": "2026-09-14T21:18:58.860119+00:00",
+  "valid_until": "2026-09-14T21:49:54.963623+00:00",
+  "caption": "Logitech Brio 300 📷\n🔥 A 34,64 € (-51% rispetto al prezzo consigliato di 69,99 €)!\nLe offerte del Tarlo ti aspettano ogni giorno 🔥\n👉 Scoprile su Telegram: t.me/TarloDelRisparmio\nPrezzo e disponibilità possono variare. Link affiliati.\n#offerte #amazon #sconti #risparmio #affari #Tarlo2026091419",
+  "feed": {
+    "caption": "La scelta del Tarlo delle ultime 6 ore: Logitech Brio 300 Webcam Full HD con Otturatore Privacy\n34,64 € — sconto 51% rispetto al prezzo consigliato di 69,99 €.\nValutazione 4.4/5 su 903 valutazioni Amazon.\nPrezzo rilevato alla preparazione: può variare.\nAltre offerte su Il Tarlo del Risparmio. Link affiliati: potremmo ricevere una commissione.\n#IlTarloDelRisparmio #OfferteAmazon #Tarlo2026091419",
+    "commercial_content": true,
+    "day": "2026-09-14",
+    "format": "photo",
+    "id": "tarlo-2026-09-14-19",
+    "media_path": "/daily/media/2026-09-14-19/3476a87d6f874bd6a4962625ec1e0484.png",
+    "prepared_at": "2026-09-14T21:19:54.963623+00:00",
+    "product": {
+      "acquisti_mese_min": null,
+      "acquisti_mese_testo": null,
+      "asin": "B07W7KSC8N",
+      "coupon": null,
+      "disponibile": true,
+      "immagine_url": "https://m.media-amazon.com/images/I/51Vbpx-vl0L._AC_SY300_SX300_QL70_ML2_.jpg",
+      "numero_recensioni": 903,
+      "prezzo_attuale": "34,64",
+      "prezzo_precedente": "69,99",
+      "pubblicato_il": "2026-09-14T17:04:14.185322+00:00",
+      "sconto": 51,
+      "stelle": 4.4,
+      "telegram_post_url": "https://t.me/TarloDelRisparmio/946",
+      "tipo_riferimento": "consigliato",
+      "titolo": "Logitech Brio 300 Webcam Full HD con Otturatore Privacy"
+    },
+    "selection_scope": "migliore tra i candidati delle ultime 6 ore ricontrollati",
+    "sha256": "7837ea98811f5e90a7f9657755d61664f800a374eaf5274dab57efd0bcde8d9e",
+    "slot": "2026-09-14-19",
+    "status": "ready",
+    "timezone": "Europe/Rome",
+    "valid_until": "2026-09-14T21:49:54.963623+00:00",
+    "window_end": "2026-09-14T21:18:58.860119+00:00",
+    "window_start": "2026-09-14T15:18:58.860119+00:00"
+  },
+  "media_path": "media/2026-09-14-19.jpg",
+  "original_sha256": "7837ea98811f5e90a7f9657755d61664f800a374eaf5274dab57efd0bcde8d9e",
+  "derived_png_sha256": "4d35c860160ca9e5afff6901475b7334eaeffd1beac0969d191a2b6ed98ed968",
+  "jpeg_sha256": "567858e8e645afdae37a74b0781e7d8fe8bc3f7790233c6206310dcd1d8d3abb",
+  "dimensions": [
+    810,
+    1080
+  ],
+  "format": "photo",
+  "actual_format": "single",
+  "intended_format": "single",
+  "recovery": true,
+  "recovery_reason": "Recupero autorizzato del post delle 19:00 non inviato per ambiente di esecuzione indisponibile",
+  "visual_review": "passed: product, title, price, labelled reference, discount and readability",
+  "fonti": [
+    "https://t.me/TarloDelRisparmio/946",
+    "https://tarlo-bot-1.onrender.com/daily/latest"
+  ]
+}
