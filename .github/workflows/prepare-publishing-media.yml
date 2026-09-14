@@ -1,0 +1,39 @@
+name: Prepare Tarlo publishing media
+on:
+  push:
+    branches: [tarlo-publishing]
+    paths: [requests/current.json]
+permissions:
+  contents: write
+concurrency:
+  group: tarlo-publishing-media
+  cancel-in-progress: false
+jobs:
+  prepare:
+    if: github.event.repository.private == false && github.ref == 'refs/heads/tarlo-publishing'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+      - name: Install pinned image conversion dependency
+        run: python3 -m pip install --disable-pip-version-check Pillow==11.3.0
+      - name: Prepare and validate public assets
+        run: python3 automation/media_worker.py
+      - name: Archive result without overwriting concurrent changes
+        run: |
+          git fetch origin tarlo-publishing
+          if [ "$(git rev-parse FETCH_HEAD)" != "$GITHUB_SHA" ]; then
+            echo "Publishing branch moved; stop and reconcile this run."
+            exit 1
+          fi
+          git add prepared/
+          if git diff --cached --quiet; then
+            echo "Request already archived."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Archive validated publishing media preparation"
+          git push origin HEAD:tarlo-publishing

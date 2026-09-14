@@ -1,12 +1,21 @@
 {
-  "kind": "repair_diagnostic",
-  "status": "attempted",
-  "publication": false,
+  "autoPublish": false,
   "brand_id": "6911341",
   "caption": "BOZZA TECNICA — NON PUBBLICARE. Verifica del caricamento di un'immagine già archiviata; l'offerta nell'immagine è storica e non viene riproposta.",
-  "autoPublish": false,
+  "created_at": "2026-09-14T17:20:38.365Z",
   "draft": true,
+  "kind": "repair_diagnostic",
   "media_source": "https://raw.githubusercontent.com/Will3201/Tarlo-Bot/29e6e381bfaed22526ab4488c2b1f8e22628e3bb/media/2026-09-14-13.jpg",
+  "publication": false,
   "purpose": "Verify whether info.media supports an archived HTTPS JPEG, with no mediaFiles URL and no public publication.",
-  "created_at": "2026-09-14T17:20:38.365Z"
+  "status": "draft_import_verified",
+  "verified_at": "2026-09-14T17:25:48.206Z",
+  "metricool_id": 375828751,
+  "uuid": "-2610564077012171066",
+  "imported_media": [
+    "https://static.metricool.com/planner/202609/6911341-file-10001735199419232761.jpeg"
+  ],
+  "draft_verified": true,
+  "autoPublish_verified": false,
+  "planner_url": "https://app.metricool.com/planner/calendar?blogId=6911341&openWithPostUuid=-2610564077012171066"
 }
