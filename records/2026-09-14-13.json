@@ -1,5 +1,6 @@
 {
   "asin": "B000B6MKMO",
+  "attempted_at": "2026-09-14T11:08:06Z",
   "caption": "La scelta del Tarlo delle ultime 6 ore: Hot Wheels - Set Macchinine da 10 Veicoli in Scala 1:64\n9,99 € — sconto 64% rispetto al prezzo consigliato di 27,90 €.\nValutazione 4.6/5 su 51878 valutazioni Amazon.\nPrezzo rilevato alla preparazione: può variare.\nAltre offerte su Il Tarlo del Risparmio. Link affiliati: potremmo ricevere una commissione.\n#IlTarloDelRisparmio #OfferteAmazon #Tarlo2026091413\nScopri le offerte su Telegram: t.me/TarloDelRisparmio",
   "feed": {
     "caption": "La scelta del Tarlo delle ultime 6 ore: Hot Wheels - Set Macchinine da 10 Veicoli in Scala 1:64\n9,99 € — sconto 64% rispetto al prezzo consigliato di 27,90 €.\nValutazione 4.6/5 su 51878 valutazioni Amazon.\nPrezzo rilevato alla preparazione: può variare.\nAltre offerte su Il Tarlo del Risparmio. Link affiliati: potremmo ricevere una commissione.\n#IlTarloDelRisparmio #OfferteAmazon #Tarlo2026091413",
@@ -41,8 +42,12 @@
     "timezone": "Europe/Rome"
   },
   "slot": "2026-09-14-13",
-  "status": "attempted",
-  "window_start": "2026-09-14T05:06:16.772659+00:00",
+  "status": "scheduled",
   "window_end": "2026-09-14T11:06:16.772659+00:00",
-  "attempted_at": "2026-09-14T11:08:06Z"
+  "window_start": "2026-09-14T05:06:16.772659+00:00",
+  "metricool_id": 375595166,
+  "uuid": "-1765692483169206180",
+  "planner_url": "https://app.metricool.com/planner/calendar?blogId=6911341&openWithPostUuid=-1765692483169206180",
+  "scheduled_at": "2026-09-14T11:09:00Z",
+  "archived_media_url": "https://raw.githubusercontent.com/Will3201/Tarlo-Bot/29e6e381bfaed22526ab4488c2b1f8e22628e3bb/media/2026-09-14-13.jpg"
 }
