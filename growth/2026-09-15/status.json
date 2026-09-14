@@ -11,5 +11,16 @@
   "invite_links_created": false,
   "collaborations_sent": 0,
   "telegram_ads_paused": false,
-  "automation_status": "pending_update"
+  "automation_status": "configured_not_yet_executed",
+  "offer_automation_id": "6aa3718f49e48191b0288bdc21e32c71",
+  "recap_automation_id": "6aa7d8685b2c81919a0eeff8e95581f8",
+  "measurement_automation_id": "6aa81e4afcc481919c6cc373e5261ba9",
+  "interim_report_date": "2026-09-22",
+  "final_report_date": "2026-09-29",
+  "updated_at": "2026-09-14T16:19:32.225Z",
+  "blockers": [
+    "Telegram admin connector unavailable",
+    "Email/Telegram outreach tool unavailable",
+    "Local file environment unavailable for JPEG conversion and Metricool mediaFiles upload"
+  ]
 }
