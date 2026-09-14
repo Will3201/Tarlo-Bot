@@ -1,0 +1,59 @@
+[
+  {
+    "date": "2026-09-15",
+    "slug": "prima-di-comprare",
+    "title": "Prima di comprare: 3 controlli",
+    "asset": "media/growth-prima-di-comprare.png",
+    "caption": "Prima di comprare, controlla queste 3 cose 🔎\nQuantità, condizioni del coupon e totale con spedizione.\n🐛 Offerte e consigli su Telegram: t.me/TarloDelRisparmio\nNel canale usiamo link affiliati.\n#risparmio #offerte #amazon #consigli #Tarlo2026091513",
+    "script": "Prima di comprare, fai tre controlli. Guarda quanto prodotto stai acquistando e confronta il prezzo per litro, chilo o pezzo. Se c’è un coupon, leggi le condizioni e controlla il totale finale. Considera anche la spedizione. Trovi le segnalazioni del Tarlo su Telegram: cerca TarloDelRisparmio.",
+    "cards": [
+      "CONTROLLA LA QUANTITÀ — Confronta il prezzo per litro, kg o pezzo.",
+      "LEGGI IL COUPON — Verifica condizioni e prezzo finale.",
+      "CONTA IL TOTALE — Considera anche la spedizione."
+    ]
+  },
+  {
+    "date": "2026-09-18",
+    "slug": "prezzo-per-unita",
+    "title": "Quale confezione conviene?",
+    "caption": "Confezione grande o piccola? Guarda il prezzo per unità 🔎\nDividi il prezzo totale per litri, kg o numero di pezzi. Confronta prodotti equivalenti e considera anche la spedizione.\n🐛 Cerca @TarloDelRisparmio su Telegram.\nNel canale usiamo link affiliati.\n#risparmio #spesa #offerte #Tarlo2026091813",
+    "cards": [
+      "STESSO PRODOTTO, STESSA UNITÀ",
+      "PREZZO TOTALE ÷ QUANTITÀ",
+      "CONSIDERA ANCHE LA SPEDIZIONE"
+    ]
+  },
+  {
+    "date": "2026-09-21",
+    "slug": "coupon-casella",
+    "title": "Hai visto un coupon?",
+    "caption": "C’è un coupon? Controlla prima le condizioni 🎟️\nSe prevista, spunta la casella e verifica che lo sconto compaia nel riepilogo prima di pagare. Disponibilità e requisiti possono cambiare.\n🐛 Cerca @TarloDelRisparmio su Telegram.\nNel canale usiamo link affiliati.\n#coupon #risparmio #offerte #Tarlo2026092113",
+    "cards": [
+      "LEGGI I REQUISITI",
+      "ATTIVA IL COUPON, SE PREVISTO",
+      "VERIFICA IL TOTALE PRIMA DI PAGARE"
+    ]
+  },
+  {
+    "date": "2026-09-24",
+    "slug": "confezioni-multiple",
+    "title": "Più pezzi significa più risparmio?",
+    "caption": "Una confezione multipla non conviene sempre 📦\nConfronta il prezzo per pezzo, controlla le quantità e scegli ciò che userai davvero.\n🐛 Cerca @TarloDelRisparmio su Telegram.\nNel canale usiamo link affiliati.\n#spesa #risparmio #offerte #Tarlo2026092413",
+    "cards": [
+      "CONTA I PEZZI",
+      "CONFRONTA IL PREZZO PER PEZZO",
+      "COMPRA QUELLO CHE USERAI"
+    ]
+  },
+  {
+    "date": "2026-09-27",
+    "slug": "condizioni-prezzo",
+    "title": "Stai confrontando lo stesso acquisto?",
+    "caption": "Prima di confrontare due prezzi, controlla le condizioni 🔎\nStessa variante, stessa quantità e stessa modalità di acquisto. Coupon e consegne periodiche possono avere requisiti diversi.\n🐛 Cerca @TarloDelRisparmio su Telegram.\nNel canale usiamo link affiliati.\n#risparmio #amazon #offerte #Tarlo2026092713",
+    "cards": [
+      "STESSA VARIANTE E QUANTITÀ",
+      "ACQUISTO SINGOLO O PERIODICO?",
+      "CONTROLLA LE CONDIZIONI DEL PREZZO"
+    ]
+  }
+]

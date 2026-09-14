@@ -1,0 +1,15 @@
+{
+  "test_start": "2026-09-15",
+  "test_end_inclusive": "2026-09-28",
+  "timezone": "Europe/Rome",
+  "additional_ads_budget_eur": 0,
+  "guide_asset": "media/growth-prima-di-comprare.png",
+  "guide_asset_git_blob": "eed62cdaab11dd1146948c507889fd0d8cdbf92f",
+  "guide_asset_state": "prepared_not_uploaded",
+  "new_post_published": false,
+  "welcome_pinned": false,
+  "invite_links_created": false,
+  "collaborations_sent": 0,
+  "telegram_ads_paused": false,
+  "automation_status": "pending_update"
+}

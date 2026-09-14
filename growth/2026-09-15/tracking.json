@@ -1,0 +1,30 @@
+{
+  "status": "pending_telegram_admin_access",
+  "channel": "@TarloDelRisparmio",
+  "timezone": "Europe/Rome",
+  "sources": [
+    {
+      "name": "TIKTOK_15_28_SET",
+      "url": null,
+      "created": false
+    },
+    {
+      "name": "COLLAB_CUCINO_PER_PASSIONE",
+      "url": null,
+      "created": false
+    },
+    {
+      "name": "COLLAB_CUCINA24ORE",
+      "url": null,
+      "created": false
+    }
+  ],
+  "tiktok_bio_link_verified": false,
+  "fallback_cta": "Cerca @TarloDelRisparmio su Telegram",
+  "rules": [
+    "Non costruire link d'invito inventati o aggiungere parametri al link pubblico fingendo di tracciare le iscrizioni.",
+    "Usare dati aggregati: non salvare nomi, username o ID degli iscritti nel repository pubblico.",
+    "Non attribuire alle campagne tutte le vendite Amazon o tutti gli ingressi Telegram.",
+    "Un link TikTok unico misura la sorgente complessiva; non dimostra quale singolo post abbia causato un'iscrizione."
+  ]
+}

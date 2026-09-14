@@ -1,0 +1,100 @@
+[
+  {
+    "date": "2026-09-15",
+    "slot": "2026-09-15-13",
+    "format": "guide",
+    "guide": "prima-di-comprare",
+    "theme": null
+  },
+  {
+    "date": "2026-09-16",
+    "slot": "2026-09-16-13",
+    "format": "single",
+    "guide": null,
+    "theme": null
+  },
+  {
+    "date": "2026-09-17",
+    "slot": "2026-09-17-13",
+    "format": "theme",
+    "guide": null,
+    "theme": "casa e cucina"
+  },
+  {
+    "date": "2026-09-18",
+    "slot": "2026-09-18-13",
+    "format": "guide",
+    "guide": "prezzo-per-unita",
+    "theme": null
+  },
+  {
+    "date": "2026-09-19",
+    "slot": "2026-09-19-13",
+    "format": "single",
+    "guide": null,
+    "theme": null
+  },
+  {
+    "date": "2026-09-20",
+    "slot": "2026-09-20-13",
+    "format": "theme",
+    "guide": null,
+    "theme": "cura della casa"
+  },
+  {
+    "date": "2026-09-21",
+    "slot": "2026-09-21-13",
+    "format": "guide",
+    "guide": "coupon-casella",
+    "theme": null
+  },
+  {
+    "date": "2026-09-22",
+    "slot": "2026-09-22-13",
+    "format": "single",
+    "guide": null,
+    "theme": null
+  },
+  {
+    "date": "2026-09-23",
+    "slot": "2026-09-23-13",
+    "format": "theme",
+    "guide": null,
+    "theme": "accessori tech"
+  },
+  {
+    "date": "2026-09-24",
+    "slot": "2026-09-24-13",
+    "format": "guide",
+    "guide": "confezioni-multiple",
+    "theme": null
+  },
+  {
+    "date": "2026-09-25",
+    "slot": "2026-09-25-13",
+    "format": "single",
+    "guide": null,
+    "theme": null
+  },
+  {
+    "date": "2026-09-26",
+    "slot": "2026-09-26-13",
+    "format": "theme",
+    "guide": null,
+    "theme": "spesa quotidiana"
+  },
+  {
+    "date": "2026-09-27",
+    "slot": "2026-09-27-13",
+    "format": "guide",
+    "guide": "condizioni-prezzo",
+    "theme": null
+  },
+  {
+    "date": "2026-09-28",
+    "slot": "2026-09-28-13",
+    "format": "single",
+    "guide": null,
+    "theme": null
+  }
+]
