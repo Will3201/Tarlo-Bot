@@ -1,0 +1,48 @@
+{
+  "asin": "B000B6MKMO",
+  "caption": "La scelta del Tarlo delle ultime 6 ore: Hot Wheels - Set Macchinine da 10 Veicoli in Scala 1:64\n9,99 € — sconto 64% rispetto al prezzo consigliato di 27,90 €.\nValutazione 4.6/5 su 51878 valutazioni Amazon.\nPrezzo rilevato alla preparazione: può variare.\nAltre offerte su Il Tarlo del Risparmio. Link affiliati: potremmo ricevere una commissione.\n#IlTarloDelRisparmio #OfferteAmazon #Tarlo2026091413\nScopri le offerte su Telegram: t.me/TarloDelRisparmio",
+  "feed": {
+    "caption": "La scelta del Tarlo delle ultime 6 ore: Hot Wheels - Set Macchinine da 10 Veicoli in Scala 1:64\n9,99 € — sconto 64% rispetto al prezzo consigliato di 27,90 €.\nValutazione 4.6/5 su 51878 valutazioni Amazon.\nPrezzo rilevato alla preparazione: può variare.\nAltre offerte su Il Tarlo del Risparmio. Link affiliati: potremmo ricevere una commissione.\n#IlTarloDelRisparmio #OfferteAmazon #Tarlo2026091413",
+    "commercial_content": true,
+    "day": "2026-09-14",
+    "format": "photo",
+    "id": "tarlo-2026-09-14-13",
+    "media_path": "/daily/media/2026-09-14-13/1473986f53f24d0f94a4187244b5b025.png",
+    "prepared_at": "2026-09-14T11:07:30.766207+00:00",
+    "product": {
+      "acquisti_mese_min": 100,
+      "acquisti_mese_testo": "100+ acquistati nel mese scorso",
+      "asin": "B000B6MKMO",
+      "coupon": null,
+      "disponibile": true,
+      "immagine_url": "https://m.media-amazon.com/images/I/81HstX-OkoL._AC_SX300_SY300_QL70_ML2_.jpg",
+      "numero_recensioni": 51878,
+      "prezzo_attuale": "9,99",
+      "prezzo_precedente": "27,90",
+      "pubblicato_il": "2026-09-14T06:19:46.343466+00:00",
+      "sconto": 64,
+      "stelle": 4.6,
+      "telegram_post_url": "https://t.me/TarloDelRisparmio/926",
+      "tipo_riferimento": "consigliato",
+      "titolo": "Hot Wheels - Set Macchinine da 10 Veicoli in Scala 1:64"
+    },
+    "selection_scope": "migliore tra i candidati delle ultime 6 ore ricontrollati",
+    "sha256": "9caee090637524322c8ba2e018cb52075fe6fb75dc84d77ccd4deb050af3f2b5",
+    "slot": "2026-09-14-13",
+    "status": "ready",
+    "timezone": "Europe/Rome",
+    "valid_until": "2026-09-14T11:37:30.766207+00:00",
+    "window_end": "2026-09-14T11:06:16.772659+00:00",
+    "window_start": "2026-09-14T05:06:16.772659+00:00"
+  },
+  "media_path": "media/2026-09-14-13.jpg",
+  "publicationDate": {
+    "dateTime": "2026-09-14T13:12:00",
+    "timezone": "Europe/Rome"
+  },
+  "slot": "2026-09-14-13",
+  "status": "attempted",
+  "window_start": "2026-09-14T05:06:16.772659+00:00",
+  "window_end": "2026-09-14T11:06:16.772659+00:00",
+  "attempted_at": "2026-09-14T11:08:06Z"
+}
