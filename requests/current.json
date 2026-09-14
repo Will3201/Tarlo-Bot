@@ -1,5 +1,10 @@
 {
-  "id": "repair-selftest-20260914",
-  "kind": "self_test",
-  "requested_at": "2026-09-14T21:22:07.323Z"
+  "id": "repair-live-20260914-19",
+  "kind": "single",
+  "slot": "2026-09-14-19",
+  "excluded_asins": [
+    "B0BLNWFZ7Z",
+    "B000B6MKMO"
+  ],
+  "requested_at": "2026-09-14T21:24:02.974Z"
 }
