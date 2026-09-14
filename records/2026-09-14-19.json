@@ -1,5 +1,7 @@
 {
   "actual_format": "single",
+  "archive_commit": "df3a42b6efa1345f8d87d23fbfdc93e5683a13ac",
+  "archived_media_url": "https://raw.githubusercontent.com/Will3201/Tarlo-Bot/df3a42b6efa1345f8d87d23fbfdc93e5683a13ac/media/2026-09-14-19.jpg",
   "asin": "B07W7KSC8N",
   "asins": [
     "B07W7KSC8N"
@@ -54,27 +56,30 @@
   "intended_format": "single",
   "jpeg_sha256": "567858e8e645afdae37a74b0781e7d8fe8bc3f7790233c6206310dcd1d8d3abb",
   "media_path": "media/2026-09-14-19.jpg",
-  "original_sha256": "7837ea98811f5e90a7f9657755d61664f800a374eaf5274dab57efd0bcde8d9e",
-  "recovery": true,
-  "recovery_reason": "Recupero autorizzato del post delle 19:00 non inviato per ambiente di esecuzione indisponibile",
-  "slot": "2026-09-14-19",
-  "status": "scheduled",
-  "valid_until": "2026-09-14T21:49:54.963623+00:00",
-  "visual_review": "passed: product, title, price, labelled reference, discount and readability",
-  "window_end": "2026-09-14T21:18:58.860119+00:00",
-  "window_start": "2026-09-14T15:18:58.860119+00:00",
-  "scheduled_at": "2026-09-14T21:28:42.678Z",
+  "media_transport": "info.media immutable HTTPS URL",
   "metricool_id": 375954818,
-  "uuid": "2552520752056911380",
+  "metricool_media": [
+    "https://static.metricool.com/planner/202609/6911341-file-13630932360674770228.jpeg"
+  ],
+  "original_sha256": "7837ea98811f5e90a7f9657755d61664f800a374eaf5274dab57efd0bcde8d9e",
   "planner_url": "https://app.metricool.com/planner/calendar?blogId=6911341&openWithPostUuid=2552520752056911380",
   "publicationDate": {
     "dateTime": "2026-09-14T23:30:00",
     "timezone": "Europe/Rome"
   },
-  "archived_media_url": "https://raw.githubusercontent.com/Will3201/Tarlo-Bot/df3a42b6efa1345f8d87d23fbfdc93e5683a13ac/media/2026-09-14-19.jpg",
-  "archive_commit": "df3a42b6efa1345f8d87d23fbfdc93e5683a13ac",
-  "media_transport": "info.media immutable HTTPS URL",
-  "metricool_media": [
-    "https://static.metricool.com/planner/202609/6911341-file-13630932360674770228.jpeg"
-  ]
+  "recovery": true,
+  "recovery_reason": "Recupero autorizzato del post delle 19:00 non inviato per ambiente di esecuzione indisponibile",
+  "scheduled_at": "2026-09-14T21:28:42.678Z",
+  "slot": "2026-09-14-19",
+  "status": "published",
+  "uuid": "2552520752056911380",
+  "valid_until": "2026-09-14T21:49:54.963623+00:00",
+  "visual_review": "passed: product, title, price, labelled reference, discount and readability",
+  "window_end": "2026-09-14T21:18:58.860119+00:00",
+  "window_start": "2026-09-14T15:18:58.860119+00:00",
+  "publicUrl": "https://www.tiktok.com/@tarlodelrisparmio/video/7685506602736078102",
+  "tiktok_id": "7685506602736078102",
+  "published_at": "2026-09-14T23:30:00+02:00",
+  "publication_timestamp_source": "Metricool publicationDate; PUBLISHED provider confirmed",
+  "published_confirmed_at": "2026-09-14T21:36:23.743Z"
 }

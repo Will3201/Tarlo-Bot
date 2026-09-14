@@ -1,0 +1,19 @@
+{
+  "updated_at": "2026-09-14T21:36:23.743Z",
+  "status": "verified_end_to_end",
+  "metricool_id": 375954818,
+  "uuid": "2552520752056911380",
+  "publicUrl": "https://www.tiktok.com/@tarlodelrisparmio/video/7685506602736078102",
+  "slot": "2026-09-14-19",
+  "transport": "info.media immutable public JPEG; mediaFiles omitted",
+  "workflow_selftest": "https://github.com/Will3201/Tarlo-Bot/actions/runs/34898420248",
+  "live_preparation": "prepared/repair-live-20260914-19/result.json",
+  "costs_added": 0,
+  "backlog": {
+    "recovered": [
+      "2026-09-14-19"
+    ],
+    "not_recoverable_without_fresh_sources": "Other missing slots: no verified candidates; public Telegram history timed out",
+    "known_no_offer_slot": "2026-09-13-01"
+  }
+}
