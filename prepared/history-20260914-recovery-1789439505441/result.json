@@ -1,0 +1,12 @@
+{
+  "request_id": "history-20260914-recovery-1789439505441",
+  "kind": "history",
+  "started_at": "2026-09-15T02:32:42.255976+00:00",
+  "publication": false,
+  "status": "history_ready",
+  "coverage_verified": true,
+  "post_count": 27,
+  "history_path": "/home/runner/work/Tarlo-Bot/Tarlo-Bot/prepared/history-20260914-recovery-1789439505441/history.json",
+  "reason": null,
+  "finished_at": "2026-09-15T02:32:43.774717+00:00"
+}
