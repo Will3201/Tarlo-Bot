@@ -1,32 +1,41 @@
 {
-  "slot": "2026-09-15-13",
-  "day": "2026-09-15",
-  "status": "attempted",
-  "attempted_at": "2026-09-15T11:00:25.365Z",
-  "experiment_id": "organico-2026-09-15",
-  "intended_format": "guide",
   "actual_format": "guide",
   "asin": null,
   "asins": [],
-  "selection_scope": "consiglio pratico, nessuna offerta",
-  "window_start": null,
-  "window_end": null,
+  "attempted_at": "2026-09-15T11:00:25.365Z",
   "caption": "Prima di comprare, controlla queste 3 cose 🔎\nQuantità, condizioni del coupon e totale con spedizione.\n🐛 Offerte e consigli su Telegram: t.me/TarloDelRisparmio\nNel canale usiamo link affiliati.\n#risparmio #offerte #amazon #consigli #Tarlo2026091513",
-  "source_commit": "248b7d4fa464b0151fbb652f099c1d1a3aa51e30",
-  "source_path": "media/growth-prima-di-comprare.png",
-  "original_sha256": "c5d31c624d92973254a390218589e7c1942fee78c8bcccea6dc0d849ed9e10c7",
-  "jpeg_sha256": "7ab29bf2b068968e7fcf0566572bf2e8df1d0c858125e23ed015340dc1a73f0f",
+  "day": "2026-09-15",
   "dimensions": [
     810,
     1080
   ],
-  "mode": "RGB",
+  "editorial_commit": "78ec7f30e53d190221339b3b6c023742909fadf8",
+  "experiment_id": "organico-2026-09-15",
   "fonti": [
     "growth/2026-09-15/calendar.json",
     "growth/2026-09-15/guides.json"
   ],
-  "editorial_commit": "78ec7f30e53d190221339b3b6c023742909fadf8",
-  "visual_review": "Source graphic read and all three authorized cards and CTA verified; JPEG decoded RGB max1080",
+  "intended_format": "guide",
+  "jpeg_sha256": "7ab29bf2b068968e7fcf0566572bf2e8df1d0c858125e23ed015340dc1a73f0f",
   "media_path": "media/2026-09-15-13.jpg",
-  "media_transport": "info.media immutable GitHub JPEG; mediaFiles omitted"
+  "media_transport": "info.media immutable GitHub JPEG; mediaFiles omitted",
+  "mode": "RGB",
+  "original_sha256": "c5d31c624d92973254a390218589e7c1942fee78c8bcccea6dc0d849ed9e10c7",
+  "selection_scope": "consiglio pratico, nessuna offerta",
+  "slot": "2026-09-15-13",
+  "source_commit": "248b7d4fa464b0151fbb652f099c1d1a3aa51e30",
+  "source_path": "media/growth-prima-di-comprare.png",
+  "status": "scheduled",
+  "visual_review": "Source graphic read and all three authorized cards and CTA verified; JPEG decoded RGB max1080",
+  "window_end": null,
+  "window_start": null,
+  "metricool_id": 376235008,
+  "uuid": "-2770048450294692519",
+  "planner_url": "https://app.metricool.com/planner/calendar?blogId=6911341&openWithPostUuid=-2770048450294692519",
+  "publicationDate": {
+    "dateTime": "2026-09-15T13:03:00",
+    "timezone": "Europe/Rome"
+  },
+  "archive_commit": "9815b7e1bb5ad3639c11654c3a49d9d0cbe99aa3",
+  "scheduled_at": "2026-09-15T11:01:18.807Z"
 }
