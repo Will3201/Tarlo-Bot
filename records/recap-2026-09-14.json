@@ -1,10 +1,7 @@
 {
-  "day": "2026-09-14",
-  "key": "recap-2026-09-14",
-  "status": "attempted",
-  "attempted_at": "2026-09-15T02:36:14.795Z",
-  "recovery": true,
   "actual_format": "daily_top5",
+  "archive_commit": "3effdcfeda3bbb63dbf1e0b093dd15b5496ce090",
+  "archived_media_url": "https://raw.githubusercontent.com/Will3201/Tarlo-Bot/3effdcfeda3bbb63dbf1e0b093dd15b5496ce090/media/recap-2026-09-14.jpg",
   "asins": [
     "B0FCFHZYGN",
     "B0CR4FHRGG",
@@ -12,12 +9,26 @@
     "B01F7T61HE",
     "B07W7KSC8N"
   ],
-  "window_start": "2026-09-14T00:00:00+02:00",
-  "window_end": "2026-09-15T00:00:00+02:00",
-  "selection_scope": "27 public channel posts from full Italian day, ranked by reported percentage discount; not an absolute market ranking",
+  "attempted_at": "2026-09-15T02:36:14.795Z",
+  "caption": "🔥 Top 5 del 14 settembre, per sconto segnalato!\n👚 Totatuit maglia donna: 5,99 € (rif. Amazon 21,99 €, -73%)\n🦄 Polly Pocket unicorno: 9,99 € (rif. Amazon 34,99 €, -71%)\n🏎️ Hot Wheels, 10 veicoli: 9,99 € (rif. Amazon 27,90 €, -64%)\n🏍️ Interphone Sport singolo: 79,90 € (rif. Amazon 166,16 €, -52%)\n📷 Logitech Brio 300: 34,64 € (rif. Amazon 69,99 €, -51%)\n👉 Scopri le offerte su Telegram: t.me/TarloDelRisparmio\nPrezzi segnalati il 14/09, da ricontrollare: offerte e disponibilità possono essere cambiate.\nLink affiliati: potremmo ricevere una commissione.\n#offerte #amazon #sconti #risparmio #affari #TarloRecap20260914",
   "coverage_verified": true,
-  "history_path": "prepared/history-20260914-recovery-1789439505441/history.json",
+  "day": "2026-09-14",
+  "derived_png_sha256": "efb0c326123b5d14db927c55de60a62ab665f72e64466b949ee94583c5c343a3",
+  "dimensions": [
+    810,
+    1080
+  ],
   "history_commit": "8630ce64045220e2158a073867661d94d0422e68",
+  "history_path": "prepared/history-20260914-recovery-1789439505441/history.json",
+  "jpeg_sha256": "29c9c90979a0d119e998a990077a98d21c4be3ca0359735e2c0f5e3652d911ea",
+  "key": "recap-2026-09-14",
+  "live_verified": false,
+  "media_path": "media/recap-2026-09-14.jpg",
+  "media_transport": "info.media immutable public JPEG URL; mediaFiles omitted",
+  "metricool_id": 376053857,
+  "mode": "RGB",
+  "planner_url": "https://app.metricool.com/planner/calendar?blogId=6911341&openWithPostUuid=-2667859895207573306",
+  "price_source": "telegram_snapshot",
   "products": [
     {
       "asin": "B0FCFHZYGN",
@@ -105,29 +116,28 @@
       "url": "https://t.me/TarloDelRisparmio/946"
     }
   ],
-  "caption": "🔥 Top 5 del 14 settembre, per sconto segnalato!\n👚 Totatuit maglia donna: 5,99 € (rif. Amazon 21,99 €, -73%)\n🦄 Polly Pocket unicorno: 9,99 € (rif. Amazon 34,99 €, -71%)\n🏎️ Hot Wheels, 10 veicoli: 9,99 € (rif. Amazon 27,90 €, -64%)\n🏍️ Interphone Sport singolo: 79,90 € (rif. Amazon 166,16 €, -52%)\n📷 Logitech Brio 300: 34,64 € (rif. Amazon 69,99 €, -51%)\n👉 Scopri le offerte su Telegram: t.me/TarloDelRisparmio\nPrezzi segnalati il 14/09, da ricontrollare: offerte e disponibilità possono essere cambiate.\nLink affiliati: potremmo ricevere una commissione.\n#offerte #amazon #sconti #risparmio #affari #TarloRecap20260914",
-  "media_path": "media/recap-2026-09-14.jpg",
-  "derived_png_sha256": "efb0c326123b5d14db927c55de60a62ab665f72e64466b949ee94583c5c343a3",
-  "jpeg_sha256": "29c9c90979a0d119e998a990077a98d21c4be3ca0359735e2c0f5e3652d911ea",
+  "publicationDate": {
+    "dateTime": "2026-09-15T04:38:00",
+    "timezone": "Europe/Rome"
+  },
+  "publication_destination": {
+    "account": "tarlodelrisparmio",
+    "brandId": "6911341",
+    "network": "tiktok"
+  },
+  "recovery": true,
+  "scheduled_at": "2026-09-15T02:37:01.432Z",
+  "selection_scope": "27 public channel posts from full Italian day, ranked by reported percentage discount; not an absolute market ranking",
   "source_images": {
     "B000B6MKMO": "7d2c550dcb4703b864cfacd3063f0fc109a0f5fb3f9742c2385038f3fc46a7df",
-    "B0CR4FHRGG": "3da60bacd2fc6c796fefcdc42a0a63719279c6c63c8de6e840bb6da400cb1aa2",
-    "B0FCFHZYGN": "e03f70d0471aa81ec44a66de84d6a825c7ef12fe03fd2138880d100a6ab79aab",
     "B01F7T61HE": "41a934c0dd9818977b470fc8c4eddf910dd7272462915260d3424c75fa6b425f",
-    "B07W7KSC8N": "7bc5a0cd55fed57e63c3effcec2e1beb0a0660092eb573f800ff5ef884e4263d"
+    "B07W7KSC8N": "7bc5a0cd55fed57e63c3effcec2e1beb0a0660092eb573f800ff5ef884e4263d",
+    "B0CR4FHRGG": "3da60bacd2fc6c796fefcdc42a0a63719279c6c63c8de6e840bb6da400cb1aa2",
+    "B0FCFHZYGN": "e03f70d0471aa81ec44a66de84d6a825c7ef12fe03fd2138880d100a6ab79aab"
   },
-  "dimensions": [
-    810,
-    1080
-  ],
-  "mode": "RGB",
+  "status": "scheduled",
+  "uuid": "-2667859895207573306",
   "visual_review": "Product appearances, five prices/references/percentages and historical warning checked against five source cards; generated graphic and RGB JPEG validated",
-  "live_verified": false,
-  "price_source": "telegram_snapshot",
-  "publication_destination": {
-    "brandId": "6911341",
-    "network": "tiktok",
-    "account": "tarlodelrisparmio"
-  },
-  "media_transport": "info.media immutable public JPEG URL; mediaFiles omitted"
+  "window_end": "2026-09-15T00:00:00+02:00",
+  "window_start": "2026-09-14T00:00:00+02:00"
 }

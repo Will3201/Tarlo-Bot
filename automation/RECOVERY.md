@@ -50,6 +50,15 @@ Per la nuova grafica verticale verificare rapporto3:4; conservare hash originale
 Mantenere parametri TikTok, dichiarazione commerciale, caption autorizzata e hashtag univoco.
 URL media: https://raw.githubusercontent.com/Will3201/Tarlo-Bot/<commit-archivio>/media/<slot>.jpg
 Programmare pochi minuti avanti e prima della scadenza; verificare planner, poi published/publicUrl soltanto con PUBLISHED confermato.
-Il worker non raccoglie l'intero storico Telegram e non costruisce recap: per recap resta obbligatoria copertura completa delle fonti e cinque ASIN verificabili.
+Il worker può ora raccogliere lo storico Telegram come documentato sotto; non costruisce recap: per recap resta obbligatoria copertura completa delle fonti e cinque ASIN verificabili.
 Il 14 settembre la lettura diretta dello storico pubblico Telegram ha restituito timeout: non equivale a zero offerte.
 Le fasce saltate per assenza offerte non sono arretrati da riempire. Registri assenti non dimostrano offerte recuperabili.
+
+
+## Storico Telegram: fallback verificato il15/09
+Il worker ora supporta kind="history" tramite automation/channel_history.py.
+Schema richiesta fresca: {"id":"history-univoco","kind":"history","day":"YYYY-MM-DD","requested_at":"ISO UTC attuale"}.
+Legge soltanto il canale pubblico fisso t.me/s/TarloDelRisparmio; paginazione before, massimo40pagine/5min, giorni completati negli ultimi7giorni. Nessun POST Render e nessuna pubblicazione social.
+Leggere prepared/<id>/history.json al commit immutabile. Richiedere coverage_verified=true, status=history_ready, finestra italiana completa e fonti/timestamp per ogni post. Errori o pagine vuote sono history_incomplete, mai zero offerte.
+Prova reale: run https://github.com/Will3201/Tarlo-Bot/actions/runs/34921541765; 27post del14/09 recuperati su2pagine fino al13/09. Fonte archiviata prepared/history-20260914-recovery-1789439505441/history.json.
+Non riscrivere requests/current.json mentre un job è in corso. Non fidarsi del solo success Actions: leggere contenuto del risultato.
