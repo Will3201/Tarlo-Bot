@@ -135,9 +135,12 @@
     "B0CR4FHRGG": "3da60bacd2fc6c796fefcdc42a0a63719279c6c63c8de6e840bb6da400cb1aa2",
     "B0FCFHZYGN": "e03f70d0471aa81ec44a66de84d6a825c7ef12fe03fd2138880d100a6ab79aab"
   },
-  "status": "scheduled",
+  "status": "published",
   "uuid": "-2667859895207573306",
   "visual_review": "Product appearances, five prices/references/percentages and historical warning checked against five source cards; generated graphic and RGB JPEG validated",
   "window_end": "2026-09-15T00:00:00+02:00",
-  "window_start": "2026-09-14T00:00:00+02:00"
+  "window_start": "2026-09-14T00:00:00+02:00",
+  "publicUrl": "https://www.tiktok.com/@tarlodelrisparmio/video/7685585761445465347",
+  "tiktok_id": "7685585761445465347",
+  "published_confirmed_at": "2026-09-15T02:40:20.653Z"
 }
