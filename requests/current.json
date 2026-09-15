@@ -1,10 +1,6 @@
 {
-  "id": "repair-live-20260914-19",
-  "kind": "single",
-  "slot": "2026-09-14-19",
-  "excluded_asins": [
-    "B0BLNWFZ7Z",
-    "B000B6MKMO"
-  ],
-  "requested_at": "2026-09-14T21:24:02.974Z"
+  "id": "history-20260914-recovery-1789439505441",
+  "kind": "history",
+  "day": "2026-09-14",
+  "requested_at": "2026-09-15T02:31:45.441Z"
 }

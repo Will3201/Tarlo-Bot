@@ -251,6 +251,9 @@ def main():
             result.update(self_test(request, folder))
         elif kind == "single":
             result.update(prepare_single(request, folder))
+        elif kind == "history":
+            from channel_history import collect
+            result.update(collect(request, folder))
         elif kind == "convert":
             source = local_asset(request["source_path"])
             if not re.fullmatch(r"[a-f0-9]{64}", request.get("source_sha256", "")):
