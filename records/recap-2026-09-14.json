@@ -1,0 +1,133 @@
+{
+  "day": "2026-09-14",
+  "key": "recap-2026-09-14",
+  "status": "attempted",
+  "attempted_at": "2026-09-15T02:36:14.795Z",
+  "recovery": true,
+  "actual_format": "daily_top5",
+  "asins": [
+    "B0FCFHZYGN",
+    "B0CR4FHRGG",
+    "B000B6MKMO",
+    "B01F7T61HE",
+    "B07W7KSC8N"
+  ],
+  "window_start": "2026-09-14T00:00:00+02:00",
+  "window_end": "2026-09-15T00:00:00+02:00",
+  "selection_scope": "27 public channel posts from full Italian day, ranked by reported percentage discount; not an absolute market ranking",
+  "coverage_verified": true,
+  "history_path": "prepared/history-20260914-recovery-1789439505441/history.json",
+  "history_commit": "8630ce64045220e2158a073867661d94d0422e68",
+  "products": [
+    {
+      "asin": "B0FCFHZYGN",
+      "date": "2026-09-14T11:11:08+00:00",
+      "discount": 73,
+      "id": "TarloDelRisparmio/937",
+      "links": [
+        "https://www.amazon.it/dp/B0FCFHZYGN?tag=tarlodelrispa-21",
+        "?q=%23IlTarloDelRisparmio"
+      ],
+      "photos": [
+        "https://cdn4.telesco.pe/file/R68PpACiOjiHjxZYA5NePhi5rCSgeTfYkX4Lx0LmFM_btbz4coOB66cMZYZa-8npfD8xRXPBBVyDxE7xB2cVd-C0imfxL500kv7_jNdmKGqwAaSH7vcYWuhCMqFQMh2AOAfQzk6U_u3_QoGvdNG31Yc3_oecc_Nq--rZHCaUn4KcdLKOrIQYDI9IX4WEjKHf8LTNIVPmaL-QB0xEgdJ7ElRViRTsj4mkcKamZHG1AjHaUuIme2ZSd2vk4oVwP5UlHh6ASRy632F1SOtf7FCOUj1KRIIPR5Pe0L_ijSxJwvgnSQvCTWSl5JWxibnjTg2lbzwBhDKLDTxLppLSSySE3w.jpg"
+      ],
+      "price": "5,99",
+      "reference": "21,99",
+      "text": "🚨 ERRORE DI PREZZO?! 🚨\n\n🛒 Totatuit Maglietta a Maniche Lunghe Donna Cotone Scollo a V con Occhielli Maglia a Coste Top Basic Elasticizzato Sexy Elegante Slim Fit Camicetta per Primavera Autunno Quotidiano U\n\n💰 5,99 €\nRiferimento Amazon: 21,99 € (-73%).\n👉 Apri su Amazon\n\n🪵 Il Tarlo del Risparmio\n#IlTarloDelRisparmio",
+      "url": "https://t.me/TarloDelRisparmio/937"
+    },
+    {
+      "asin": "B0CR4FHRGG",
+      "date": "2026-09-14T08:46:52+00:00",
+      "discount": 71,
+      "id": "TarloDelRisparmio/930",
+      "links": [
+        "https://www.amazon.it/dp/B0CR4FHRGG?tag=tarlodelrispa-21",
+        "?q=%23IlTarloDelRisparmio"
+      ],
+      "photos": [
+        "https://cdn4.telesco.pe/file/pl0DDBETamzXO41c2pBdn9W2R3MOQscDT_8lOYUbiS5RBFc0sn-H6QJ06W2nbQsS4IFGmD-QCmCMnqPR6nHkIuw0YS1zoFzaGgDhWntcCivow9n9iBBwq54ujtwb39JA61K8fsagua7W1vlzxVBzUwK3X1T0j32bgAxJxXBzDfXKfMCGe_giQECm_vExj9AlEJeb3ksxe8XWDnKP4pNi-EPu8p7a0CpF79O9rkaGDJMdtY5RheuClJQZgpygAp0y_ijFrMQ-bJpASQWYnADvU3Fs7HNYc32JvR5eq6S1ywBjUCKrfAV8aZgKBZEEPTRZ_cKTy-7DTLj4F1s4qGLHAw.jpg"
+      ],
+      "price": "9,99",
+      "reference": "34,99",
+      "text": "🚨 ERRORE DI PREZZO?! 🚨\n\n🛒 Polly Pocket Festa di compleanno unicorno playset\n\n💰 9,99 €\nRiferimento Amazon: 34,99 € (-71%).\n👉 Apri su Amazon\n\n🪵 Il Tarlo del Risparmio\n#IlTarloDelRisparmio",
+      "url": "https://t.me/TarloDelRisparmio/930"
+    },
+    {
+      "asin": "B000B6MKMO",
+      "date": "2026-09-14T06:19:46+00:00",
+      "discount": 64,
+      "id": "TarloDelRisparmio/926",
+      "links": [
+        "https://www.amazon.it/dp/B000B6MKMO?tag=tarlodelrispa-21",
+        "?q=%23IlTarloDelRisparmio"
+      ],
+      "photos": [
+        "https://cdn4.telesco.pe/file/m0dBXCWMG4xwPJmMQa6MntYvysdA80_d8EKvEz5j5xb_BPmpDdrxtB7tS-EunRPt6LViWzVoraJwvnRsx55xqkQ5e-xomBYL4CxcJwLZI675Smq3Ed2UwT1N31sR6H3VDMxT_gryrWaZCmh1VSx6qFheqyF1hRvQwH6oog9x2gwtrPnBxMPd2dqyh3T0Vu3erh0llydXKvcU6woH8FLcWaWeBYM37IZf90iG_V8OthAkOeeN27621QUOY90ycMRYCEY1n9UFNAhCIuRC7opWUrYwErUjog1Rm37SIn5-2VhpoeYiBtW3lWUHmpguRQKcnpZSIfKds6E-sjGJ678Yxg.jpg"
+      ],
+      "price": "9,99",
+      "reference": "27,90",
+      "text": "🚨 ERRORE DI PREZZO?! 🚨\n\n🛒 Hot Wheels - Set Macchinine da 10 Veicoli in Scala 1:64\n\n💰 9,99 €\nRiferimento Amazon: 27,90 € (-64%).\n👉 Apri su Amazon\n\n🪵 Il Tarlo del Risparmio\n#IlTarloDelRisparmio",
+      "url": "https://t.me/TarloDelRisparmio/926"
+    },
+    {
+      "asin": "B01F7T61HE",
+      "date": "2026-09-14T07:55:49+00:00",
+      "discount": 52,
+      "id": "TarloDelRisparmio/928",
+      "links": [
+        "https://www.amazon.it/dp/B01F7T61HE?tag=tarlodelrispa-21",
+        "?q=%23IlTarloDelRisparmio"
+      ],
+      "photos": [
+        "https://cdn4.telesco.pe/file/WXX2cpUfeu5zIeBjV2RUrqNhcLnd_cloXf9IrhU_QgZsQYhRmeM00Lr0J-2Vk9E-Mx_4iVQG2viZWg8T-9KdT4DgMd5HC0kvhQLKCjIl8Rp0msV8TfGCfWwdb2PKvmo4yyrYQ0SAMexHZvw0uslGvJ3cafQJSkCeiPtlK9Np42U8kHEONfwk1P_7wXtgBVCBghwIRcIS6cT5dfQ4HcWZ3qiz5H_d3piHij_mOi-86XY1hp8TUmTth-Jwr1zU1ueM9_cX4agd1MRKazsedOne1S_Uw5Ru38iH3J5Vc43VVBNioLZrkoCWp3-5G69JAySVTsBXNAGbA9IH56AVsd4F4g.jpg"
+      ],
+      "price": "79,90",
+      "reference": "166,16",
+      "text": "🚨 ERRORE DI PREZZO?! 🚨\n\n🛒 INTERPHONE SPORT - Singolo - Interfono Bluetooth da casco per comunicazione in moto\n\n💰 79,90 €\nRiferimento Amazon: 166,16 € (-52%).\n👉 Apri su Amazon\n\n🪵 Il Tarlo del Risparmio\n#IlTarloDelRisparmio",
+      "url": "https://t.me/TarloDelRisparmio/928"
+    },
+    {
+      "asin": "B07W7KSC8N",
+      "date": "2026-09-14T17:04:14+00:00",
+      "discount": 51,
+      "id": "TarloDelRisparmio/946",
+      "links": [
+        "https://www.amazon.it/dp/B07W7KSC8N?tag=tarlodelrispa-21",
+        "?q=%23IlTarloDelRisparmio"
+      ],
+      "photos": [
+        "https://cdn4.telesco.pe/file/MZz-j8slKCsOAzeu167iFGtIFUfgUtc8F0zgWF19yK_nJK2IRm_92zSJFtGy10CO3ZVWyUxvg4L5IERkY5ZZFByI75gXN54qfarE6UVDUTHjjEPPKsjuEARGk95jZ-g1LY1X6zGpBek--uNMF1P89oyyy3JIZAaMb0n4ESyRziMUEAVGIbldEBsPfzgJ_-zySBWx6qMk7hsCD5__Ln6eJZow5xKLUWLektNGcafnhmLPrEFnB1-rF8WSic3sK7yeBRXvAYEvv1ZignuGK3gMieL2fM6Dc2r4il-6E1Uv9mh-kQr3QLo2c5z0uGSD3C7kV_9RrBjaxBjE6rOFgeW_NA.jpg"
+      ],
+      "price": "34,64",
+      "reference": "69,99",
+      "text": "🚨 ERRORE DI PREZZO?! 🚨\n\n🛒 Logitech Brio 300 Webcam Full HD con Otturatore Privacy\n\n💰 34,64 €\nRiferimento Amazon: 69,99 € (-51%).\n👉 Apri su Amazon\n\n🪵 Il Tarlo del Risparmio\n#IlTarloDelRisparmio",
+      "url": "https://t.me/TarloDelRisparmio/946"
+    }
+  ],
+  "caption": "🔥 Top 5 del 14 settembre, per sconto segnalato!\n👚 Totatuit maglia donna: 5,99 € (rif. Amazon 21,99 €, -73%)\n🦄 Polly Pocket unicorno: 9,99 € (rif. Amazon 34,99 €, -71%)\n🏎️ Hot Wheels, 10 veicoli: 9,99 € (rif. Amazon 27,90 €, -64%)\n🏍️ Interphone Sport singolo: 79,90 € (rif. Amazon 166,16 €, -52%)\n📷 Logitech Brio 300: 34,64 € (rif. Amazon 69,99 €, -51%)\n👉 Scopri le offerte su Telegram: t.me/TarloDelRisparmio\nPrezzi segnalati il 14/09, da ricontrollare: offerte e disponibilità possono essere cambiate.\nLink affiliati: potremmo ricevere una commissione.\n#offerte #amazon #sconti #risparmio #affari #TarloRecap20260914",
+  "media_path": "media/recap-2026-09-14.jpg",
+  "derived_png_sha256": "efb0c326123b5d14db927c55de60a62ab665f72e64466b949ee94583c5c343a3",
+  "jpeg_sha256": "29c9c90979a0d119e998a990077a98d21c4be3ca0359735e2c0f5e3652d911ea",
+  "source_images": {
+    "B000B6MKMO": "7d2c550dcb4703b864cfacd3063f0fc109a0f5fb3f9742c2385038f3fc46a7df",
+    "B0CR4FHRGG": "3da60bacd2fc6c796fefcdc42a0a63719279c6c63c8de6e840bb6da400cb1aa2",
+    "B0FCFHZYGN": "e03f70d0471aa81ec44a66de84d6a825c7ef12fe03fd2138880d100a6ab79aab",
+    "B01F7T61HE": "41a934c0dd9818977b470fc8c4eddf910dd7272462915260d3424c75fa6b425f",
+    "B07W7KSC8N": "7bc5a0cd55fed57e63c3effcec2e1beb0a0660092eb573f800ff5ef884e4263d"
+  },
+  "dimensions": [
+    810,
+    1080
+  ],
+  "mode": "RGB",
+  "visual_review": "Product appearances, five prices/references/percentages and historical warning checked against five source cards; generated graphic and RGB JPEG validated",
+  "live_verified": false,
+  "price_source": "telegram_snapshot",
+  "publication_destination": {
+    "brandId": "6911341",
+    "network": "tiktok",
+    "account": "tarlodelrisparmio"
+  },
+  "media_transport": "info.media immutable public JPEG URL; mediaFiles omitted"
+}
