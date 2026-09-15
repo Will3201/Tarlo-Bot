@@ -1,0 +1,20 @@
+{
+  "slot": "2026-09-15-01",
+  "day": "2026-09-15",
+  "status": "skipped",
+  "reason": "no_recent_offer",
+  "checked_at": "2026-09-15T02:23:10.287Z",
+  "recovery_check": true,
+  "publication_attempted": false,
+  "asin": null,
+  "asins": [],
+  "backend_status": {
+    "status": "no_recent_offer",
+    "recovered_posts": 0
+  },
+  "backend_latest": {
+    "day": "2026-09-15-01",
+    "status": "not_ready"
+  },
+  "note": "Fresh empty POST accepted202; polled ready service returned no_recent_offer. This documents the recovery check, not the unavailable original01:00run."
+}

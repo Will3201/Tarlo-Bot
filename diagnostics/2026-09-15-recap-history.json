@@ -1,0 +1,10 @@
+{
+  "checked_at": "2026-09-15T02:23:10.291Z",
+  "recap_day": "2026-09-14",
+  "status": "blocked",
+  "reason": "Telegram public history read timed out",
+  "source": "https://t.me/s/TarloDelRisparmio",
+  "coverage_verified": false,
+  "publication_attempted": false,
+  "automations_enabled": true
+}
