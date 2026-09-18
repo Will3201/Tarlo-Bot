@@ -45,7 +45,7 @@ if hasattr(sys.stdout, "reconfigure"):
 # --- CONFIGURAZIONE ---
 TELEGRAM_TOKEN = os.environ["TELEGRAM_TOKEN"]
 CANALE_CHAT_ID = os.getenv("CANALE_CHAT_ID", "@TarloDelRisparmio")
-AMAZON_TAG = os.getenv("AMAZON_TAG", "tarlodelrispa-21")
+AMAZON_TAG = os.getenv("AMAZON_TAG", "tarlodelris06-21")
 TELEGRAM_API_ID = int(os.environ["TELEGRAM_API_ID"])
 TELEGRAM_API_HASH = os.environ["TELEGRAM_API_HASH"]
 SESSION_STRING = os.environ["TELEGRAM_SESSION_STRING"]
