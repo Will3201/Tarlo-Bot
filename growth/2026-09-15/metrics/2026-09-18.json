@@ -1,0 +1,235 @@
+{
+  "captured_at": "2026-09-19T14:31:01+02:00",
+  "timezone": "Europe/Rome",
+  "last_complete_day": "2026-09-18",
+  "interval": {
+    "from": "2026-09-15T00:00:00+02:00",
+    "to": "2026-09-18T23:59:59+02:00",
+    "inclusive_dates": [
+      "2026-09-15",
+      "2026-09-16",
+      "2026-09-17",
+      "2026-09-18"
+    ]
+  },
+  "source_state": {
+    "github_repository": "Will3201/Tarlo-Bot",
+    "github_branch": "tarlo-publishing",
+    "github_head": "46efb8cde57e03bb41bb188c535eb6e52493329f",
+    "metricool_brand_id": 6911341,
+    "metricool_brand_label": "tarlodelrisparmio",
+    "metricool_timezone": "Europe/Rome"
+  },
+  "raw_fields": {
+    "tiktok_posts": [
+      "TKPO02",
+      "TKPO03",
+      "TKPO05",
+      "TKPO07",
+      "TKPO08",
+      "TKPO09",
+      "TKPO10",
+      "TKPO22"
+    ],
+    "tiktok_evolution": [
+      "TKEV07",
+      "TKEV08",
+      "TKEV09",
+      "TKEV12"
+    ],
+    "tiktok_posts_rows": [
+      [
+        "20260915110338",
+        "https://www.tiktok.com/@tarlodelrisparmio/video/7685716029233728790?utm_campaign=tt4d_open_api&utm_source=awwuexz91plpu87c",
+        "Prima di comprare, controlla queste 3 cose 🔎 Quantità, condizioni del coupon e totale con spedizione. 🐛 Offerte e consigli su Telegram: t.me/TarloDelRisparmio Nel canale usiamo link affiliati. #risparmio #offerte #amazon #consigli #Tarlo2026091513",
+        "3",
+        "0",
+        "0",
+        "0",
+        "PHOTO"
+      ],
+      [
+        "20260915023847",
+        "https://www.tiktok.com/@tarlodelrisparmio/video/7685585761445465347?utm_campaign=tt4d_open_api&utm_source=awwuexz91plpu87c",
+        "🔥 Top 5 del 14 settembre, per sconto segnalato! 👚 Totatuit maglia donna: 5,99 € (rif. Amazon 21,99 €, -73%) 🦄 Polly Pocket unicorno: 9,99 € (rif. Amazon 34,99 €, -71%) 🏎️ Hot Wheels, 10 veicoli: 9,99 € (rif. Amazon 27,90 €, -64%) 🏍️ Interphone Sport singolo: 79,90 € (rif. Amazon 166,16 €, -52%) 📷 Logitech Brio 300: 34,64 € (rif. Amazon 69,99 €, -51%) 👉 Scopri le offerte su Telegram: t.me/TarloDelRisparmio Prezzi segnalati il 14/09, da ricontrollare: offerte e disponibilità possono essere cambiate. Link affiliati: potremmo ricevere una commissione. #offerte #amazon #sconti #risparmio #affari #TarloRecap20260914",
+        "1",
+        "0",
+        "0",
+        "0",
+        "PHOTO"
+      ]
+    ],
+    "tiktok_evolution_rows": [
+      [
+        "5.0",
+        null,
+        null,
+        null,
+        "20260915"
+      ],
+      [
+        "5.0",
+        "0.0",
+        null,
+        null,
+        "20260916"
+      ],
+      [
+        "5.0",
+        "0.0",
+        null,
+        null,
+        "20260917"
+      ],
+      [
+        "5.0",
+        "0.0",
+        "0.0",
+        "0.0",
+        "20260918"
+      ]
+    ],
+    "row_field_order": {
+      "tiktok_posts_rows": [
+        "TKPO02",
+        "TKPO03",
+        "TKPO05",
+        "TKPO07",
+        "TKPO08",
+        "TKPO09",
+        "TKPO10",
+        "TKPO22"
+      ],
+      "tiktok_evolution_rows": [
+        "TKEV07",
+        "TKEV08",
+        "TKEV09",
+        "TKEV12",
+        "date"
+      ]
+    }
+  },
+  "reconciled_posts": [
+    {
+      "tiktok_post_id": "7685716029233728790",
+      "public_url": "https://www.tiktok.com/@tarlodelrisparmio/video/7685716029233728790",
+      "planner_id": 376235008,
+      "planner_uuid": "-2770048450294692519",
+      "planner_status": "PUBLISHED",
+      "publication_datetime": "2026-09-15T13:03:00+02:00",
+      "italian_day": "2026-09-15",
+      "slot": "2026-09-15-13",
+      "slot_group": "13:00",
+      "expected_format": "guide",
+      "actual_format": "guide",
+      "record_path": "records/2026-09-15-13.json",
+      "age_at_capture_hours": 97.47,
+      "analytics": {
+        "views": 3,
+        "likes": 0,
+        "comments": 0,
+        "shares": 0,
+        "type": "PHOTO"
+      },
+      "analytics_raw_created": "20260915110338",
+      "reconciliation": "Matched by TikTok ID/public URL and planner timestamp; the raw analytics timestamp was retained without assigning it a timezone."
+    },
+    {
+      "tiktok_post_id": "7685585761445465347",
+      "public_url": "https://www.tiktok.com/@tarlodelrisparmio/video/7685585761445465347",
+      "planner_id": 376053857,
+      "planner_uuid": "-2667859895207573306",
+      "planner_status": "PUBLISHED",
+      "publication_datetime": "2026-09-15T04:38:00+02:00",
+      "italian_day": "2026-09-15",
+      "slot": "recap-2026-09-14",
+      "slot_group": "recap_midnight",
+      "expected_format": "daily_top5",
+      "actual_format": "daily_top5",
+      "record_path": "records/recap-2026-09-14.json",
+      "age_at_capture_hours": 105.88,
+      "analytics": {
+        "views": 1,
+        "likes": 0,
+        "comments": 0,
+        "shares": 0,
+        "type": "PHOTO"
+      },
+      "analytics_raw_created": "20260915023847",
+      "reconciliation": "Published on 15 September but covering 14 September; kept separate from the 13:00 format comparison."
+    }
+  ],
+  "planned_13_slots": [
+    {
+      "date": "2026-09-15",
+      "slot": "2026-09-15-13",
+      "expected_format": "guide",
+      "actual_format": "guide",
+      "state": "published_confirmed",
+      "tiktok_post_id": "7685716029233728790",
+      "public_url": "https://www.tiktok.com/@tarlodelrisparmio/video/7685716029233728790"
+    },
+    {
+      "date": "2026-09-16",
+      "slot": "2026-09-16-13",
+      "expected_format": "single",
+      "actual_format": null,
+      "state": "not_published_or_not_confirmed",
+      "tiktok_post_id": null,
+      "public_url": null
+    },
+    {
+      "date": "2026-09-17",
+      "slot": "2026-09-17-13",
+      "expected_format": "theme",
+      "actual_format": null,
+      "state": "not_published_or_not_confirmed",
+      "tiktok_post_id": null,
+      "public_url": null
+    },
+    {
+      "date": "2026-09-18",
+      "slot": "2026-09-18-13",
+      "expected_format": "guide",
+      "actual_format": null,
+      "state": "not_published_or_not_confirmed",
+      "tiktok_post_id": null,
+      "public_url": null
+    }
+  ],
+  "coverage": {
+    "planned_13_slots": 4,
+    "published_13_slots_confirmed": 1,
+    "unconfirmed_13_slots": 3,
+    "published_posts_in_interval_all_slots": 2,
+    "evolution_days_returned": 4,
+    "evolution_days_expected": 4,
+    "telegram_invite_link_counts_available": false,
+    "amazon_report_updated_for_test": false,
+    "confirmed_collaborations": 0
+  },
+  "attribution": {
+    "telegram": {
+      "available": false,
+      "reason": "tracking.json still contains null URLs and no Telegram administrative access is available.",
+      "joins": null,
+      "retention": null,
+      "per_post_attribution": null
+    },
+    "amazon": {
+      "available_for_test": false,
+      "reason": "No newer accessible report; the baseline report ends on 2026-09-13.",
+      "orders": null,
+      "commissions_eur": null
+    }
+  },
+  "notes": [
+    "Null means missing or unavailable, never zero.",
+    "Metricool brand 6911341 was verified as tarlodelrisparmio.",
+    "No records, planner publications or TikTok analytics rows were found for the planned 13:00 slots on 2026-09-16, 2026-09-17 or 2026-09-18; they are therefore not declared published.",
+    "No same-age measurement exists. Metrics shown are cumulative at the stated post ages, so the guide and recap are not comparable as exact 24-hour windows.",
+    "TikTok analytics may update late. The raw analytics timestamps have no declared timezone and were not interpreted without planner/record reconciliation.",
+    "The single TikTok bio destination cannot causally identify which post produced a Telegram visit or join.",
+    "No Telegram Ads state was changed and no additional budget was used."
+  ]
+}
