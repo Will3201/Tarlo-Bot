@@ -1,7 +1,7 @@
 {
   "slot": "2026-09-20-01",
   "day": "2026-09-20",
-  "status": "attempted",
+  "status": "scheduled",
   "attempted_at": "2026-09-19T23:04:15.180Z",
   "asin": "B07WG3FCP1",
   "asins": [
@@ -63,5 +63,17 @@
   "mode": "RGB",
   "visual_review": "Original and final JPEG inspected: faithful single light-blue Lago Mini Party cacao 125g bag; exact prices1.29 and2.51, discount49; no unsupported claims.",
   "conversion_request_id": "convert-20260920-01-1789859003323",
-  "media_transport": "info.media immutable archived JPEG; mediaFiles omitted"
+  "media_transport": "info.media immutable archived JPEG; mediaFiles omitted",
+  "metricool_id": 378726515,
+  "uuid": "-4900139111774205378",
+  "planner_url": "https://app.metricool.com/planner/calendar?blogId=6911341&openWithPostUuid=-4900139111774205378",
+  "publicationDate": {
+    "dateTime": "2026-09-20T01:07:00",
+    "timezone": "Europe/Rome"
+  },
+  "archive_commit": "eeb01ea617e6245ea260ccb7f65bd65459a9a05c",
+  "scheduled_at": "2026-09-19T23:04:49.519Z",
+  "metricool_imported_media": [
+    "https://static.metricool.com/planner/202609/6911341-file-2432830722585562246.jpeg"
+  ]
 }
