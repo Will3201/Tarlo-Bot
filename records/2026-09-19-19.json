@@ -1,7 +1,7 @@
 {
   "slot": "2026-09-19-19",
   "day": "2026-09-19",
-  "status": "attempted",
+  "status": "scheduled",
   "attempted_at": "2026-09-19T17:05:57.492Z",
   "asin": "B096SQYQLZ",
   "asins": [
@@ -70,5 +70,17 @@
   "mode": "RGB",
   "visual_review": "Original and final JPEG inspected: faithful single brown Mammut hiking boot; exact prices59.79 and210.00, discount72; snapshot warning visible; no unsupported performance claim.",
   "conversion_request_id": "convert-20260919-19-1789837492879",
-  "media_transport": "info.media immutable archived JPEG; mediaFiles omitted"
+  "media_transport": "info.media immutable archived JPEG; mediaFiles omitted",
+  "metricool_id": 378641872,
+  "uuid": "-2596338783180209567",
+  "planner_url": "https://app.metricool.com/planner/calendar?blogId=6911341&openWithPostUuid=-2596338783180209567",
+  "publicationDate": {
+    "dateTime": "2026-09-19T19:09:00",
+    "timezone": "Europe/Rome"
+  },
+  "archive_commit": "f38e9617db9fdb0701bf4a50ebae550aa5d940fc",
+  "scheduled_at": "2026-09-19T17:06:44.606Z",
+  "metricool_imported_media": [
+    "https://static.metricool.com/planner/202609/6911341-file-7883580340648684513.jpeg"
+  ]
 }
