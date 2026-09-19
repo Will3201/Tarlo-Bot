@@ -1,7 +1,7 @@
 {
   "slot": "2026-09-20-01",
   "day": "2026-09-20",
-  "status": "scheduled",
+  "status": "published",
   "attempted_at": "2026-09-19T23:04:15.180Z",
   "asin": "B07WG3FCP1",
   "asins": [
@@ -75,5 +75,8 @@
   "scheduled_at": "2026-09-19T23:04:49.519Z",
   "metricool_imported_media": [
     "https://static.metricool.com/planner/202609/6911341-file-2432830722585562246.jpeg"
-  ]
+  ],
+  "publicUrl": "https://www.tiktok.com/@tarlodelrisparmio/video/7687386849236733187",
+  "tiktok_id": "7687386849236733187",
+  "published_confirmed_at": "2026-09-19T23:08:48.568Z"
 }
