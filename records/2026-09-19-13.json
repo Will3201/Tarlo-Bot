@@ -1,7 +1,7 @@
 {
   "slot": "2026-09-19-13",
   "day": "2026-09-19",
-  "status": "scheduled",
+  "status": "published",
   "attempted_at": "2026-09-19T11:03:17.658Z",
   "asin": "B00JMCYIPU",
   "asins": [
@@ -70,5 +70,8 @@
     "timezone": "Europe/Rome"
   },
   "archive_commit": "4657b4b8c921a8c33512271f74d2a8f284d5e70f",
-  "scheduled_at": "2026-09-19T11:04:04.648Z"
+  "scheduled_at": "2026-09-19T11:04:04.648Z",
+  "publicUrl": "https://www.tiktok.com/@tarlodelrisparmio/video/7687200913827663126",
+  "tiktok_id": "7687200913827663126",
+  "published_confirmed_at": "2026-09-19T11:08:45.920Z"
 }
