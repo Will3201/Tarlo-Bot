@@ -1,0 +1,141 @@
+{
+  "key": "recap-2026-09-19",
+  "actual_format": "daily_top5",
+  "day": "2026-09-19",
+  "status": "attempted",
+  "attempted_at": "2026-09-19T22:10:23.335Z",
+  "window_start": "2026-09-19T00:00:00+02:00",
+  "window_end": "2026-09-20T00:00:00+02:00",
+  "coverage_verified": true,
+  "history_commit": "c7e8df140bff463182c9cf1b1206171092fcde75",
+  "history_path": "prepared/history-20260919-1789855267864/history.json",
+  "history_post_count": 22,
+  "selection_scope": "22 public channel posts from the full Italian day; five distinct ASINs ranked by reported discount. Stars/reviews considered where archived; unavailable metrics were not invented.",
+  "live_verified": false,
+  "price_source": "telegram_snapshot",
+  "asins": [
+    "B096SQYQLZ",
+    "B08RFRWZYP",
+    "B00JMCYIPU",
+    "B0FVG1D91S",
+    "B0DKN3VMF1"
+  ],
+  "products": [
+    {
+      "rank": 1,
+      "asin": "B096SQYQLZ",
+      "name": "Mammut Mercury IV GTX",
+      "price": "59,79",
+      "reference": "210,00",
+      "reference_type": "Amazon",
+      "discount": 72,
+      "telegram_post_id": "TarloDelRisparmio/1133",
+      "telegram_post_url": "https://t.me/TarloDelRisparmio/1133",
+      "reported_at": "2026-09-19T16:50:38+00:00",
+      "image_source": "https://cdn4.telesco.pe/file/g8Y5sMsIatZrfxtrq4BqBJZOyWg7mLBi5PR37KbFlPXRlB8nSuirWPsVsf7FbFYbGUHnbLm6-jKDQq5aGIV8Ksv1P4XFpX-MF_GUOtNsejxBT0IkU3icIMDcLsR7x1BrlKWjkeEyC7MK0KYdnbWA1_KizKsrwxcPoADT9g0RHPQ24RxbTdkc3hTMfCgOYv1ZVpqco0eeYSQO6r5OIksKjYnRlFdYy2DZQaJw1BhNpw1_MktdN3FoC34HKsywB8TnCAKnET_kLh6EOGxbqzvfAVOalQfw4swZ_9r_dJvNbhxz8ndrWjMU1a-IentFtLcMeVKfOLASsbfbnKqsnlMZmw.jpg",
+      "metrics": {
+        "stars": 4.5,
+        "reviews": 1286,
+        "purchases": null,
+        "source": "records/2026-09-19-19.json"
+      }
+    },
+    {
+      "rank": 2,
+      "asin": "B08RFRWZYP",
+      "name": "Gocciole Coconut",
+      "price": "1,73",
+      "reference": "5,41",
+      "reference_type": "Amazon",
+      "discount": 68,
+      "telegram_post_id": "TarloDelRisparmio/1122",
+      "telegram_post_url": "https://t.me/TarloDelRisparmio/1122",
+      "reported_at": "2026-09-19T10:16:20+00:00",
+      "image_source": "https://cdn4.telesco.pe/file/CBIyjm0Y6_3W9tRYrkOhXwYbsHyRtKMwe6Xfjap6ziA9gERkPNqDunwZsmqBZFghMdKAEuOkJHjL1w0Y78-8-soykMdyniMOj3HZ4hu1X3DdPVRauDtGS1a7FlN1EDKy9Uy4moOzvu7C-tmQTiWlNZLe-OxKmARPRMn8TdijIlQ1l8tirAiMmAZTYamzqZ-C0uWtjcW0GZE4lEAI4SdKxYu-hkZQCnee50sYXeTdFQHr5p2nPIg2bfzUHCdhghpKhOmco_42RjfykQEFuUoWeuTIaQz8sqcy6-H7KZ8YaWnmuouRAqytUnZaNJyHFpCPlD3gx-rSreNvmKtqZeAlcA.jpg",
+      "metrics": {
+        "stars": null,
+        "reviews": null,
+        "purchases": null,
+        "source": null
+      }
+    },
+    {
+      "rank": 3,
+      "asin": "B00JMCYIPU",
+      "name": "Post-it Super Sticky",
+      "price": "7,65",
+      "reference": "18,49",
+      "reference_type": "Amazon",
+      "discount": 59,
+      "telegram_post_id": "TarloDelRisparmio/1117",
+      "telegram_post_url": "https://t.me/TarloDelRisparmio/1117",
+      "reported_at": "2026-09-19T07:49:14+00:00",
+      "image_source": "https://cdn4.telesco.pe/file/u2ZOnnLzdWPYW8Lum5CS9bnhQ0APh_2YSUwiPboLFmQ_UeZnrTvNznSs7b5TcswlkGJKWlLpWCDS2gpQu2ewfIULphbMY_Bklj8XGId2xU6rTyJQ6HqS5KZ1yUmAc-WfFHOr2D1aY069yKcWHxxVcGG5648Ota4ialbWWQCunrqsxP8Mp_cLDP8uJadIKiLpVGc_MNdXbg4cf86eAWJwa7neMcRq0k9fbL39C_zVoJRzIbc7x8gdjU4e6DR3s-odcH989nx7MwSSD-Mcepn7blkYPkYEpF2EI3DV5zcOZaHvayEk7DocS67rMYWFOedg26k44utauRmdJuYMN5EPzw.jpg",
+      "metrics": {
+        "stars": 4.6,
+        "reviews": 790,
+        "purchases": null,
+        "source": "records/2026-09-19-13.json"
+      }
+    },
+    {
+      "rank": 4,
+      "asin": "B0FVG1D91S",
+      "name": "SKROSS World to Europe",
+      "price": "5,98",
+      "reference": "14,00",
+      "reference_type": "Amazon",
+      "discount": 57,
+      "telegram_post_id": "TarloDelRisparmio/1137",
+      "telegram_post_url": "https://t.me/TarloDelRisparmio/1137",
+      "reported_at": "2026-09-19T19:55:36+00:00",
+      "image_source": "https://cdn4.telesco.pe/file/ttuBnC_bY5qb7APWDqL_-5w3Vh7csP1xP71XnSpFjXKECub2vAcfk-cV-K4pA9yF-WHxAUEAFKxM0bP__7q3J39E0rQ5pHODeceRbLoz9bSeZn9nf_uuuMtC8YaL0Kfa_hReaMXdQK6Xw-5VET0q753rV0hgVltI5Fd0wI7xLxAPsXCbohJwG837Bnh3Rp3tCzniMLvvEXHA8rCsJ6_uYCMdq90Njk5fhnF920QB_7sBhcaKhDeTNmzfWSYF_CM2Jwj0zhOFxVywSmqJkJHJvbq83RV-ctdHAInPSOKjy1R-DFpwTppsLm7Xn1GGdE1CI0u_X7n-NbcR44bL29_Rvw.jpg",
+      "metrics": {
+        "stars": null,
+        "reviews": null,
+        "purchases": null,
+        "source": null
+      }
+    },
+    {
+      "rank": 5,
+      "asin": "B0DKN3VMF1",
+      "name": "INIU Power Bank 5500mAh",
+      "price": "13,99",
+      "reference": "29,99",
+      "reference_type": "Amazon",
+      "discount": 53,
+      "telegram_post_id": "TarloDelRisparmio/1131",
+      "telegram_post_url": "https://t.me/TarloDelRisparmio/1131",
+      "reported_at": "2026-09-19T14:46:30+00:00",
+      "image_source": "https://cdn4.telesco.pe/file/DMEEf2UTZCXeApvG0z2MXk1PNIixhPGjmeiDBNR8cGpVZjaFGD9yilH1oHER5Wrsy6CMTGgUloUJ3txvJ4ExOX1c1rdn78epm8Ah2HKDIuiWfiQAyjtBkz86bolMfE9KLdYklPrTj1IzZxoFf7HJpJsvAS-KTn-hN0WN6yMqU6OOSxDau1TW7rohOfBVechXJ8x4fvBKFElvvfLX590YSmpYWaCBYlJulIFOOXnKpSL-V7zx-nD8VvH3mR4qypABwdltbYQCEf-HWBqUDyNTcyraKiFPtQ3_xftwJT9atOmaec_gVxVSjKng5yrhTm67kHm28iXcH1PnulhDdldMMA.jpg",
+      "metrics": {
+        "stars": null,
+        "reviews": null,
+        "purchases": null,
+        "source": null
+      }
+    }
+  ],
+  "caption": "🔥 Le 5 offerte del 19/09 da rivedere!\n1️⃣ Mammut Mercury IV GTX: 59,79 € (-72%, rif. Amazon 210,00 €)\n2️⃣ Gocciole Coconut: 1,73 € (-68%, rif. Amazon 5,41 €)\n3️⃣ Post-it Super Sticky: 7,65 € (-59%, rif. Amazon 18,49 €)\n4️⃣ SKROSS World to Europe: 5,98 € (-57%, rif. Amazon 14,00 €)\n5️⃣ INIU Power Bank 5500mAh: 13,99 € (-53%, rif. Amazon 29,99 €)\n👉 Telegram: t.me/TarloDelRisparmio\nPrezzi segnalati il 19/09, da ricontrollare: offerte e disponibilità possono essere cambiate.\nLink affiliati: potremmo ricevere una commissione.\n#offerte #amazon #sconti #risparmio #affari #TarloRecap20260919",
+  "media_path": "media/recap-2026-09-19.jpg",
+  "jpeg_sha256": "9906f6a9714b43e92b4e28f9a27ade479010791bd1139b2b66e5cd48fe544fca",
+  "derived_png_sha256": "c58482f2f1992d2bf21042966c06810c0eda2e0b1319f30b4e4dfce708a44c2f",
+  "dimensions": [
+    810,
+    1080
+  ],
+  "mode": "RGB",
+  "conversion_request_id": "convert-recap-20260919-1789855703659",
+  "visual_review": "Final RGB JPEG inspected: five real source product images; names, prices, Amazon references and discounts match Telegram posts; historical-price warning visible; no unsupported claims.",
+  "publication_destination": {
+    "brandId": "6911341",
+    "account": "tarlodelrisparmio",
+    "network": "tiktok"
+  },
+  "publicationDate": {
+    "dateTime": "2026-09-20T00:15:00",
+    "timezone": "Europe/Rome"
+  },
+  "media_transport": "info.media immutable public JPEG URL; mediaFiles omitted"
+}
