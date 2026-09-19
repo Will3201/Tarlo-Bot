@@ -2,7 +2,7 @@
   "key": "recap-2026-09-19",
   "actual_format": "daily_top5",
   "day": "2026-09-19",
-  "status": "attempted",
+  "status": "scheduled",
   "attempted_at": "2026-09-19T22:10:23.335Z",
   "window_start": "2026-09-19T00:00:00+02:00",
   "window_end": "2026-09-20T00:00:00+02:00",
@@ -137,5 +137,15 @@
     "dateTime": "2026-09-20T00:15:00",
     "timezone": "Europe/Rome"
   },
-  "media_transport": "info.media immutable public JPEG URL; mediaFiles omitted"
+  "media_transport": "info.media immutable public JPEG URL; mediaFiles omitted",
+  "archive_commit": "c388898861feb35b66294a87a3b5db9d176a465c",
+  "archived_media_url": "https://raw.githubusercontent.com/Will3201/Tarlo-Bot/c388898861feb35b66294a87a3b5db9d176a465c/media/recap-2026-09-19.jpg",
+  "metricool_id": 378715114,
+  "uuid": "-6219990589515084643",
+  "planner_url": "https://app.metricool.com/planner/calendar?blogId=6911341&openWithPostUuid=-6219990589515084643",
+  "scheduled_at": "2026-09-19T22:11:15.467Z",
+  "metricool_imported_media": [
+    "https://static.metricool.com/planner/202609/6911341-file-18100494220019023442.jpeg"
+  ],
+  "provider_status": "PENDING"
 }
