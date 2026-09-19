@@ -1,6 +1,7 @@
 {
-  "id": "history-20260919-1789855267864",
-  "kind": "history",
-  "day": "2026-09-19",
-  "requested_at": "2026-09-19T22:01:07+00:00"
+  "id": "convert-recap-20260919-1789855703659",
+  "kind": "convert",
+  "source_path": "prepared/convert-recap-20260919-1789855703659/designed.png",
+  "source_sha256": "c58482f2f1992d2bf21042966c06810c0eda2e0b1319f30b4e4dfce708a44c2f",
+  "requested_at": "2026-09-19T22:08:23+00:00"
 }
