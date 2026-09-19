@@ -1,7 +1,7 @@
 {
   "slot": "2026-09-19-13",
   "day": "2026-09-19",
-  "status": "attempted",
+  "status": "scheduled",
   "attempted_at": "2026-09-19T11:03:17.658Z",
   "asin": "B00JMCYIPU",
   "asins": [
@@ -61,5 +61,14 @@
   ],
   "mode": "RGB",
   "visual_review": "Source and derived image inspected: yellow six-pad Post-it product, price7.65, recommended18.49, discount59, no unsupported claim.",
-  "media_transport": "info.media immutable archived JPEG; mediaFiles omitted"
+  "media_transport": "info.media immutable archived JPEG; mediaFiles omitted",
+  "metricool_id": 378542684,
+  "uuid": "7753234840732780628",
+  "planner_url": "https://app.metricool.com/planner/calendar?blogId=6911341&openWithPostUuid=7753234840732780628",
+  "publicationDate": {
+    "dateTime": "2026-09-19T13:05:00",
+    "timezone": "Europe/Rome"
+  },
+  "archive_commit": "4657b4b8c921a8c33512271f74d2a8f284d5e70f",
+  "scheduled_at": "2026-09-19T11:04:04.648Z"
 }
