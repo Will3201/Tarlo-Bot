@@ -1,0 +1,18 @@
+{
+  "request_id": "convert-recap-20260919-1789855703659",
+  "kind": "convert",
+  "started_at": "2026-09-19T22:08:51.107101+00:00",
+  "publication": false,
+  "source_sha256": "c58482f2f1992d2bf21042966c06810c0eda2e0b1319f30b4e4dfce708a44c2f",
+  "jpeg_sha256": "9906f6a9714b43e92b4e28f9a27ade479010791bd1139b2b66e5cd48fe544fca",
+  "jpeg_dimensions": [
+    810,
+    1080
+  ],
+  "jpeg_mode": "RGB",
+  "jpeg_bytes": 402838,
+  "media_path": "prepared/convert-recap-20260919-1789855703659/offer.jpg",
+  "status": "ready",
+  "visual_review_required": true,
+  "finished_at": "2026-09-19T22:08:51.145947+00:00"
+}
