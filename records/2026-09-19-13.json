@@ -1,0 +1,65 @@
+{
+  "slot": "2026-09-19-13",
+  "day": "2026-09-19",
+  "status": "attempted",
+  "attempted_at": "2026-09-19T11:03:17.658Z",
+  "asin": "B00JMCYIPU",
+  "asins": [
+    "B00JMCYIPU"
+  ],
+  "experiment_id": "organico-2026-09-15",
+  "intended_format": "single",
+  "actual_format": "single",
+  "window_start": "2026-09-19T05:00:13.406305+00:00",
+  "window_end": "2026-09-19T11:00:13.406305+00:00",
+  "valid_until": "2026-09-19T11:31:02.749101+00:00",
+  "feed": {
+    "caption": "La scelta del Tarlo delle ultime 6 ore: Post-it Foglietti Super Sticky\n7,65 € — sconto 59% rispetto al prezzo consigliato di 18,49 €.\nValutazione 4.6/5 su 790 valutazioni Amazon.\nPrezzo rilevato alla preparazione: può variare.\nAltre offerte su Il Tarlo del Risparmio. Link affiliati: potremmo ricevere una commissione.\n#IlTarloDelRisparmio #OfferteAmazon #Tarlo2026091913",
+    "commercial_content": true,
+    "day": "2026-09-19",
+    "format": "photo",
+    "id": "tarlo-2026-09-19-13",
+    "media_path": "/daily/media/2026-09-19-13/70114b9a17cd4bf0a8e635cae26afdce.png",
+    "prepared_at": "2026-09-19T11:01:02.749101+00:00",
+    "product": {
+      "acquisti_mese_min": null,
+      "acquisti_mese_testo": null,
+      "asin": "B00JMCYIPU",
+      "coupon": null,
+      "disponibile": true,
+      "immagine_url": "https://m.media-amazon.com/images/I/716Gm4QxDsL._AC_SY300_SX300_QL70_ML2_.jpg",
+      "numero_recensioni": 790,
+      "prezzo_attuale": "7,65",
+      "prezzo_precedente": "18,49",
+      "pubblicato_il": "2026-09-19T07:49:14.148383+00:00",
+      "sconto": 59,
+      "stelle": 4.6,
+      "telegram_post_url": "https://t.me/TarloDelRisparmio/1117",
+      "tipo_riferimento": "consigliato",
+      "titolo": "Post-it Foglietti Super Sticky"
+    },
+    "selection_scope": "migliore tra i candidati delle ultime 6 ore ricontrollati",
+    "sha256": "9a26827129db6bd8d9d77da88b8ee3f8ba6e819cc7eee83ef44e35563dcdafda",
+    "slot": "2026-09-19-13",
+    "status": "ready",
+    "timezone": "Europe/Rome",
+    "valid_until": "2026-09-19T11:31:02.749101+00:00",
+    "window_end": "2026-09-19T11:00:13.406305+00:00",
+    "window_start": "2026-09-19T05:00:13.406305+00:00"
+  },
+  "caption": "Post-it Super Sticky per appunti e promemoria 📝\n🔥 A 7,65 € (-59% rispetto al prezzo consigliato di 18,49 €)!\nLe offerte del Tarlo ti aspettano ogni giorno 🔥\n👉 Scoprile su Telegram: t.me/TarloDelRisparmio\nPrezzo e disponibilità possono variare. Link affiliati.\n#offerte #amazon #sconti #risparmio #affari #Tarlo2026091913",
+  "fonti": [
+    "https://t.me/TarloDelRisparmio/1117"
+  ],
+  "original_sha256": "9a26827129db6bd8d9d77da88b8ee3f8ba6e819cc7eee83ef44e35563dcdafda",
+  "derived_png_sha256": "a016c4b3fa855756e9b53e4c7649a6f79cc98675579fdf4c6d69d4263fdb9f05",
+  "jpeg_sha256": "ae258e3f3472dc82291f81610c050c5e7069d9f0bd39fc8aa2c1250f744ae613",
+  "media_path": "media/2026-09-19-13.jpg",
+  "dimensions": [
+    810,
+    1080
+  ],
+  "mode": "RGB",
+  "visual_review": "Source and derived image inspected: yellow six-pad Post-it product, price7.65, recommended18.49, discount59, no unsupported claim.",
+  "media_transport": "info.media immutable archived JPEG; mediaFiles omitted"
+}
