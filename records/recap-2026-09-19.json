@@ -2,7 +2,7 @@
   "key": "recap-2026-09-19",
   "actual_format": "daily_top5",
   "day": "2026-09-19",
-  "status": "scheduled",
+  "status": "published",
   "attempted_at": "2026-09-19T22:10:23.335Z",
   "window_start": "2026-09-19T00:00:00+02:00",
   "window_end": "2026-09-20T00:00:00+02:00",
@@ -147,5 +147,8 @@
   "metricool_imported_media": [
     "https://static.metricool.com/planner/202609/6911341-file-18100494220019023442.jpeg"
   ],
-  "provider_status": "PENDING"
+  "provider_status": "PUBLISHED",
+  "publicUrl": "https://www.tiktok.com/@tarlodelrisparmio/video/7687373506689895702",
+  "tiktok_id": "7687373506689895702",
+  "published_confirmed_at": "2026-09-19T22:16:53.722Z"
 }
