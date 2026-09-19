@@ -1,0 +1,67 @@
+{
+  "slot": "2026-09-20-01",
+  "day": "2026-09-20",
+  "status": "attempted",
+  "attempted_at": "2026-09-19T23:04:15.180Z",
+  "asin": "B07WG3FCP1",
+  "asins": [
+    "B07WG3FCP1"
+  ],
+  "experiment_id": "organico-2026-09-15",
+  "intended_format": "single",
+  "actual_format": "single",
+  "window_start": "2026-09-19T17:01:27.021924+00:00",
+  "window_end": "2026-09-19T23:01:27.021924+00:00",
+  "valid_until": "2026-09-19T23:31:52.245193+00:00",
+  "selection_scope": "migliore tra i candidati delle ultime 6 ore ricontrollati",
+  "feed": {
+    "caption": "La scelta del Tarlo delle ultime 6 ore: Lago 1968, Mini Party 125g\n1,29 € — sconto 49% rispetto al prezzo consigliato di 2,51 €.\nValutazione 4.5/5 su 350 valutazioni Amazon.\nPrezzo rilevato alla preparazione: può variare.\nAltre offerte su Il Tarlo del Risparmio. Link affiliati: potremmo ricevere una commissione.\n#IlTarloDelRisparmio #OfferteAmazon #Tarlo2026092001",
+    "commercial_content": true,
+    "day": "2026-09-20",
+    "format": "photo",
+    "id": "tarlo-2026-09-20-01",
+    "media_path": "/daily/media/2026-09-20-01/78ef6923471542cdabef386a2dada87d.png",
+    "prepared_at": "2026-09-19T23:01:52.245193+00:00",
+    "product": {
+      "acquisti_mese_min": 300,
+      "acquisti_mese_testo": "300+ acquistati nel mese scorso",
+      "asin": "B07WG3FCP1",
+      "coupon": null,
+      "disponibile": true,
+      "immagine_url": "https://m.media-amazon.com/images/I/71BbAjLz0IL._AC_SY300_SX300_QL70_ML2_.jpg",
+      "numero_recensioni": 350,
+      "prezzo_attuale": "1,29",
+      "prezzo_precedente": "2,51",
+      "pubblicato_il": "2026-09-19T18:54:42.001860+00:00",
+      "sconto": 49,
+      "stelle": 4.5,
+      "telegram_post_url": "https://t.me/TarloDelRisparmio/1136",
+      "tipo_riferimento": "consigliato",
+      "titolo": "Lago 1968, Mini Party 125g"
+    },
+    "selection_scope": "migliore tra i candidati delle ultime 6 ore ricontrollati",
+    "sha256": "bec374cc0b2e664ad1dd3be5c5d9a623be6be19462c7311e4c7128495f7caae3",
+    "slot": "2026-09-20-01",
+    "status": "ready",
+    "timezone": "Europe/Rome",
+    "valid_until": "2026-09-19T23:31:52.245193+00:00",
+    "window_end": "2026-09-19T23:01:27.021924+00:00",
+    "window_start": "2026-09-19T17:01:27.021924+00:00"
+  },
+  "caption": "Lago Mini Party 125 g al cacao 🍫\n🔥 A 1,29 € (-49% rispetto al prezzo consigliato di 2,51 €)!\nLe offerte del Tarlo ti aspettano ogni giorno 🔥\n👉 Scoprile su Telegram: t.me/TarloDelRisparmio\nPrezzo e disponibilità possono variare. Link affiliati.\n#offerte #amazon #sconti #risparmio #affari #Tarlo2026092001",
+  "fonti": [
+    "https://t.me/TarloDelRisparmio/1136"
+  ],
+  "original_sha256": "bec374cc0b2e664ad1dd3be5c5d9a623be6be19462c7311e4c7128495f7caae3",
+  "derived_png_sha256": "a758977071152fd36f42159119983bf74cd1fa0d249a0d2bc8e727cd1a665cfc",
+  "jpeg_sha256": "87ab5564d97a35d9b27c1a6bc2c54a17aa4129a5b3ca4a3261403fbc326719dc",
+  "media_path": "media/2026-09-20-01.jpg",
+  "dimensions": [
+    810,
+    1080
+  ],
+  "mode": "RGB",
+  "visual_review": "Original and final JPEG inspected: faithful single light-blue Lago Mini Party cacao 125g bag; exact prices1.29 and2.51, discount49; no unsupported claims.",
+  "conversion_request_id": "convert-20260920-01-1789859003323",
+  "media_transport": "info.media immutable archived JPEG; mediaFiles omitted"
+}
