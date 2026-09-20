@@ -1,0 +1,69 @@
+{
+  "slot": "2026-09-20-13",
+  "day": "2026-09-20",
+  "status": "attempted",
+  "attempted_at": "2026-09-20T11:08:59.457Z",
+  "asin": "B0CX1ST2GB",
+  "asins": [
+    "B0CX1ST2GB"
+  ],
+  "experiment_id": "organico-2026-09-15",
+  "intended_format": "theme",
+  "intended_theme": "cura della casa",
+  "actual_format": "single",
+  "fallback_reason": "Impossibile verificare tre candidati tematici distinti delle ultime sei ore: cronologia pubblica corrente del canale non accessibile; /daily/latest dimostra un solo prodotto.",
+  "window_start": "2026-09-20T05:05:35.652246+00:00",
+  "window_end": "2026-09-20T11:05:35.652246+00:00",
+  "valid_until": "2026-09-20T11:36:34.843536+00:00",
+  "selection_scope": "migliore tra i candidati delle ultime 6 ore ricontrollati",
+  "feed": {
+    "caption": "La scelta del Tarlo delle ultime 6 ore: EASTPAK Padded Pak’r Zaino 24L\n24,99 € — sconto 55% rispetto al prezzo consigliato di 55,00 €.\nValutazione 4.7/5 su 64167 valutazioni Amazon.\nPrezzo rilevato alla preparazione: può variare.\nAltre offerte su Il Tarlo del Risparmio. Link affiliati: potremmo ricevere una commissione.\n#IlTarloDelRisparmio #OfferteAmazon #Tarlo2026092013",
+    "commercial_content": true,
+    "day": "2026-09-20",
+    "format": "photo",
+    "id": "tarlo-2026-09-20-13",
+    "media_path": "/daily/media/2026-09-20-13/979669ceeae345968b05d954a702b5da.png",
+    "prepared_at": "2026-09-20T11:06:34.843536+00:00",
+    "product": {
+      "acquisti_mese_min": 200,
+      "acquisti_mese_testo": "200+ acquistati nel mese scorso",
+      "asin": "B0CX1ST2GB",
+      "coupon": null,
+      "disponibile": true,
+      "immagine_url": "https://m.media-amazon.com/images/I/81-Q2UBphaL._AC_SY300_SX300_QL70_ML2_.jpg",
+      "numero_recensioni": 64167,
+      "prezzo_attuale": "24,99",
+      "prezzo_precedente": "55,00",
+      "pubblicato_il": "2026-09-20T11:02:32.078266+00:00",
+      "sconto": 55,
+      "stelle": 4.7,
+      "telegram_post_url": "https://t.me/TarloDelRisparmio/1153",
+      "tipo_riferimento": "consigliato",
+      "titolo": "EASTPAK Padded Pak’r Zaino 24L"
+    },
+    "selection_scope": "migliore tra i candidati delle ultime 6 ore ricontrollati",
+    "sha256": "fbe7da3a05726e9ac030b06e6ffa08cfd18467c78a729e7496b2915bc671f5c4",
+    "slot": "2026-09-20-13",
+    "status": "ready",
+    "timezone": "Europe/Rome",
+    "valid_until": "2026-09-20T11:36:34.843536+00:00",
+    "window_end": "2026-09-20T11:05:35.652246+00:00",
+    "window_start": "2026-09-20T05:05:35.652246+00:00"
+  },
+  "caption": "EASTPAK Padded Pak’r 24 L 🎒\n🔥 A 24,99 € (-55% rispetto al prezzo consigliato di 55,00 €)!\nLe offerte del Tarlo ti aspettano ogni giorno 🔥\n👉 Scoprile su Telegram: t.me/TarloDelRisparmio\nPrezzo e disponibilità possono variare. Link affiliati.\n#offerte #amazon #sconti #risparmio #affari #Tarlo2026092013",
+  "fonti": [
+    "https://t.me/TarloDelRisparmio/1153"
+  ],
+  "original_sha256": "fbe7da3a05726e9ac030b06e6ffa08cfd18467c78a729e7496b2915bc671f5c4",
+  "derived_png_sha256": "f5fba56e41a726a869cec26f8407cdbbe33286a94e28501f02ac7e053b9c9988",
+  "jpeg_sha256": "caa93a3967e756e91f5ed2248e16c5bb01b028cbe66a13b767dd2560bd773ad2",
+  "media_path": "media/2026-09-20-13.jpg",
+  "dimensions": [
+    810,
+    1080
+  ],
+  "mode": "RGB",
+  "visual_review": "Original and final JPEG inspected: faithful single red EASTPAK Padded Pak'r backpack; exact prices24.99 and55.00, discount55; no unsupported claims.",
+  "conversion_request_id": "convert-20260920-13-1789902492114",
+  "media_transport": "info.media immutable archived JPEG; mediaFiles omitted"
+}
