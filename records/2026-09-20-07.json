@@ -1,0 +1,22 @@
+{
+  "slot": "2026-09-20-07",
+  "day": "2026-09-20",
+  "status": "skipped",
+  "reason": "no_recent_offer",
+  "checked_at": "2026-09-20T05:02:07.300Z",
+  "experiment_id": "organico-2026-09-15",
+  "intended_format": "single",
+  "actual_format": "none",
+  "asin": null,
+  "asins": [],
+  "selection_scope": "ultime 6 ore; nessuna nuova offerta idonea dopo esclusione degli ASIN delle ultime 24 ore",
+  "excluded_asins": [
+    "B00JMCYIPU",
+    "B096SQYQLZ",
+    "B08RFRWZYP",
+    "B0FVG1D91S",
+    "B0DKN3VMF1",
+    "B07WG3FCP1"
+  ],
+  "publication": false
+}
