@@ -1,7 +1,7 @@
 {
   "slot": "2026-09-20-13",
   "day": "2026-09-20",
-  "status": "attempted",
+  "status": "scheduled",
   "attempted_at": "2026-09-20T11:08:59.457Z",
   "asin": "B0CX1ST2GB",
   "asins": [
@@ -65,5 +65,17 @@
   "mode": "RGB",
   "visual_review": "Original and final JPEG inspected: faithful single red EASTPAK Padded Pak'r backpack; exact prices24.99 and55.00, discount55; no unsupported claims.",
   "conversion_request_id": "convert-20260920-13-1789902492114",
-  "media_transport": "info.media immutable archived JPEG; mediaFiles omitted"
+  "media_transport": "info.media immutable archived JPEG; mediaFiles omitted",
+  "metricool_id": 378854677,
+  "uuid": "-2762523334682522666",
+  "planner_url": "https://app.metricool.com/planner/calendar?blogId=6911341&openWithPostUuid=-2762523334682522666",
+  "publicationDate": {
+    "dateTime": "2026-09-20T13:12:00",
+    "timezone": "Europe/Rome"
+  },
+  "archive_commit": "39940758a64fd6182710e19c590d7eadd5da69a9",
+  "scheduled_at": "2026-09-20T11:09:32.573Z",
+  "metricool_imported_media": [
+    "https://static.metricool.com/planner/202609/6911341-file-17094607301682720242.jpeg"
+  ]
 }
