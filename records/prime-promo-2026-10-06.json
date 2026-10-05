@@ -1,0 +1,25 @@
+{
+  "campaign_id": "prime-2026-10-06",
+  "kind": "channel_promotion",
+  "slot": "prime-promo-2026-10-06",
+  "asin": null,
+  "asins": [],
+  "status": "attempted",
+  "caption": "Il Tarlo del Risparmio 🐛\nÈ iniziata la Festa delle Offerte Prime: 6–7 ottobre!\nCerchi un acquisto? Sul canale trovi offerte e selezioni da confrontare prima di comprare.\n👉 Cerca @TarloDelRisparmio su Telegram: t.me/TarloDelRisparmio\nLe offerte riservate a Prime richiedono un abbonamento idoneo. Prezzi e disponibilità possono variare. Nel canale usiamo link affiliati.\n#offerte #amazon #primeday #risparmio #TarloPrimePromo20261006",
+  "publication_date": "2026-10-06T10:00:00+02:00",
+  "created_at": "2026-10-05T22:54:29.330Z",
+  "asset_path": "media/prime-promo-2026-10.jpg",
+  "asset_sha256": "85c69fcc1228bf39154a450f8867f9140e9b0277ed791c695582d3a8e62ee28e",
+  "original_png_sha256": "0036c8483d5bec495033e46907c1fcb7eadd8ca825bd7e7470919e159c2eeefe",
+  "dimensions": [
+    810,
+    1080
+  ],
+  "format": "JPEG",
+  "mode": "RGB",
+  "source": "https://www.aboutamazon.it/notizie/company-news/preparati-risparmiare-festa-offerte-prime-6-7-ottobre",
+  "baseline_telegram_members": 582,
+  "source_telegram_post": "https://t.me/TarloDelRisparmio/1818",
+  "promotion_spend": 0,
+  "old_recurring_posts_paused": true
+}
