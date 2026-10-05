@@ -32,18 +32,36 @@
   },
   "prime_posts": [
     {
-      "id": 388993745,
+      "id": 389005031,
       "uuid": "750673396842578637",
-      "date": "2026-10-06T10:00:00+02:00",
-      "status": "scheduled"
+      "status": "published",
+      "publicUrl": "https://www.tiktok.com/@tarlodelrisparmio/video/7693327811590769942",
+      "published_at": "2026-10-06T01:21:00+02:00"
     },
     {
-      "id": 388998685,
+      "id": 389005087,
       "uuid": "-8411730869423945541",
-      "date": "2026-10-07T18:00:00+02:00",
-      "status": "scheduled",
-      "format": "educational_carousel",
-      "verified_imported_photos": 3
+      "status": "published",
+      "publicUrl": "https://www.tiktok.com/@tarlodelrisparmio/video/7693328595782995222",
+      "published_at": "2026-10-06T01:24:00+02:00"
     }
-  ]
+  ],
+  "updated_at": "2026-10-05T23:37:13.012Z",
+  "telegram_recaps": {
+    "status": "enabled",
+    "hours_rome": [
+      6,
+      12,
+      18,
+      22
+    ],
+    "min_distinct_source_offers": 12,
+    "min_verified_products": 3,
+    "max_products": 15,
+    "max_per_category": 3,
+    "automation_id": "6ac429c6f5d88191a1820c4bf9863079",
+    "main_commit": "67ef4913c054585fb24fba76d4c72a91b4cb2fb0",
+    "first_eligible_slot": "2026-10-06-06",
+    "first_recap_published": false
+  }
 }

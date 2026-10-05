@@ -1,0 +1,38 @@
+{
+  "kind": "telegram_integrity_release",
+  "status": "deployed_live",
+  "main_commit": "67ef4913c054585fb24fba76d4c72a91b4cb2fb0",
+  "render_deploy": "dep-db2383m7bikc73di2ndg",
+  "verified_at": "2026-10-05T23:37:31.350Z",
+  "tests": {
+    "passed": 67,
+    "failed": 0
+  },
+  "checks": [
+    "Amazon ASIN and actual title required",
+    "Only product-owned main price containers",
+    "Unit, installment, unrelated and ambiguous prices rejected",
+    "Missing comparison explicitly shown",
+    "Discount calculated from current and comparison prices",
+    "Missing or broken product image blocks publication",
+    "Category recap history and duplicate reconciliation",
+    "Public GET /recaps/status returned 200"
+  ],
+  "runtime": {
+    "telegram_connected": true,
+    "recaps_status": {
+      "enabled": true,
+      "hours": [
+        6,
+        12,
+        18,
+        22
+      ],
+      "min_distinct_offers": 12,
+      "last": {}
+    },
+    "new_product_post_confirmed_after_release": false
+  },
+  "recap_automation": "6ac429c6f5d88191a1820c4bf9863079",
+  "cost_change": 0
+}
