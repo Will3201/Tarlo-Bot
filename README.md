@@ -1,5 +1,33 @@
 # Il Tarlo del Risparmio
 
+## Speciale Festa delle Offerte Prime, 6-7 ottobre 2026
+
+`prime_event.py` aggiunge solo al canale `@TarloDelRisparmio` un messaggio
+introduttivo con pulsante di condivisione e tentativo di pin silenzioso.
+Alle 12 e alle 20 (Europe/Rome), con finestra massima di un'ora, seleziona
+fino a cinque ASIN distinti dalle segnalazioni delle ultime sei ore del
+proprio canale. Ricontrolla al massimo dieci candidati con lo scraper rigoroso,
+ordina usando `tarlo_daily.valuta` e ricontrolla i primi cinque prima di inviare.
+Un blocco Amazon o un prezzo cambiato fa saltare il prodotto. Se nessuno è
+verificabile non pubblica un riepilogo. Non promette minimi storici, errori di
+prezzo o che tutti i prodotti siano offerte esclusive Prime. Coupon da
+controllare su Amazon, non applicati né inventati nel riepilogo.
+
+Registra attempted prima dell'invio, published solo dopo conferma; riconcilia
+con lo storico del canale e non ripete un invio incerto. Usa il DB esistente:
+senza DATABASE_URL il registro SQLite può perdersi a un deploy; lo storico
+Telegram resta la fonte di riconciliazione. Non rilanciare esiti incerti.
+I log `[PRIME_STATS]` riportano iscritti, variazione netta rispetto alla prima
+lettura e visualizzazioni effettivamente esposte da Telegram, senza attribuire
+gli iscritti a una campagna. Non raccoglie identità personali.
+
+L'attività speciale termina automaticamente l'8 ottobre alle 00:00 italiane.
+`PRIME_EVENT_ENABLED=false` la disabilita anticipatamente. Nessun acquisto di
+pubblicità, servizio o piano aggiuntivo. Render Free può sospendersi: gli orari
+sono tentativi quando il processo è attivo, non una garanzia di esecuzione.
+Non riattiva le automazioni TikTok. Fonte date evento:
+https://www.aboutamazon.it/notizie/company-news/preparati-risparmiare-festa-offerte-prime-6-7-ottobre
+
 Bot Telegram con archivio e preparazione quotidiana di una foto e una caption per TikTok.
 
 ## Modalità gratuita

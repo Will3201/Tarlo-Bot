@@ -25,6 +25,7 @@ from text_layout import disegna_testi
 from coupon_notice import estrai_coupon, avviso_coupon
 from coupon_pricing import leggi_coupon_amazon, prezzo_con_coupon
 from daily_dedup import DailyDedup
+from prime_event import PrimeCampaign
 from telegram import Bot
 from telegram.error import NetworkError
 from telegram.helpers import escape_markdown
@@ -549,7 +550,7 @@ def frase_iniziale(sconto):
     """Sceglie una sola apertura, dalla fascia di sconto più alta."""
     sconto = float(sconto or 0)
     if sconto > 50:
-        return "🚨 ERRORE DI PREZZO?! 🚨"
+        return "🔥 OFFERTA IN EVIDENZA! 🔥"
     if sconto >= 30:
         return "🌟 OFFERTA SONTUOSA! 🌟"
     if sconto > 15:
@@ -582,6 +583,10 @@ async def main():
         print(f'[ANTI DUPLICATI] Storico non disponibile: invii sospesi fino al recupero ({type(exc).__name__}).')
     connected.set()
     print('[DAILY] Client Telegram connesso')
+    campaign_task = None
+    if os.getenv('PRIME_EVENT_ENABLED', 'true') == 'true':
+        campaign = PrimeCampaign(client, bot, archive, scarica_dettagli_amazon, CANALE_CHAT_ID, AMAZON_TAG)
+        campaign_task = asyncio.create_task(campaign.run())
 
     @client.on(events.NewMessage())
     async def handler(event):
@@ -661,6 +666,9 @@ async def main():
     try:
         await client.run_until_disconnected()
     finally:
+        if campaign_task:
+            campaign_task.cancel()
+            await asyncio.gather(campaign_task, return_exceptions=True)
         if daily_task:
             daily_task.cancel()
             await asyncio.gather(daily_task, return_exceptions=True)
