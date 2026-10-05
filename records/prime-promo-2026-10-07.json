@@ -5,32 +5,31 @@
   "asin": null,
   "asins": [],
   "status": "scheduled",
-  "caption": "Il Tarlo del Risparmio 🐛\nUltima giornata della Festa delle Offerte Prime: 7 ottobre!\nPrima di comprare controlla quantità, coupon e prezzo finale. Le selezioni del Tarlo ti aspettano su Telegram.\n👉 Cerca @TarloDelRisparmio: t.me/TarloDelRisparmio\nLe offerte riservate a Prime richiedono un abbonamento idoneo. Prezzi e disponibilità possono variare. Nel canale usiamo link affiliati.\n#offerte #amazon #primeday #risparmio #TarloPrimePromo20261007",
+  "caption": "Uno sconto grande non basta 🔎\nPrima del carrello: confronta quantità e formato, leggi le condizioni del coupon e ricontrolla il prezzo finale.\nUltima giornata della Festa delle Offerte Prime: 7 ottobre.\n👉 Le selezioni del Tarlo sono su Telegram: t.me/TarloDelRisparmio\nLe offerte riservate a Prime richiedono un abbonamento idoneo. Prezzi e disponibilità possono variare. Nel canale usiamo link affiliati.\n#offerte #amazon #primeday #risparmio #TarloPrimePromo20261007",
   "publication_date": "2026-10-07T18:00:00+02:00",
   "created_at": "2026-10-05T22:54:29.330Z",
-  "asset_path": "media/prime-promo-2026-10.jpg",
-  "asset_sha256": "85c69fcc1228bf39154a450f8867f9140e9b0277ed791c695582d3a8e62ee28e",
-  "original_png_sha256": "0036c8483d5bec495033e46907c1fcb7eadd8ca825bd7e7470919e159c2eeefe",
   "dimensions": [
     810,
     1080
   ],
-  "format": "JPEG",
+  "format": "educational_carousel",
   "mode": "RGB",
   "source": "https://www.aboutamazon.it/notizie/company-news/preparati-risparmiare-festa-offerte-prime-6-7-ottobre",
   "baseline_telegram_members": 582,
   "source_telegram_post": "https://t.me/TarloDelRisparmio/1818",
   "promotion_spend": 0,
   "old_recurring_posts_paused": true,
-  "metricool_id": 388994014,
+  "metricool_id": 388998685,
   "uuid": "-8411730869423945541",
   "planner_url": "https://app.metricool.com/planner/calendar?blogId=6911341&openWithPostUuid=-8411730869423945541",
   "imported_media": [
-    "https://static.metricool.com/planner/202610/6911341-file-15091710308083230029.jpeg"
+    "https://static.metricool.com/planner/202610/6911341-file-755418953214709978.jpeg",
+    "https://static.metricool.com/planner/202610/6911341-file-1864092965053584107.jpeg",
+    "https://static.metricool.com/planner/202610/6911341-file-13106336875899531552.jpeg"
   ],
   "scheduled_at": "2026-10-05T22:55:44.240Z",
   "creative_revision": {
-    "status": "attempted",
+    "status": "scheduled",
     "attempted_at": "2026-10-05T23:03:35.111Z",
     "format": "educational_carousel",
     "caption": "Uno sconto grande non basta 🔎\nPrima del carrello: confronta quantità e formato, leggi le condizioni del coupon e ricontrolla il prezzo finale.\nUltima giornata della Festa delle Offerte Prime: 7 ottobre.\n👉 Le selezioni del Tarlo sono su Telegram: t.me/TarloDelRisparmio\nLe offerte riservate a Prime richiedono un abbonamento idoneo. Prezzi e disponibilità possono variare. Nel canale usiamo link affiliati.\n#offerte #amazon #primeday #risparmio #TarloPrimePromo20261007",
@@ -65,6 +64,41 @@
         ],
         "mode": "RGB"
       }
-    ]
-  }
+    ],
+    "verified_at": "2026-10-05T23:04:57.246Z",
+    "previous_metricool_id": 388994014
+  },
+  "assets": [
+    {
+      "path": "media/prime-guide-2026-10-07-1.jpg",
+      "sha256": "c2dc690f9f68609af1971db4dc644e5797f135dba05d382313f1480e34173919",
+      "source_png_sha256": "fa1c9846639efde4a94d8f3b76561b62009942258cf32b3de7abc2e702abe5bc",
+      "dimensions": [
+        810,
+        1080
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "media/prime-guide-2026-10-07-2.jpg",
+      "sha256": "838a0c777de0793934b709607e729bca7f72a1b5fc59e2311ee6033c41ca7b27",
+      "source_png_sha256": "666bdd768413a85dcb06c0085851e65a55cd1449fd5a2f767325ca6395822877",
+      "dimensions": [
+        810,
+        1080
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "media/prime-guide-2026-10-07-3.jpg",
+      "sha256": "5da376e690d515e76ea842c6258d383c1e915dc8ee0914a947f194457d02daf7",
+      "source_png_sha256": "889cb8cf483622926e47b466b1e3d2ce3d1b5a9a37eeb75b74d9f42eb30a7de4",
+      "dimensions": [
+        810,
+        1080
+      ],
+      "mode": "RGB"
+    }
+  ],
+  "asset_commit": "867ee7be524ad6255063f9370ed1f92b4b80a196"
 }
