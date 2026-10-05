@@ -100,5 +100,12 @@
       "mode": "RGB"
     }
   ],
-  "asset_commit": "867ee7be524ad6255063f9370ed1f92b4b80a196"
+  "asset_commit": "867ee7be524ad6255063f9370ed1f92b4b80a196",
+  "immediate_revision": {
+    "status": "attempted",
+    "requested_at": "2026-10-05T23:18:18.116Z",
+    "original_date": "2026-10-07T18:00:00+02:00",
+    "requested_date": "2026-10-06T01:24:18+02:00",
+    "reason": "User requested immediate two-post restart"
+  }
 }

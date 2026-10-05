@@ -28,5 +28,12 @@
   "imported_media": [
     "https://static.metricool.com/planner/202610/6911341-file-158037497200392619.jpeg"
   ],
-  "scheduled_at": "2026-10-05T22:55:09.469Z"
+  "scheduled_at": "2026-10-05T22:55:09.469Z",
+  "immediate_revision": {
+    "status": "attempted",
+    "requested_at": "2026-10-05T23:18:18.116Z",
+    "original_date": "2026-10-06T10:00:00+02:00",
+    "requested_date": "2026-10-06T01:21:18+02:00",
+    "reason": "User requested immediate two-post restart"
+  }
 }
