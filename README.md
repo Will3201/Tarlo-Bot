@@ -4,7 +4,9 @@
 
 `prime_event.py` aggiunge solo al canale `@TarloDelRisparmio` un messaggio
 introduttivo con pulsante di condivisione e tentativo di pin silenzioso.
-Alle 12 e alle 20 (Europe/Rome), con finestra massima di un'ora, seleziona
+Il riepilogo Prime originario delle 12 e delle 20 è sostituito, per default,
+dai recap per categoria delle 06, 12, 18 e 22 descritti sotto. Quando questi
+sono disabilitati, il riepilogo Prime originario, con finestra massima di un'ora, seleziona
 fino a cinque ASIN distinti dalle segnalazioni delle ultime sei ore del
 proprio canale. Ricontrolla al massimo dieci candidati con lo scraper rigoroso,
 ordina usando `tarlo_daily.valuta` e ricontrolla i primi cinque prima di inviare.
@@ -206,3 +208,30 @@ retry ciechi. Una richiesta mai arrivata può quindi lasciare un'offerta non inv
 Un errore nell'archivio dopo l'invio viene registrato ma non provoca un nuovo invio:
 quella offerta potrebbe mancare dalla classifica. Questi sono limiti espliciti,
 non una garanzia di consegna esattamente una volta.
+# Integrità immagini e recap per categoria (6 ottobre 2026)
+
+Lo scraper principale usa `amazon_product.py`: ASIN della variante obbligatorio,
+titolo completo normalizzato, prezzi soltanto nei blocchi principali Amazon.
+Prezzi per unità, rate, acquisti periodici, elementi nascosti e prodotti correlati
+non sono prezzi del prodotto. Se mancano identità, titolo, prezzo o foto valida,
+il post non viene pubblicato. Virgole e trattini non cancellano più modello,
+formato e quantità. Le immagini ricalcolano lo sconto dai prezzi effettivi;
+il riferimento è etichettato, e quando manca mostrano “Riferimento non disponibile”
+e “Sconto N/D” invece di riquadri vuoti. Nessun prezzo di confronto inventato.
+
+`category_recaps.py` propone un solo recap nelle fasce 06, 12, 18 e 22 Europe/Rome,
+solo con almeno 12 ASIN distinti segnalati dal proprio canale nelle ultime sei ore.
+Ricontrolla fino a 24 candidati, privilegiando una copertura delle categorie, e
+include fino a 15 offerte (massimo tre per categoria) con link Amazon e tag corrente.
+Richiede almeno tre prezzi disponibili verificati da non oltre cinque minuti.
+La lunghezza viene limitata a un messaggio leggibile; le categorie vuote sono omesse.
+Coupon e riferimenti verificati mantengono condizioni ed etichette.
+
+Invii e tentativi hanno un registro nell'archivio configurato, riconciliazione
+sullo storico Telegram, nessun retry cieco. I recap non contano come nuove offerte.
+`CATEGORY_RECAP_ENABLED=false` disabilita questa funzione; quando è attiva,
+sostituisce i vecchi recap Prime alle 12/20, senza aggiungerli in parallelo.
+`GET /recaps/status` è di sola lettura e non espone credenziali né avvia un invio.
+Su Render Free il processo può dormire: va risvegliato nelle fasce previste.
+Gli invii dipendono comunque da disponibilità del servizio, accesso allo storico
+e verifica Amazon; un blocco non viene trasformato in un'offerta inventata.

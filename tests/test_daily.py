@@ -98,20 +98,21 @@ class PipelineTests(unittest.TestCase):
         data = self.pipeline.latest()
         ident = data['media_path'].split('/')[-1][:-4]
         self.assertIsNone(self.pipeline.media(data['day'], 'incorrect'))
-        self.assertEqual(self.pipeline.media(data['day'], ident), b'fake-image-test-only')
+        self.assertIsNone(self.pipeline.media(data['day'], ident))
+        self.assertEqual(self.pipeline.media(data['slot'], ident), b'fake-image-test-only')
 
     def test_missing_reviews_not_invented(self):
         score = valuta(self.p)
         self.assertIn('numero_recensioni', score['dati_mancanti'])
         self.assertNotIn('recensioni', score['componenti'])
 
-    def test_rome_day_and_duplicate(self):
-        now = datetime(2026, 9, 10, 8, tzinfo=timezone.utc)
-        for mid, hour in [(1, 21), (2, 22)]:
+    def test_six_hour_window_crosses_italian_midnight(self):
+        now = datetime(2026, 9, 10, 2, tzinfo=timezone.utc)
+        for mid, hour in [(1, 19), (2, 21), (3, 22)]:
             self.archive.registra(dict(self.p, asin=f'B01234567{mid}'), mid,
                                   when=datetime(2026, 9, 9, hour, tzinfo=timezone.utc))
         rows = [x for x in self.archive.candidati(now) if x['prodotto']['asin'] != self.p['asin']]
-        self.assertEqual([x['prodotto']['asin'] for x in rows], ['B012345672'])
+        self.assertEqual([x['prodotto']['asin'] for x in rows], ['B012345672', 'B012345673'])
 
 
 if __name__ == '__main__':

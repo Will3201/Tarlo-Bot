@@ -67,9 +67,10 @@ def recap_text(products, marker, checked_at, tag):
 
 
 class PrimeCampaign:
-    def __init__(self, client, bot, archive, scraper, channel, tag):
+    def __init__(self, client, bot, archive, scraper, channel, tag, recaps_enabled=True):
         self.client, self.bot, self.archive, self.scraper = client, bot, archive, scraper
         self.channel, self.tag = channel, tag
+        self.recaps_enabled = recaps_enabled
         self.metrics_slots = set()
         with archive.connection() as conn:
             conn.cursor().execute('CREATE TABLE IF NOT EXISTS tarlo_prime_campaign '
@@ -138,14 +139,15 @@ class PrimeCampaign:
         history = await self.history()
         if not self.state(WELCOME) and not any(WELCOME in (m.raw_text or '').split() for m in history):
             members = await self.bot.get_chat_member_count(self.channel)
-            text = ('🐛 <b>Speciale Festa delle Offerte Prime · 6 e 7 ottobre</b>\n\n'
-                    'Le offerte del Tarlo sono qui! Durante questi due giorni aggiungiamo selezioni alle 12 e alle 20, quando troviamo prodotti ricontrollabili su Amazon.\n\n'
+            text = ('🐛 <b>Speciale Festa delle Offerte Prime · 6 e 7 ottobre</b>\n\n' +
+                    ('Le offerte del Tarlo sono qui! Nelle giornate ricche di offerte aggiungiamo selezioni per categoria alle 06, 12, 18 e 22, quando troviamo prodotti ricontrollabili su Amazon.\n\n' if not self.recaps_enabled else
+                     'Le offerte del Tarlo sono qui! Durante questi due giorni aggiungiamo selezioni alle 12 e alle 20, quando troviamo prodotti ricontrollabili su Amazon.\n\n') +
                     '🔎 Prima di comprare controlla quantità, venditore, eventuale coupon e prezzo finale. Uno sconto elevato non dimostra un errore di prezzo o un minimo storico.\n'
                     'Le offerte riservate a Prime richiedono un abbonamento idoneo. Prezzi e disponibilità possono cambiare.\n\n'
                     '❤️ Conosci qualcuno che sta cercando un acquisto? Condividi il canale: https://t.me/TarloDelRisparmio\n'
                     'Link affiliati: potremmo ricevere una commissione.\n\n' + WELCOME)
             await self.send_once(WELCOME, text, history, {'baseline_members': members, 'source': SOURCE}, welcome=True)
-        marker = due_marker(now)
+        marker = due_marker(now) if self.recaps_enabled else None
         if marker and not self.state(marker) and not any(marker in (m.raw_text or '').split() for m in history):
             asins = []
             start = now - timedelta(hours=6)
@@ -192,4 +194,3 @@ class PrimeCampaign:
             except Exception as exc:
                 print(f'[PRIME_CAMPAIGN] Controllo bloccato: {type(exc).__name__}; nessun invio senza verifica', flush=True)
             await asyncio.sleep(60)
-

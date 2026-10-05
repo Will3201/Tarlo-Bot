@@ -31,11 +31,11 @@ class FreeTests(unittest.TestCase):
         msg.entities.append(SimpleNamespace(url='https://amazon.it/dp/B012345679'))
         self.assertIsNone(product_from_message(msg))
 
-    def test_history_uses_rome_day_and_keeps_richer_record(self):
-        now = datetime(2026, 9, 10, 8, tzinfo=timezone.utc)
+    def test_history_crosses_midnight_and_keeps_richer_record(self):
+        now = datetime(2026, 9, 10, 3, tzinfo=timezone.utc)
         messages = [self.message(1, now-timedelta(hours=1)),
                     self.message(2, datetime(2026,9,9,22,30,tzinfo=timezone.utc)),
-                    self.message(3, datetime(2026,9,9,21,30,tzinfo=timezone.utc))]
+                    self.message(3, datetime(2026,9,9,20,30,tzinfo=timezone.utc))]
         class Client:
             async def iter_messages(self, channel, limit):
                 for msg in messages:

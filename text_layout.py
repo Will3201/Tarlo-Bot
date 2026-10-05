@@ -2,6 +2,7 @@
 from functools import lru_cache
 from pathlib import Path
 from PIL import ImageFont
+from amazon_product import money, euros
 
 
 @lru_cache(maxsize=128)
@@ -76,20 +77,38 @@ def draw_fitted(draw, text, box, max_size, min_size=16, max_lines=1,
 def disegna_testi(draw, prodotto):
     # Cornici a 1080x1080: margini interni, badge e foglie sono esclusi.
     result = {}
+    current = money(prodotto.get('prezzo_attuale'))
+    if current is None or not str(prodotto.get('titolo', '')).strip():
+        raise ValueError('Titolo o prezzo prodotto non valido')
+    previous = money(prodotto.get('prezzo_precedente'))
+    if previous is not None and previous <= current:
+        previous = None
+    discount = round((previous-current)/previous*100) if previous else None
     result['titolo'] = draw_fitted(draw, prodotto['titolo'], (570, 224, 1034, 378),
-                                   56, min_size=22, max_lines=3, stroke=2)
-    result['prezzo'] = draw_fitted(draw, f"{prodotto['prezzo_attuale']} €",
+                                   56, min_size=22, max_lines=4, stroke=2)
+    result['prezzo'] = draw_fitted(draw, f"{euros(current)} €",
                                    (580, 478, 1024, 620 if prodotto.get('coupon_applicato') else 672), 120, fill='#111111', stroke_fill='white')
-    if prodotto.get('prezzo_precedente'):
-        result['precedente'] = draw_fitted(draw, f"{prodotto['prezzo_precedente']} €",
-                                           (580, 750 if prodotto.get('coupon_applicato') else 733, 1024, 807), 60, fill='#333333',
+    if previous is not None:
+        label = 'SENZA COUPON' if prodotto.get('coupon_applicato') else {
+            'consigliato': 'PREZZO CONSIGLIATO', 'mediano': 'PREZZO MEDIANO',
+            'precedente': 'PREZZO PRECEDENTE', 'piu_basso_30gg': 'MINIMO 30 GG (RIF.)'
+        }.get(prodotto.get('tipo_riferimento'), 'RIFERIMENTO AMAZON')
+        result['riferimento'] = draw_fitted(draw, label, (578, 720, 1026, 746),
+                                            23, min_size=18, fill='#333333', stroke=0)
+        result['precedente'] = draw_fitted(draw, f"{euros(previous)} €",
+                                           (580, 750, 1024, 807), 56, fill='#333333',
                                            stroke_fill='white', strike=True)
-    if prodotto.get('sconto', 0) > 0:
-        result['sconto'] = draw_fitted(draw, f"-{prodotto['sconto']}%",
+    else:
+        result['riferimento'] = draw_fitted(draw, 'RIFERIMENTO NON DISPONIBILE',
+                                            (578, 737, 1026, 800), 24, min_size=18,
+                                            max_lines=2, fill='#333333', stroke=0)
+    if discount is not None and discount > 0:
+        result['sconto'] = draw_fitted(draw, f"-{discount}%",
                                        (703, 858, 985, 946), 86, stroke=2)
+    else:
+        result['sconto'] = draw_fitted(draw, 'SCONTO N/D', (703, 858, 985, 946),
+                                       31, min_size=24, max_lines=2, stroke=1)
     if prodotto.get('coupon_applicato'):
         result['coupon'] = draw_fitted(draw, 'CON COUPON', (595, 632, 1010, 677),
                                        32, fill='#111111', stroke=0)
-        result['base_coupon'] = draw_fitted(draw, 'SENZA COUPON', (590, 716, 1014, 739),
-                                            19, fill='#333333', stroke=0)
     return result
