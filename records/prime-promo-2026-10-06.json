@@ -4,7 +4,7 @@
   "slot": "prime-promo-2026-10-06",
   "asin": null,
   "asins": [],
-  "status": "attempted",
+  "status": "scheduled",
   "caption": "Il Tarlo del Risparmio 🐛\nÈ iniziata la Festa delle Offerte Prime: 6–7 ottobre!\nCerchi un acquisto? Sul canale trovi offerte e selezioni da confrontare prima di comprare.\n👉 Cerca @TarloDelRisparmio su Telegram: t.me/TarloDelRisparmio\nLe offerte riservate a Prime richiedono un abbonamento idoneo. Prezzi e disponibilità possono variare. Nel canale usiamo link affiliati.\n#offerte #amazon #primeday #risparmio #TarloPrimePromo20261006",
   "publication_date": "2026-10-06T10:00:00+02:00",
   "created_at": "2026-10-05T22:54:29.330Z",
@@ -21,5 +21,12 @@
   "baseline_telegram_members": 582,
   "source_telegram_post": "https://t.me/TarloDelRisparmio/1818",
   "promotion_spend": 0,
-  "old_recurring_posts_paused": true
+  "old_recurring_posts_paused": true,
+  "metricool_id": 388993745,
+  "uuid": "750673396842578637",
+  "planner_url": "https://app.metricool.com/planner/calendar?blogId=6911341&openWithPostUuid=750673396842578637",
+  "imported_media": [
+    "https://static.metricool.com/planner/202610/6911341-file-158037497200392619.jpeg"
+  ],
+  "scheduled_at": "2026-10-05T22:55:09.469Z"
 }
