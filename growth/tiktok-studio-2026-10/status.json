@@ -1,0 +1,49 @@
+{
+  "experiment_id": "tiktok-studio-2026-10",
+  "status": "active_bounded_test",
+  "created_at": "2026-10-05T23:07:02.667Z",
+  "publication_scope": "six calendar entries 2026-10-09 through2026-10-21",
+  "baseline": {
+    "read_at": "2026-10-06",
+    "metricool_posts": 14,
+    "views": 127,
+    "likes": 0,
+    "comments": 0,
+    "shares": 0,
+    "telegram_members": 582,
+    "attribution": "unavailable",
+    "note": "Metricool cumulative values may lag; Telegram net change is not attributed joins."
+  },
+  "spend": 0,
+  "automations": {
+    "friday": "6ac42d32cd288191a3d8c99ca8ba4f81",
+    "monday": "6ac42d5002208191818159793d219c1d",
+    "wednesday": "6ac42d6e4db88191b013954dc2767de8",
+    "analysis": "6ac42d73f1d081919ef7366b8e306040"
+  },
+  "analysis_dates": [
+    "2026-10-15",
+    "2026-10-24"
+  ],
+  "prior_recurring_automations": "remain_paused",
+  "attribution": {
+    "status": "not_available",
+    "note": "No verified TikTok referral invitation or joins report; net member changes must not be attributed."
+  },
+  "prime_posts": [
+    {
+      "id": 388993745,
+      "uuid": "750673396842578637",
+      "date": "2026-10-06T10:00:00+02:00",
+      "status": "scheduled"
+    },
+    {
+      "id": 388998685,
+      "uuid": "-8411730869423945541",
+      "date": "2026-10-07T18:00:00+02:00",
+      "status": "scheduled",
+      "format": "educational_carousel",
+      "verified_imported_photos": 3
+    }
+  ]
+}
