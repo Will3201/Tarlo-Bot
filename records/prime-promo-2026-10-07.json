@@ -4,9 +4,9 @@
   "slot": "prime-promo-2026-10-07",
   "asin": null,
   "asins": [],
-  "status": "scheduled",
-  "caption": "Uno sconto grande non basta 🔎\nPrima del carrello: confronta quantità e formato, leggi le condizioni del coupon e ricontrolla il prezzo finale.\nUltima giornata della Festa delle Offerte Prime: 7 ottobre.\n👉 Le selezioni del Tarlo sono su Telegram: t.me/TarloDelRisparmio\nLe offerte riservate a Prime richiedono un abbonamento idoneo. Prezzi e disponibilità possono variare. Nel canale usiamo link affiliati.\n#offerte #amazon #primeday #risparmio #TarloPrimePromo20261007",
-  "publication_date": "2026-10-07T18:00:00+02:00",
+  "status": "published",
+  "caption": "Uno sconto grande non basta 🔎\nPrima del carrello: confronta quantità e formato, leggi le condizioni del coupon e ricontrolla il prezzo finale.\nFesta delle Offerte Prime: 6–7 ottobre.\n👉 Le selezioni del Tarlo sono su Telegram: t.me/TarloDelRisparmio\nLe offerte riservate a Prime richiedono un abbonamento idoneo. Prezzi e disponibilità possono variare. Nel canale usiamo link affiliati.\n#offerte #amazon #primeday #risparmio #TarloPrimeGuida20261006",
+  "publication_date": "2026-10-06T01:24:18+02:00",
   "created_at": "2026-10-05T22:54:29.330Z",
   "dimensions": [
     810,
@@ -19,13 +19,13 @@
   "source_telegram_post": "https://t.me/TarloDelRisparmio/1818",
   "promotion_spend": 0,
   "old_recurring_posts_paused": true,
-  "metricool_id": 388998685,
+  "metricool_id": 389005087,
   "uuid": "-8411730869423945541",
   "planner_url": "https://app.metricool.com/planner/calendar?blogId=6911341&openWithPostUuid=-8411730869423945541",
   "imported_media": [
-    "https://static.metricool.com/planner/202610/6911341-file-755418953214709978.jpeg",
-    "https://static.metricool.com/planner/202610/6911341-file-1864092965053584107.jpeg",
-    "https://static.metricool.com/planner/202610/6911341-file-13106336875899531552.jpeg"
+    "https://static.metricool.com/planner/202610/6911341-file-2305528653167985545.jpeg",
+    "https://static.metricool.com/planner/202610/6911341-file-8854628993995054175.jpeg",
+    "https://static.metricool.com/planner/202610/6911341-file-14341690505778405602.jpeg"
   ],
   "scheduled_at": "2026-10-05T22:55:44.240Z",
   "creative_revision": {
@@ -102,10 +102,16 @@
   ],
   "asset_commit": "867ee7be524ad6255063f9370ed1f92b4b80a196",
   "immediate_revision": {
-    "status": "attempted",
+    "status": "published",
     "requested_at": "2026-10-05T23:18:18.116Z",
     "original_date": "2026-10-07T18:00:00+02:00",
     "requested_date": "2026-10-06T01:24:18+02:00",
     "reason": "User requested immediate two-post restart"
+  },
+  "publicUrl": "https://www.tiktok.com/@tarlodelrisparmio/video/7693328595782995222",
+  "published_at": "2026-10-06T01:24:00+02:00",
+  "publicationDate": {
+    "dateTime": "2026-10-06T01:24:00",
+    "timezone": "Europe/Rome"
   }
 }
