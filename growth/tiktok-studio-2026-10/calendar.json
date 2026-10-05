@@ -1,0 +1,94 @@
+{
+  "experiment_id": "tiktok-studio-2026-10",
+  "start_date": "2026-10-09",
+  "end_date": "2026-10-22",
+  "timezone": "Europe/Rome",
+  "max_posts": 6,
+  "spend": 0,
+  "baseline": {
+    "read_at": "2026-10-06",
+    "metricool_posts": 14,
+    "views": 127,
+    "likes": 0,
+    "comments": 0,
+    "shares": 0,
+    "telegram_members": 582,
+    "attribution": "unavailable",
+    "note": "Metricool cumulative values may lag; Telegram net change is not attributed joins."
+  },
+  "peaks_source": "Metricool getBestTimeToPostByNetwork read 2026-10-06, 2026-10-08 to 2026-10-14",
+  "entries": [
+    {
+      "date": "2026-10-09",
+      "peak_hour": 10,
+      "format": "educational_carousel",
+      "title": "Il prezzo per pezzo cambia il confronto",
+      "design": "Mini fumetto editoriale: due confezioni anonime, lente sul prezzo unitario, verde/crema/arancio. Niente packaging o prezzi inventati.",
+      "cards": [
+        "Confezione più grande? Non basta.",
+        "Confronta quantità, formato e prezzo per pezzo.",
+        "Prima confronti. Poi decidi."
+      ],
+      "caption": "La confezione più grande conviene? 📦\nConfronta quantità, formato e prezzo per pezzo, quando indicato. Il prezzo totale da solo non basta.\n👉 Cerca @TarloDelRisparmio su Telegram: t.me/TarloDelRisparmio\nPrezzi e disponibilità possono variare. Nel canale usiamo link affiliati."
+    },
+    {
+      "date": "2026-10-12",
+      "peak_hour": 18,
+      "format": "comparison_guide",
+      "title": "Cavo USB-C: la forma non dice tutto",
+      "design": "Schema fotografico informativo con cavo USB-C illustrato, quattro carte caratteristiche, fondo crema e accenti verde. Non fingere un test o un modello reale.",
+      "cards": [
+        "USB-C: stessa forma, capacità diverse.",
+        "Prima controlla: potenza, dati, video e compatibilità.",
+        "Scegli in base al dispositivo. Poi cerca l'offerta."
+      ],
+      "caption": "Un cavo USB-C vale l'altro? 🔌\nControlla nelle specifiche potenza supportata, velocità dei dati, uscita video e compatibilità con i tuoi dispositivi.\n👉 Cerca @TarloDelRisparmio su Telegram: t.me/TarloDelRisparmio\nPrezzi e disponibilità possono variare. Nel canale usiamo link affiliati.",
+      "requires_official_research": true
+    },
+    {
+      "date": "2026-10-14",
+      "peak_hour": 10,
+      "format": "verified_offer",
+      "title": "Una scelta utile per la casa",
+      "design": "Problema → prodotto reale → prezzo e condizioni → CTA. Prodotto fedele dalla fonte. Composizione fotografica ariosa, nessun finto prima/dopo.",
+      "theme": "casa",
+      "fallback": null
+    },
+    {
+      "date": "2026-10-16",
+      "peak_hour": 10,
+      "format": "educational_carousel",
+      "title": "Un coupon non basta: controlla il totale",
+      "design": "Percorso illustrato a tre tappe, stile taccuino crema con frecce arancio e verde. Nessuna falsa schermata Amazon.",
+      "cards": [
+        "Hai visto un coupon? Controlla il totale.",
+        "Leggi condizioni, quantità e varianti ammesse.",
+        "Prima di pagare, ricontrolla prezzo finale e spedizione."
+      ],
+      "caption": "Coupon visto, risparmio confermato? 🎟️\nLeggi le condizioni e ricontrolla prezzo finale e spedizione prima di pagare.\n👉 Cerca @TarloDelRisparmio su Telegram: t.me/TarloDelRisparmio\nPrezzi e disponibilità possono variare. Nel canale usiamo link affiliati."
+    },
+    {
+      "date": "2026-10-19",
+      "peak_hour": 18,
+      "format": "comparison_guide",
+      "title": "Power bank: cosa controllare",
+      "design": "Checklist illustrata di viaggio, cover verde con zaino astratto e pagine crema. Niente marchi inventati o prove d'uso simulate.",
+      "cards": [
+        "Power bank: guarda oltre i mAh.",
+        "Controlla capacità in Wh, porte, potenza e compatibilità.",
+        "Per viaggiare, verifica le regole della compagnia."
+      ],
+      "caption": "Power bank da viaggio? 🔋\nControlla capacità in Wh, potenza, porte e compatibilità. Per portarlo in aereo verifica le regole aggiornate della compagnia prima di partire.\n👉 Cerca @TarloDelRisparmio su Telegram: t.me/TarloDelRisparmio\nPrezzi e disponibilità possono variare. Nel canale usiamo link affiliati.",
+      "requires_official_research": true
+    },
+    {
+      "date": "2026-10-21",
+      "peak_hour": 10,
+      "format": "verified_offer",
+      "title": "Una scelta utile per la scrivania",
+      "design": "Carosello fotografico editoriale diverso dal 14: oggetto reale grande su fondo crema, scheda verde utilità verificata, prezzo in arancio, ultima pagina CTA.",
+      "theme": "scrivania",
+      "fallback": null
+    }
+  ]
+}

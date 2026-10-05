@@ -28,5 +28,43 @@
   "imported_media": [
     "https://static.metricool.com/planner/202610/6911341-file-15091710308083230029.jpeg"
   ],
-  "scheduled_at": "2026-10-05T22:55:44.240Z"
+  "scheduled_at": "2026-10-05T22:55:44.240Z",
+  "creative_revision": {
+    "status": "attempted",
+    "attempted_at": "2026-10-05T23:03:35.111Z",
+    "format": "educational_carousel",
+    "caption": "Uno sconto grande non basta 🔎\nPrima del carrello: confronta quantità e formato, leggi le condizioni del coupon e ricontrolla il prezzo finale.\nUltima giornata della Festa delle Offerte Prime: 7 ottobre.\n👉 Le selezioni del Tarlo sono su Telegram: t.me/TarloDelRisparmio\nLe offerte riservate a Prime richiedono un abbonamento idoneo. Prezzi e disponibilità possono variare. Nel canale usiamo link affiliati.\n#offerte #amazon #primeday #risparmio #TarloPrimePromo20261007",
+    "assets": [
+      {
+        "path": "media/prime-guide-2026-10-07-1.jpg",
+        "sha256": "c2dc690f9f68609af1971db4dc644e5797f135dba05d382313f1480e34173919",
+        "source_png_sha256": "fa1c9846639efde4a94d8f3b76561b62009942258cf32b3de7abc2e702abe5bc",
+        "dimensions": [
+          810,
+          1080
+        ],
+        "mode": "RGB"
+      },
+      {
+        "path": "media/prime-guide-2026-10-07-2.jpg",
+        "sha256": "838a0c777de0793934b709607e729bca7f72a1b5fc59e2311ee6033c41ca7b27",
+        "source_png_sha256": "666bdd768413a85dcb06c0085851e65a55cd1449fd5a2f767325ca6395822877",
+        "dimensions": [
+          810,
+          1080
+        ],
+        "mode": "RGB"
+      },
+      {
+        "path": "media/prime-guide-2026-10-07-3.jpg",
+        "sha256": "5da376e690d515e76ea842c6258d383c1e915dc8ee0914a947f194457d02daf7",
+        "source_png_sha256": "889cb8cf483622926e47b466b1e3d2ce3d1b5a9a37eeb75b74d9f42eb30a7de4",
+        "dimensions": [
+          810,
+          1080
+        ],
+        "mode": "RGB"
+      }
+    ]
+  }
 }
