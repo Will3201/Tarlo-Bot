@@ -6,7 +6,7 @@ from types import SimpleNamespace as NS
 from unittest.mock import AsyncMock, Mock, patch
 from flask import Flask
 
-from category_recaps import CategoryRecaps, category, due_marker, recap_text, register_routes, ROME
+from category_recaps import CategoryRecaps, category, due_marker, format_product, recap_text, register_routes, ROME
 from tarlo_daily import ArchivioOfferte
 
 NOW = datetime(2026, 10, 6, 6, 5, tzinfo=ROME)
@@ -43,7 +43,7 @@ class RecapTests(unittest.TestCase):
         self.assertLessEqual(len(text),3900)
         self.assertIn('&lt;Cuffie &amp;', text)
         self.assertIn('tag=tarlodelris06-21', text)
-        self.assertIn('prezzo consigliato', text)
+        self.assertIn('prezzo consigliato', text.casefold())
 
     def test_coupon_conditions_are_kept_without_inventing_source_coupon(self):
         p = product(1)
@@ -55,6 +55,21 @@ class RecapTests(unittest.TestCase):
         text,_ = recap_text([p], '#marker', NOW-timedelta(hours=6), NOW, 'test')
         self.assertIn('20,00 €',text)
         self.assertNotIn('18,00 €',text)
+
+    def test_readable_blocks_and_visible_affiliate_urls(self):
+        products = [product(1), product(2), product(3, 'Pril detersivo')]
+        text, chosen = recap_text(products, '#marker', NOW-timedelta(hours=6), NOW, 'tarlodelris06-21')
+        self.assertEqual(len(chosen), 3)
+        self.assertIn('<b>📱 Tecnologia</b>\n\n📱 <b>Cuffie Bluetooth</b>\n🔥 <b>20,00 €</b>', text)
+        self.assertIn('📊 Prezzo consigliato: 40,00 €\n👉 https://www.amazon.it/dp/B000000001?tag=tarlodelris06-21\n\n📱', text)
+        self.assertNotIn('<a href=', text)
+
+    def test_unknown_reference_is_not_displayed_as_a_discount(self):
+        p = {**product(1), 'tipo_riferimento': 'unknown'}
+        text = format_product(p, 'tarlodelris06-21')
+        self.assertIn('🔥 <b>20,00 €</b>\n👉 https://', text)
+        self.assertNotIn('40,00', text)
+        self.assertNotIn('50%', text)
 
 
 class AsyncRecapTests(unittest.IsolatedAsyncioTestCase):

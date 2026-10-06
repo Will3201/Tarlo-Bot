@@ -50,20 +50,25 @@ def format_product(product, tag):
     visual = prezzo_con_coupon(product)
     title = html.escape(compact_title(product['titolo']))
     url = f"https://www.amazon.it/dp/{product['asin']}?tag={quote(tag, safe='')}"
-    text = f'• <a href="{url}">{title}</a> — <b>{visual["prezzo_attuale"]} €</b>'
+    emoji = category(product).split(' ', 1)[0]
+    lines = [f'{emoji} <b>{title}</b>', f'🔥 <b>{visual["prezzo_attuale"]} €</b>']
     if visual.get('coupon_applicato'):
         coupon = product['coupon']
-        text += f' con coupon {html.escape(str(coupon["importo"]))}{html.escape(coupon["unita"])}'
-        text += f' (senza coupon {product["prezzo_attuale"]} €; attiva la casella e verifica i requisiti).'
+        lines[-1] += ' con coupon'
+        lines.append(f'🎟️ Coupon {html.escape(str(coupon["importo"]))}{html.escape(coupon["unita"])}: '
+                     f'attiva la casella e verifica i requisiti. Senza coupon: {product["prezzo_attuale"]} €.')
     elif product.get('prezzo_precedente') and product.get('tipo_riferimento') in REFERENCES:
-        text += f' (−{product["sconto"]}% sul {REFERENCES[product["tipo_riferimento"]]} di {product["prezzo_precedente"]} €).'
-    return text
+        lines[-1] += f' (−{product["sconto"]}%)'
+        lines.append(f'📊 {REFERENCES[product["tipo_riferimento"]].capitalize()}: {product["prezzo_precedente"]} €')
+    # The destination is visible as well as clickable; never hide it in the title.
+    lines.append(f'👉 {html.escape(url)}')
+    return '\n'.join(lines)
 
 
 def recap_text(products, marker, start, checked_at, tag):
     header = ('🐛 <b>Le offerte del Tarlo, per categoria</b>\n'
               f'Selezione dalle segnalazioni delle {start.astimezone(ROME):%H:%M}–{checked_at.astimezone(ROME):%H:%M}. '
-              f'Ricontrollata su Amazon il {checked_at.astimezone(ROME):%d/%m} alle {checked_at.astimezone(ROME):%H:%M}.\n')
+              f'Ricontrollata su Amazon il {checked_at.astimezone(ROME):%d/%m} alle {checked_at.astimezone(ROME):%H:%M}.')
     footer = ('\n\nPrezzi, coupon e disponibilità possono variare: ricontrolla il totale su Amazon. '
               'Le offerte riservate a Prime richiedono un abbonamento idoneo.\n'
               'Link affiliati: potremmo ricevere una commissione.\n'
@@ -77,7 +82,7 @@ def recap_text(products, marker, start, checked_at, tag):
         for product in group[:3]:
             if len(selected) >= MAX_RESULTS:
                 break
-            addition = (['', '<b>' + name + '</b>'] if not heading_added else []) + [format_product(product, tag)]
+            addition = (['', '', '<b>' + name + '</b>'] if not heading_added else []) + ['', format_product(product, tag)]
             candidate = header + '\n'.join(lines + addition) + footer
             # Conservative raw HTML limit, below Telegram's 4096 text limit.
             if len(candidate) > 3900:
