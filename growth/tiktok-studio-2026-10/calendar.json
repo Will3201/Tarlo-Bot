@@ -1,7 +1,7 @@
 {
   "experiment_id": "tiktok-studio-2026-10",
   "start_date": "2026-10-09",
-  "end_date": "2026-10-22",
+  "end_date": "2026-10-21",
   "timezone": "Europe/Rome",
   "max_posts": 6,
   "spend": 0,
@@ -22,28 +22,36 @@
       "date": "2026-10-09",
       "peak_hour": 10,
       "format": "educational_carousel",
-      "title": "Il prezzo per pezzo cambia il confronto",
-      "design": "Mini fumetto editoriale: due confezioni anonime, lente sul prezzo unitario, verde/crema/arancio. Niente packaging o prezzi inventati.",
+      "title": "La confezione grande conviene davvero?",
+      "design": "Tre pagine illustrate originali, carta ritagliata, cestino e lente. Verde bosco/crema/arancio; nessun prodotto o prezzo reale simulato.",
       "cards": [
-        "Confezione più grande? Non basta.",
-        "Confronta quantità, formato e prezzo per pezzo.",
-        "Prima confronti. Poi decidi."
+        "LA CONFEZIONE GRANDE CONVIENE DAVVERO?\nIl prezzo totale non basta.\nScorri per confrontare meglio →",
+        "GUARDA IL PREZZO UNITARIO\n€/kg\n€/litro\n€/pezzo\nConfronta prodotti analoghi e la stessa unità di misura.\nControlla anche quantità e formato.",
+        "PRIMA CONFRONTI. POI DECIDI.\nQuantità e formato\nCondizioni del coupon\nTotale con spedizione\nOfferte e recap per categoria su Telegram\n@TarloDelRisparmio\nSalva la guida per la prossima spesa."
       ],
-      "caption": "La confezione più grande conviene? 📦\nConfronta quantità, formato e prezzo per pezzo, quando indicato. Il prezzo totale da solo non basta.\n👉 Cerca @TarloDelRisparmio su Telegram: t.me/TarloDelRisparmio\nPrezzi e disponibilità possono variare. Nel canale usiamo link affiliati."
+      "caption": "La confezione grande conviene davvero? 📦\nPer la spesa confronta prodotti analoghi, quantità e prezzo nella stessa unità: €/kg, €/litro o €/pezzo. Poi controlla condizioni del coupon e totale con spedizione.\nSalva la guida e segui il Tarlo per altri consigli su casa e spesa.\n👉 Offerte e recap per categoria su Telegram: t.me/TarloDelRisparmio\nPrezzi e disponibilità possono variare. Nel canale usiamo link affiliati.",
+      "fonti": [
+        {
+          "url": "https://europa.eu/youreurope/citizens/consumers/unfair-treatment/unfair-pricing/index_en.htm",
+          "accessed_at": "2026-10-09",
+          "scope": "Comparazione fra prodotti analoghi e formati mediante prezzo unitario e verifica del totale."
+        }
+      ]
     },
     {
       "date": "2026-10-12",
       "peak_hour": 18,
       "format": "comparison_guide",
-      "title": "Cavo USB-C: la forma non dice tutto",
-      "design": "Schema fotografico informativo con cavo USB-C illustrato, quattro carte caratteristiche, fondo crema e accenti verde. Non fingere un test o un modello reale.",
+      "title": "Detersivi: litri e lavaggi non sono la stessa cosa",
+      "design": "Tre pagine: flacone anonimo illustrato, etichetta delle dosi astratta senza valori, confronto ragionato. Nessuna falsa confezione o prova personale.",
       "cards": [
-        "USB-C: stessa forma, capacità diverse.",
-        "Prima controlla: potenza, dati, video e compatibilità.",
-        "Scegli in base al dispositivo. Poi cerca l'offerta."
+        "DETERSIVI: GUARDA OLTRE I LITRI.",
+        "Controlla dosi e lavaggi dichiarati in etichetta.\nConfronta quantità e condizioni d'uso analoghe.",
+        "Se calcoli il costo per lavaggio, usa la dose indicata per quel carico.\nOfferte per la casa su Telegram: @TarloDelRisparmio"
       ],
-      "caption": "Un cavo USB-C vale l'altro? 🔌\nControlla nelle specifiche potenza supportata, velocità dei dati, uscita video e compatibilità con i tuoi dispositivi.\n👉 Cerca @TarloDelRisparmio su Telegram: t.me/TarloDelRisparmio\nPrezzi e disponibilità possono variare. Nel canale usiamo link affiliati.",
-      "requires_official_research": true
+      "caption": "Detersivi: confronti litri o lavaggi? 🧺\nControlla le dosi e i lavaggi dichiarati: il confronto va fatto considerando quantità e condizioni d'uso analoghe. Se calcoli il costo per lavaggio, usa la dose indicata in etichetta per quel carico.\n👉 Offerte e recap per la casa: t.me/TarloDelRisparmio\nPrezzi e disponibilità possono variare. Nel canale usiamo link affiliati.",
+      "requires_official_research": true,
+      "research_scope": "Prima di produrre la guida verificare su etichette o pagine ufficiali di produttori le condizioni cui si riferisce il numero di lavaggi. Non usare dosi o prezzi inventati."
     },
     {
       "date": "2026-10-14",
@@ -52,7 +60,11 @@
       "title": "Una scelta utile per la casa",
       "design": "Problema → prodotto reale → prezzo e condizioni → CTA. Prodotto fedele dalla fonte. Composizione fotografica ariosa, nessun finto prima/dopo.",
       "theme": "casa",
-      "fallback": null
+      "fallback": null,
+      "selection_categories": [
+        "Casa e cucina",
+        "Cura della casa"
+      ]
     },
     {
       "date": "2026-10-16",
@@ -71,24 +83,36 @@
       "date": "2026-10-19",
       "peak_hour": 18,
       "format": "comparison_guide",
-      "title": "Power bank: cosa controllare",
-      "design": "Checklist illustrata di viaggio, cover verde con zaino astratto e pagine crema. Niente marchi inventati o prove d'uso simulate.",
+      "title": "Fare scorta: la userai davvero?",
+      "design": "Dispensa illustrata, checklist per quantità, consumo, scadenze e spazio. Nessun prodotto reale, prezzo o risparmio numerico simulato.",
       "cards": [
-        "Power bank: guarda oltre i mAh.",
-        "Controlla capacità in Wh, porte, potenza e compatibilità.",
-        "Per viaggiare, verifica le regole della compagnia."
+        "FARE SCORTA: LA USERAI DAVVERO?",
+        "Prima confronta il prezzo unitario.\nPoi controlla quantità, scadenze e spazio disponibile.",
+        "Acquista in base a ciò che usi.\nOfferte e recap per categoria: @TarloDelRisparmio"
       ],
-      "caption": "Power bank da viaggio? 🔋\nControlla capacità in Wh, potenza, porte e compatibilità. Per portarlo in aereo verifica le regole aggiornate della compagnia prima di partire.\n👉 Cerca @TarloDelRisparmio su Telegram: t.me/TarloDelRisparmio\nPrezzi e disponibilità possono variare. Nel canale usiamo link affiliati.",
-      "requires_official_research": true
+      "caption": "Fare scorta conviene per te? 🛒\nConfronta il prezzo unitario e valuta quanta ne userai, le scadenze e lo spazio disponibile. Una confezione grande è utile solo se risponde alle tue esigenze.\n👉 Offerte e recap per categoria: t.me/TarloDelRisparmio\nPrezzi e disponibilità possono variare. Nel canale usiamo link affiliati.",
+      "requires_official_research": false
     },
     {
       "date": "2026-10-21",
       "peak_hour": 10,
       "format": "verified_offer",
-      "title": "Una scelta utile per la scrivania",
+      "title": "Una scelta utile per casa e spesa",
       "design": "Carosello fotografico editoriale diverso dal 14: oggetto reale grande su fondo crema, scheda verde utilità verificata, prezzo in arancio, ultima pagina CTA.",
-      "theme": "scrivania",
-      "fallback": null
+      "theme": "casa e spesa quotidiana",
+      "fallback": null,
+      "selection_categories": [
+        "Casa e cucina",
+        "Spesa e alimenti",
+        "Cura della casa"
+      ]
     }
-  ]
+  ],
+  "updated_at": "2026-10-09T02:11:00+02:00",
+  "editorial_focus": {
+    "topic": "casa e spesa quotidiana",
+    "status": "hypothesis_to_test",
+    "authorized_at": "2026-10-09",
+    "note": "Aggiornamento autorizzato dall'utente; sei voci e orari esistenti, nessuna promessa di crescita."
+  }
 }

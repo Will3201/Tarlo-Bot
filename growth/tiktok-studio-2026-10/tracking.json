@@ -1,0 +1,23 @@
+{
+  "experiment_id": "tiktok-studio-2026-10",
+  "updated_at": "2026-10-09T02:11:00+02:00",
+  "status": "pending_telegram_admin_access",
+  "channel": "@TarloDelRisparmio",
+  "source": "TikTok test casa/spesa 9–21 ottobre",
+  "created": false,
+  "url": null,
+  "destination_verified": false,
+  "join_stats_available": false,
+  "fallback_cta": "t.me/TarloDelRisparmio",
+  "bio_link_verified": false,
+  "required_evidence": [
+    "Invito creato realmente sul canale corretto.",
+    "Nome della sorgente e destinazione verificati.",
+    "Statistiche aggregate per quel link; nessuna identità degli iscritti."
+  ],
+  "rules": [
+    "Non aggiungere parametri al link pubblico fingendo di tracciare iscrizioni.",
+    "Incremento netto membri e visite al profilo non sono iscrizioni attribuite.",
+    "Non cambiare i link in post già pubblicati."
+  ]
+}

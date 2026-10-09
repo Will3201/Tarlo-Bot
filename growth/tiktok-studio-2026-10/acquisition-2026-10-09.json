@@ -1,0 +1,68 @@
+{
+  "experiment_id": "tiktok-studio-2026-10",
+  "captured_at": "2026-10-09T02:11:00+02:00",
+  "brand_verified": true,
+  "metricool_brand_id": "6911341",
+  "account": "@tarlodelrisparmio",
+  "spend": 0,
+  "focus": {
+    "topic": "casa e spesa quotidiana",
+    "status": "hypothesis_to_test",
+    "authorized_at": "2026-10-09",
+    "note": "Aggiornamento autorizzato dall'utente; sei voci e orari esistenti, nessuna promessa di crescita."
+  },
+  "metrics": {
+    "scope": "16 published posts 10 settembre–momento verifica; valori cumulativi potenzialmente in ritardo",
+    "published_posts": 16,
+    "views": 139,
+    "likes": 2,
+    "comments": 0,
+    "shares": 0,
+    "prime_views": 12,
+    "prime_likes": 2,
+    "watch_time": null,
+    "completion": null,
+    "saves": null,
+    "followers_last_value": 5,
+    "followers_last_date": "2026-10-07",
+    "note": "Follower corrente mancante; 5 è l'ultimo valore API. Giorno 9 parziale, visite profilo 0 non sono il totale storico."
+  },
+  "checks": {
+    "future_planner": "empty at check",
+    "native_tiktok_studio": "login_required",
+    "recommendation_eligibility": "not_verified",
+    "public_visibility": "not_verified_in_native_ui",
+    "bio_link": "not_verified",
+    "creator_search_insights": "native_access_required"
+  },
+  "measurement": {
+    "confirmed_metric_ids": {
+      "followers": "TKEV07",
+      "net_new_followers": "TKEV08",
+      "profile_views": "TKEV09",
+      "views_in_period": "TKEV12"
+    },
+    "comparison": "a48–72ore e a età simili; account totals non attribuiti al singolo post",
+    "telegram_attribution": "pending_admin_access"
+  },
+  "pending_actions": [
+    "Accesso TikTok Studio per avvisi Per Te, bio e Creator Search Insights.",
+    "Accesso amministrativo Telegram per un invito dedicato reale e statistiche aggregate.",
+    "Collaborazioni: shortlist e proposta da completare con profili verificati; nessun contatto inviato."
+  ],
+  "applied_actions": [
+    "Aggiornamento delle sei voci verso casa/spesa senza aggiungere post.",
+    "Creazione di tre pagine originali per la voce del 9 ottobre.",
+    "Archivio del primo post nello stato attempted prima dell'invio; programmazione ancora da verificare."
+  ],
+  "sources": [
+    {
+      "url": "https://support.tiktok.com/en/using-tiktok/growing-your-audience/creator-search-insights",
+      "scope": "strumento ricerche, accesso account non disponibile"
+    },
+    {
+      "url": "https://europa.eu/youreurope/citizens/consumers/unfair-treatment/unfair-pricing/index_en.htm",
+      "scope": "contenuto educativo prezzo unitario"
+    }
+  ]
+}

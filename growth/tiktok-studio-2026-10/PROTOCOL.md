@@ -1,4 +1,4 @@
-# TikTok Studio — test 9–22 ottobre 2026
+# TikTok Studio — test 9–21 ottobre 2026
 L'utente autorizza la ripresa di TikTok con contenuti professionali, vari e negli orari di punta. Spesa aggiuntiva: zero. Sei pubblicazioni, poi valutazione prima di estendere. Destinazione esclusiva: TikTok @tarlodelrisparmio, Metricool brand 6911341. Le vecchie automazioni ogni sei ore e Top5 restano sospese.
 
 ## Calendario
@@ -32,3 +32,10 @@ CTA t.me/TarloDelRisparmio o "Cerca @TarloDelRisparmio su Telegram". Disclosure 
 ## Analisi
 A 48–72 ore misurare views, like, commenti, condivisioni e tempi di visione/completamento quando disponibili, confrontando età simili dei post. Visite profilo/follower solo dalle metriche ufficiali disponibili. Dati mancanti non sono zero.
 Conteggi Telegram soltanto verificati e con timestamp; incremento netto non è attribuzione alle promozioni. Niente commissioni/vendite attribuite senza report Amazon. Rivalutare qualità e segnali verso il canale prima di continuare, non le sole views.
+
+## Aggiornamento autorizzato del 9 ottobre 2026
+Focus sperimentale: casa e spesa quotidiana, non una nicchia già dimostrata vincente. Restano sei voci, le finestre esistenti e la spesa zero. Le guide tecniche estranee al focus sono sostituite dalle voci aggiornate di calendar.json. Non modificare il feed Telegram o main.
+Per il 9 ottobre usare gli asset verificati e il record studio-2026-10-09 se già scheduled/published: riconciliare senza rigenerazione o nuovo invio. Le grafiche illustrate sono contenuti educativi, non dimostrazioni personali. Un futuro video con mani/prodotto richiede riprese reali fornite dall'utente, non materiale inventato.
+Creator Search Insights e verifiche Per Te richiedono accesso nativo a TikTok: se non disponibile registrare il limite, non dedurre penalizzazioni dai pochi dati. Le parole chiave editoriali sono ipotesi, non ricerche popolari già misurate.
+Consultare growth/tiktok-studio-2026-10/tracking.json e acquisition-2026-10-09.json: un link pubblico Telegram non è un invito tracciato. Non cambiare CTA in link in bio senza prova attuale. Non inviare messaggi o commenti promozionali automatici a terzi.
+Per analisi usare anche TKEV07 (follower), TKEV08 (saldo follower), TKEV09 (visite profilo), identificativi verificati nel catalogo Metricool il 9 ottobre; non assegnare il totale dell'account al singolo post. Salvati non risultano nel catalogo verificato: lasciare null se manca una fonte ufficiale. Tempo/completamento null restano mancanti. Il bilancio del 15/24 conserva queste distinzioni.

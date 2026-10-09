@@ -46,7 +46,7 @@
       "published_at": "2026-10-06T01:24:00+02:00"
     }
   ],
-  "updated_at": "2026-10-05T23:37:13.012Z",
+  "updated_at": "2026-10-09T02:11:00+02:00",
   "telegram_recaps": {
     "status": "enabled",
     "hours_rome": [
@@ -63,5 +63,13 @@
     "main_commit": "67ef4913c054585fb24fba76d4c72a91b4cb2fb0",
     "first_eligible_slot": "2026-10-06-06",
     "first_recap_published": false
-  }
+  },
+  "editorial_focus": {
+    "topic": "casa e spesa quotidiana",
+    "status": "hypothesis_to_test",
+    "authorized_at": "2026-10-09",
+    "note": "Aggiornamento autorizzato dall'utente; sei voci e orari esistenti, nessuna promessa di crescita."
+  },
+  "acquisition_audit": "growth/tiktok-studio-2026-10/acquisition-2026-10-09.json",
+  "tracking_file": "growth/tiktok-studio-2026-10/tracking.json"
 }
