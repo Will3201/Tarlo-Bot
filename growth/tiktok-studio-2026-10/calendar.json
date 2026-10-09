@@ -36,7 +36,15 @@
           "accessed_at": "2026-10-09",
           "scope": "Comparazione fra prodotti analoghi e formati mediante prezzo unitario e verifica del totale."
         }
-      ]
+      ],
+      "hashtags": [
+        "#spesaintelligente",
+        "#prezzounitario",
+        "#risparmio",
+        "#consiglipercasa",
+        "#TarloStudio20261009"
+      ],
+      "hashtag_selection": "Quattro tag descrittivi del contenuto e marker univoco; nessuna popolarità o incremento di visualizzazioni garantiti."
     },
     {
       "date": "2026-10-12",
@@ -51,7 +59,15 @@
       ],
       "caption": "Detersivi: confronti litri o lavaggi? 🧺\nControlla le dosi e i lavaggi dichiarati: il confronto va fatto considerando quantità e condizioni d'uso analoghe. Se calcoli il costo per lavaggio, usa la dose indicata in etichetta per quel carico.\n👉 Offerte e recap per la casa: t.me/TarloDelRisparmio\nPrezzi e disponibilità possono variare. Nel canale usiamo link affiliati.",
       "requires_official_research": true,
-      "research_scope": "Prima di produrre la guida verificare su etichette o pagine ufficiali di produttori le condizioni cui si riferisce il numero di lavaggi. Non usare dosi o prezzi inventati."
+      "research_scope": "Prima di produrre la guida verificare su etichette o pagine ufficiali di produttori le condizioni cui si riferisce il numero di lavaggi. Non usare dosi o prezzi inventati.",
+      "hashtags": [
+        "#bucato",
+        "#detersivi",
+        "#risparmio",
+        "#consiglipercasa",
+        "#TarloStudio20261012"
+      ],
+      "hashtag_selection": "Quattro tag descrittivi del contenuto e marker univoco; nessuna popolarità o incremento di visualizzazioni garantiti."
     },
     {
       "date": "2026-10-14",
@@ -64,7 +80,13 @@
       "selection_categories": [
         "Casa e cucina",
         "Cura della casa"
-      ]
+      ],
+      "hashtags_base": [
+        "#offerte",
+        "#risparmio"
+      ],
+      "hashtag_marker": "#TarloStudio20261014",
+      "hashtag_selection": "Alla selezione del prodotto aggiungere due hashtag pertinenti al prodotto/categoria verificati, poi marker univoco: massimo cinque totali. Non usare tag estranei o dichiararli di tendenza senza dati."
     },
     {
       "date": "2026-10-16",
@@ -77,7 +99,15 @@
         "Leggi condizioni, quantità e varianti ammesse.",
         "Prima di pagare, ricontrolla prezzo finale e spedizione."
       ],
-      "caption": "Coupon visto, risparmio confermato? 🎟️\nLeggi le condizioni e ricontrolla prezzo finale e spedizione prima di pagare.\n👉 Cerca @TarloDelRisparmio su Telegram: t.me/TarloDelRisparmio\nPrezzi e disponibilità possono variare. Nel canale usiamo link affiliati."
+      "caption": "Coupon visto, risparmio confermato? 🎟️\nLeggi le condizioni e ricontrolla prezzo finale e spedizione prima di pagare.\n👉 Cerca @TarloDelRisparmio su Telegram: t.me/TarloDelRisparmio\nPrezzi e disponibilità possono variare. Nel canale usiamo link affiliati.",
+      "hashtags": [
+        "#coupon",
+        "#acquistionline",
+        "#risparmio",
+        "#spesaintelligente",
+        "#TarloStudio20261016"
+      ],
+      "hashtag_selection": "Quattro tag descrittivi del contenuto e marker univoco; nessuna popolarità o incremento di visualizzazioni garantiti."
     },
     {
       "date": "2026-10-19",
@@ -91,7 +121,15 @@
         "Acquista in base a ciò che usi.\nOfferte e recap per categoria: @TarloDelRisparmio"
       ],
       "caption": "Fare scorta conviene per te? 🛒\nConfronta il prezzo unitario e valuta quanta ne userai, le scadenze e lo spazio disponibile. Una confezione grande è utile solo se risponde alle tue esigenze.\n👉 Offerte e recap per categoria: t.me/TarloDelRisparmio\nPrezzi e disponibilità possono variare. Nel canale usiamo link affiliati.",
-      "requires_official_research": false
+      "requires_official_research": false,
+      "hashtags": [
+        "#spesaintelligente",
+        "#dispensa",
+        "#risparmio",
+        "#prezzounitario",
+        "#TarloStudio20261019"
+      ],
+      "hashtag_selection": "Quattro tag descrittivi del contenuto e marker univoco; nessuna popolarità o incremento di visualizzazioni garantiti."
     },
     {
       "date": "2026-10-21",
@@ -105,14 +143,30 @@
         "Casa e cucina",
         "Spesa e alimenti",
         "Cura della casa"
-      ]
+      ],
+      "hashtags_base": [
+        "#offerte",
+        "#risparmio"
+      ],
+      "hashtag_marker": "#TarloStudio20261021",
+      "hashtag_selection": "Alla selezione del prodotto aggiungere due hashtag pertinenti al prodotto/categoria verificati, poi marker univoco: massimo cinque totali. Non usare tag estranei o dichiararli di tendenza senza dati."
     }
   ],
-  "updated_at": "2026-10-09T02:11:00+02:00",
+  "updated_at": "2026-10-09T01:20:40.816Z",
   "editorial_focus": {
     "topic": "casa e spesa quotidiana",
     "status": "hypothesis_to_test",
     "authorized_at": "2026-10-09",
     "note": "Aggiornamento autorizzato dall'utente; sei voci e orari esistenti, nessuna promessa di crescita."
+  },
+  "hashtag_policy": {
+    "authorized_at": "2026-10-09",
+    "max_total": 5,
+    "topic_tags": 4,
+    "unique_marker": 1,
+    "scope": "solo contenuti del test non ancora pubblicati",
+    "selection": "Tag coerenti con soggetto concreto e intento; scelta editoriale senza volumi di ricerca verificati.",
+    "guidance_source": "https://www.tiktok.com/business/library/GrowwithTikTok_FAQ_ENG2.pdf",
+    "note": "Cinque è una scelta editoriale prudente, non dichiarazione di un limite tecnico universale."
   }
 }

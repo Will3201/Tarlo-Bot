@@ -123,5 +123,17 @@
       "084500a69408778fe07fc0bcb7005338be8d95689b9e98be6bd09916fccd8a00",
       "63131bec1ea41320baf6548c5880c2102b6a7f4250e4d03c41a479709f64a7b5"
     ]
-  }
+  },
+  "caption_updates": [
+    {
+      "state": "attempted",
+      "attempted_at": "2026-10-09T01:20:40.821Z",
+      "kind": "relevant_hashtags",
+      "previous_caption": "La confezione grande conviene davvero? 📦\nPer la spesa confronta prodotti analoghi, quantità e prezzo nella stessa unità: €/kg, €/litro o €/pezzo. Poi controlla condizioni del coupon e totale con spedizione.\nSalva la guida e segui il Tarlo per altri consigli su casa e spesa.\n👉 Offerte e recap per categoria su Telegram: t.me/TarloDelRisparmio\nPrezzi e disponibilità possono variare. Nel canale usiamo link affiliati.\n#offerte #amazon #risparmio #spesa #casa #TarloStudio20261009",
+      "requested_caption": "La confezione grande conviene davvero? 📦\nPer la spesa confronta prodotti analoghi, quantità e prezzo nella stessa unità: €/kg, €/litro o €/pezzo. Poi controlla condizioni del coupon e totale con spedizione.\nSalva la guida e segui il Tarlo per altri consigli su casa e spesa.\n👉 Offerte e recap per categoria su Telegram: t.me/TarloDelRisparmio\nPrezzi e disponibilità possono variare. Nel canale usiamo link affiliati.\n#spesaintelligente #prezzounitario #risparmio #consiglipercasa #TarloStudio20261009",
+      "metricool_id_before": 391641961,
+      "uuid": "8803655331620995483",
+      "no_resend": true
+    }
+  ]
 }
