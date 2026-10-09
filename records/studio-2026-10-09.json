@@ -3,8 +3,8 @@
   "key": "studio-2026-10-09",
   "slot": "studio-2026-10-09",
   "day": "2026-10-09",
-  "state": "attempted",
-  "status": "attempted",
+  "state": "scheduled",
+  "status": "scheduled",
   "attempted_at": "2026-10-09T02:11:00+02:00",
   "intended_format": "educational_carousel",
   "actual_format": "educational_carousel",
@@ -45,7 +45,9 @@
       "mode": "RGB",
       "format": "JPEG",
       "quality": 95,
-      "visual_review": "passed; exact text, readable, abstract unbranded illustration, no prices"
+      "visual_review": "passed; exact text, readable, abstract unbranded illustration, no prices",
+      "archive_url": "https://raw.githubusercontent.com/Will3201/Tarlo-Bot/31d1c77e0c6d28039935a28cefb05f99289e4515/media/studio-2026-10-09-1.jpg",
+      "metricool_media_url": "https://static.metricool.com/planner/202610/6911341-file-18343297501038450364.jpeg"
     },
     {
       "page": 2,
@@ -64,7 +66,9 @@
       "mode": "RGB",
       "format": "JPEG",
       "quality": 95,
-      "visual_review": "passed; exact text, readable, abstract unbranded illustration, no prices"
+      "visual_review": "passed; exact text, readable, abstract unbranded illustration, no prices",
+      "archive_url": "https://raw.githubusercontent.com/Will3201/Tarlo-Bot/31d1c77e0c6d28039935a28cefb05f99289e4515/media/studio-2026-10-09-2.jpg",
+      "metricool_media_url": "https://static.metricool.com/planner/202610/6911341-file-9578246147666441502.jpeg"
     },
     {
       "page": 3,
@@ -83,13 +87,35 @@
       "mode": "RGB",
       "format": "JPEG",
       "quality": 95,
-      "visual_review": "passed; exact text, readable, abstract unbranded illustration, no prices"
+      "visual_review": "passed; exact text, readable, abstract unbranded illustration, no prices",
+      "archive_url": "https://raw.githubusercontent.com/Will3201/Tarlo-Bot/31d1c77e0c6d28039935a28cefb05f99289e4515/media/studio-2026-10-09-3.jpg",
+      "metricool_media_url": "https://static.metricool.com/planner/202610/6911341-file-6597935961935255141.jpeg"
     }
   ],
-  "publication_attempt_count": 0,
+  "publication_attempt_count": 1,
   "spend": 0,
   "notes": [
-    "Archivio attempted preparato prima dell'unico invio a Metricool.",
-    "Non è conferma di pubblicazione; aggiornare scheduled soltanto dopo risposta positiva."
-  ]
+    "Archivio attempted salvato prima dell'unico invio.",
+    "Programmazione confermata dalla risposta positiva e dalla rilettura del planner.",
+    "Pubblicazione prevista 9ottobre10:00Europe/Rome; pubblicazione reale non ancora avvenuta."
+  ],
+  "scheduled_at": "2026-10-09T02:13:00+02:00",
+  "metricool_id": 391641961,
+  "uuid": "8803655331620995483",
+  "planner_url": "https://app.metricool.com/planner/calendar?blogId=6911341&openWithPostUuid=8803655331620995483",
+  "publicUrl": null,
+  "published_at": null,
+  "archive_commit": "31d1c77e0c6d28039935a28cefb05f99289e4515",
+  "planner_verification": {
+    "checked_at": "2026-10-09T02:15:00+02:00",
+    "postFound": true,
+    "exactCaption": true,
+    "time": true,
+    "timezone": true,
+    "onlyTikTok": true,
+    "threePages": true,
+    "publicPrivacy": true,
+    "autoPublish": true,
+    "provider_status": "PENDING"
+  }
 }
