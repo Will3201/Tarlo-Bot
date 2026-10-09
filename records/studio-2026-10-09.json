@@ -3,8 +3,8 @@
   "key": "studio-2026-10-09",
   "slot": "studio-2026-10-09",
   "day": "2026-10-09",
-  "state": "scheduled",
-  "status": "scheduled",
+  "state": "published",
+  "status": "published",
   "attempted_at": "2026-10-09T02:11:00+02:00",
   "intended_format": "educational_carousel",
   "actual_format": "educational_carousel",
@@ -14,7 +14,7 @@
   "window_start": null,
   "window_end": null,
   "selection_scope": "editoriale, nessuna offerta",
-  "caption": "La confezione grande conviene davvero? 📦\nPer la spesa confronta prodotti analoghi, quantità e prezzo nella stessa unità: €/kg, €/litro o €/pezzo. Poi controlla condizioni del coupon e totale con spedizione.\nSalva la guida e segui il Tarlo per altri consigli su casa e spesa.\n👉 Offerte e recap per categoria su Telegram: t.me/TarloDelRisparmio\nPrezzi e disponibilità possono variare. Nel canale usiamo link affiliati.\n#offerte #amazon #risparmio #spesa #casa #TarloStudio20261009",
+  "caption": "La confezione grande conviene davvero? 📦\nPer la spesa confronta prodotti analoghi, quantità e prezzo nella stessa unità: €/kg, €/litro o €/pezzo. Poi controlla condizioni del coupon e totale con spedizione.\nSalva la guida e segui il Tarlo per altri consigli su casa e spesa.\n👉 Offerte e recap per categoria su Telegram: t.me/TarloDelRisparmio\nPrezzi e disponibilità possono variare. Nel canale usiamo link affiliati.\n#spesaintelligente #prezzounitario #risparmio #consiglipercasa #TarloStudio20261009",
   "hashtag": "#TarloStudio20261009",
   "publication_date": "2026-10-09T10:00:00+02:00",
   "timezone": "Europe/Rome",
@@ -97,17 +97,17 @@
   "notes": [
     "Archivio attempted salvato prima dell'unico invio.",
     "Programmazione confermata dalla risposta positiva e dalla rilettura del planner.",
-    "Pubblicazione prevista 9ottobre10:00Europe/Rome; pubblicazione reale non ancora avvenuta."
+    "Pubblicazione confermata tramite provider TikTok PUBLISHED e publicUrl il9ottobre; nessun secondo invio."
   ],
   "scheduled_at": "2026-10-09T02:13:00+02:00",
-  "metricool_id": 391641961,
+  "metricool_id": 391668720,
   "uuid": "8803655331620995483",
   "planner_url": "https://app.metricool.com/planner/calendar?blogId=6911341&openWithPostUuid=8803655331620995483",
-  "publicUrl": null,
+  "publicUrl": "https://www.tiktok.com/@tarlodelrisparmio/video/7694575836673903894",
   "published_at": null,
   "archive_commit": "31d1c77e0c6d28039935a28cefb05f99289e4515",
   "planner_verification": {
-    "checked_at": "2026-10-09T02:15:00+02:00",
+    "checked_at": "2026-10-09T08:17:44Z",
     "postFound": true,
     "exactCaption": true,
     "time": true,
@@ -116,24 +116,89 @@
     "threePages": true,
     "publicPrivacy": true,
     "autoPublish": true,
-    "provider_status": "PENDING",
+    "provider_status": "PUBLISHED",
     "imported_jpeg_bytes_match_archive": true,
     "imported_media_sha256": [
       "cfe8114c35ee7c5a7229a145dcf188b7eaff0893c210d0b82840e6f7251c687a",
       "084500a69408778fe07fc0bcb7005338be8d95689b9e98be6bd09916fccd8a00",
       "63131bec1ea41320baf6548c5880c2102b6a7f4250e4d03c41a479709f64a7b5"
-    ]
+    ],
+    "oneMatch": true,
+    "uuid": true,
+    "exact_caption": true,
+    "three_pages": true,
+    "same_assets": true,
+    "only_tiktok": true,
+    "published": true,
+    "public_url_valid": true,
+    "public_privacy": true,
+    "commercial_disclosure": true,
+    "brand": true
   },
   "caption_updates": [
     {
-      "state": "attempted",
+      "state": "applied",
       "attempted_at": "2026-10-09T01:20:40.821Z",
       "kind": "relevant_hashtags",
       "previous_caption": "La confezione grande conviene davvero? 📦\nPer la spesa confronta prodotti analoghi, quantità e prezzo nella stessa unità: €/kg, €/litro o €/pezzo. Poi controlla condizioni del coupon e totale con spedizione.\nSalva la guida e segui il Tarlo per altri consigli su casa e spesa.\n👉 Offerte e recap per categoria su Telegram: t.me/TarloDelRisparmio\nPrezzi e disponibilità possono variare. Nel canale usiamo link affiliati.\n#offerte #amazon #risparmio #spesa #casa #TarloStudio20261009",
       "requested_caption": "La confezione grande conviene davvero? 📦\nPer la spesa confronta prodotti analoghi, quantità e prezzo nella stessa unità: €/kg, €/litro o €/pezzo. Poi controlla condizioni del coupon e totale con spedizione.\nSalva la guida e segui il Tarlo per altri consigli su casa e spesa.\n👉 Offerte e recap per categoria su Telegram: t.me/TarloDelRisparmio\nPrezzi e disponibilità possono variare. Nel canale usiamo link affiliati.\n#spesaintelligente #prezzounitario #risparmio #consiglipercasa #TarloStudio20261009",
       "metricool_id_before": 391641961,
       "uuid": "8803655331620995483",
-      "no_resend": true
+      "no_resend": true,
+      "confirmed_at": "2026-10-09T08:17:44Z",
+      "metricool_id_after": 391668720,
+      "reconciliation": "UUID invariato, caption richiesta confermata nel planner pubblicato; nessun nuovo post."
     }
-  ]
+  ],
+  "tiktok_post_id": "7694575836673903894",
+  "hashtags": [
+    "#spesaintelligente",
+    "#prezzounitario",
+    "#risparmio",
+    "#consiglipercasa",
+    "#TarloStudio20261009"
+  ],
+  "published_confirmed_at": "2026-10-09T08:17:44Z",
+  "publication_time_note": "Il planner conferma PUBLISHED e publicUrl; 10:00 Europe/Rome è la data di programmazione, non un timestamp di consegna indipendente.",
+  "metricool_id_history": [
+    391641961,
+    391668720
+  ],
+  "analytics_verification": {
+    "checked_at": "2026-10-09T08:17:44Z",
+    "requested_from": "2026-10-06T10:16:00+02:00",
+    "requested_to": "2026-10-09T10:16:00+02:00",
+    "metrics": [
+      "TKPO02",
+      "TKPO03",
+      "TKPO05",
+      "TKPO07",
+      "TKPO08",
+      "TKPO09",
+      "TKPO10",
+      "TKPO22"
+    ],
+    "rows_returned": 0,
+    "note": "Risposta senza righe: metriche non disponibili in questo controllo, non valori zero."
+  },
+  "publication_evidence": {
+    "source": "Metricool getScheduledPosts",
+    "verified_brand": "6911341:tarlodelrisparmio",
+    "checked_at": "2026-10-09T08:17:44Z",
+    "uuid": "8803655331620995483",
+    "id": 391668720,
+    "provider_status": "PUBLISHED",
+    "tiktok_post_id": "7694575836673903894",
+    "publicUrl": "https://www.tiktok.com/@tarlodelrisparmio/video/7694575836673903894",
+    "publicationDate": {
+      "dateTime": "2026-10-09T10:00:00",
+      "timezone": "Europe/Rome"
+    },
+    "caption": "La confezione grande conviene davvero? 📦\nPer la spesa confronta prodotti analoghi, quantità e prezzo nella stessa unità: €/kg, €/litro o €/pezzo. Poi controlla condizioni del coupon e totale con spedizione.\nSalva la guida e segui il Tarlo per altri consigli su casa e spesa.\n👉 Offerte e recap per categoria su Telegram: t.me/TarloDelRisparmio\nPrezzi e disponibilità possono variare. Nel canale usiamo link affiliati.\n#spesaintelligente #prezzounitario #risparmio #consiglipercasa #TarloStudio20261009",
+    "media": [
+      "https://static.metricool.com/planner/202610/6911341-file-18343297501038450364.jpeg",
+      "https://static.metricool.com/planner/202610/6911341-file-9578246147666441502.jpeg",
+      "https://static.metricool.com/planner/202610/6911341-file-6597935961935255141.jpeg"
+    ]
+  }
 }

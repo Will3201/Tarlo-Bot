@@ -28,7 +28,7 @@
     "note": "Follower corrente mancante; 5 è l'ultimo valore API. Giorno 9 parziale, visite profilo 0 non sono il totale storico."
   },
   "checks": {
-    "future_planner": "one scheduled carousel 9oct10Rome; exact caption, 3pages, TikTok-only, UUID8803655331620995483 verified",
+    "future_planner": "Carosello9ottobre riconciliato PUBLISHED, caption aggiornata, tre pagine e destinazioneTikTok confermate.",
     "native_tiktok_studio": "initial_login_required; authentication_result_unknown_after_timeout",
     "recommendation_eligibility": "not_verified",
     "public_visibility": "not_verified_in_native_ui",
@@ -55,7 +55,8 @@
     "Aggiornamento delle sei voci verso casa/spesa senza aggiungere post.",
     "Creazione di tre pagine originali per la voce del 9 ottobre.",
     "Archivio attempted prima dell'invio; scheduled ID391641961 UUID8803655331620995483 confermato e planner riletto.",
-    "Istruzioni delle tre automazioni esistenti e dei due bilanci aggiornate; stesse date, nessun nuovo post o task."
+    "Istruzioni delle tre automazioni esistenti e dei due bilanci aggiornate; stesse date, nessun nuovo post o task.",
+    "Hashtag specifici applicati al primo carosello e salvati per le sei voci; pubblicazione9ottobre confermata ID391668720 UUID8803655331620995483."
   ],
   "sources": [
     {
@@ -67,15 +68,16 @@
       "scope": "contenuto educativo prezzo unitario"
     }
   ],
-  "updated_at": "2026-10-09T00:44:28.186Z",
+  "updated_at": "2026-10-09T08:17:44Z",
   "scheduled_post": {
-    "id": 391641961,
+    "id": 391668720,
     "uuid": "8803655331620995483",
     "publication_date": "2026-10-09T10:00:00+02:00",
     "planner_url": "https://app.metricool.com/planner/calendar?blogId=6911341&openWithPostUuid=8803655331620995483",
-    "state": "scheduled",
-    "publicUrl": null,
-    "archive_commit": "31d1c77e0c6d28039935a28cefb05f99289e4515"
+    "state": "published",
+    "publicUrl": "https://www.tiktok.com/@tarlodelrisparmio/video/7694575836673903894",
+    "archive_commit": "31d1c77e0c6d28039935a28cefb05f99289e4515",
+    "published_confirmed_at": "2026-10-09T08:17:44Z"
   },
   "collaboration_research": "growth/tiktok-studio-2026-10/collaboration-2026-10-09.json",
   "status": "applied_with_native_access_pending"
