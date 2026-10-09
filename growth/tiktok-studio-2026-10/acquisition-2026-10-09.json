@@ -48,7 +48,7 @@
   "pending_actions": [
     "Accesso TikTok Studio per avvisi Per Te, bio e Creator Search Insights.",
     "Accesso amministrativo Telegram per un invito dedicato reale e statistiche aggregate.",
-    "Collaborazioni: shortlist e proposta da completare con profili verificati; nessun contatto inviato."
+    "Collaborazioni: ricerca preliminare archiviata, nessun partner gratuito ancora qualificato e nessun messaggio inviato."
   ],
   "applied_actions": [
     "Aggiornamento delle sei voci verso casa/spesa senza aggiungere post.",
@@ -75,5 +75,6 @@
     "state": "scheduled",
     "publicUrl": null,
     "archive_commit": "31d1c77e0c6d28039935a28cefb05f99289e4515"
-  }
+  },
+  "collaboration_research": "growth/tiktok-studio-2026-10/collaboration-2026-10-09.json"
 }

@@ -1,0 +1,48 @@
+{
+  "experiment_id": "tiktok-studio-2026-10",
+  "checked_at": "2026-10-09T00:18:02.115Z",
+  "spend": 0,
+  "status": "preliminary_research_no_outreach",
+  "intent": "Collaborazioni organiche pertinenti a casa/spesa, nessun impegno economico.",
+  "profiles": [
+    {
+      "name": "Olimpia Home",
+      "source": "https://olimpiahome.it/",
+      "scope": "Sito ufficiale dedicato a prodotti e guide pratiche per bucato e casa.",
+      "classification": "benchmark commerciale; disponibilità a collaborazione gratuita non verificata",
+      "followers": null,
+      "recent_tiktok_activity": null,
+      "contacted": false
+    },
+    {
+      "name": "Spesa & Risparmio",
+      "handle": "@spesaerisparmio",
+      "source": "https://www.spesaerisparmio.com/calzanetto-spugna-autolucidante-la-rivoluzione-autolucidante-per-calzature-e-oggetti-in-pelle/",
+      "scope": "Sito del negozio collega il proprio TikTok e tratta cura della casa.",
+      "classification": "benchmark commerciale; possibile sovrapposizione concorrenziale, partnership non qualificata",
+      "followers": null,
+      "recent_tiktok_activity": null,
+      "contacted": false
+    },
+    {
+      "name": "Massimiliano Dona",
+      "handle": "@massimiliano.dona",
+      "source": "https://newsroom.tiktok.com/un-creator-al-giorno-massimiliano-dona?lang=it-IT",
+      "scope": "Fonte ufficiale TikTok del2020: educazione agli acquisti consapevoli.",
+      "classification": "riferimento editoriale storico; non prova di attività attuale o disponibilità gratuita",
+      "followers": null,
+      "recent_tiktok_activity": null,
+      "contacted": false
+    }
+  ],
+  "qualified_free_partners": [],
+  "qualification_requirements": [
+    "Profilo e attività recenti verificati",
+    "Pubblico italiano pertinente a casa/spesa",
+    "Proposta utile a entrambe le community",
+    "Accordo senza costi e senza obblighi aggiuntivi"
+  ],
+  "proposal_draft": "Ciao, gestisco Il Tarlo del Risparmio. Stiamo creando guide pratiche per confrontare meglio le spese di casa. Ti propongo un contenuto comune sul prezzo unitario o sulla scelta delle confezioni: ciascuno porta il proprio contributo, con crediti chiari e senza budget pubblicitario. Se il tema ti interessa, possiamo definire un esempio utile per entrambe le community.",
+  "draft_status": "prepared_not_sent",
+  "note": "Nessun profilo è dichiarato partner, nessun costo o disponibilità gratuita presunti. Nessun contatto inviato."
+}

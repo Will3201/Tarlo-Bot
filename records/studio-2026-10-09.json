@@ -116,6 +116,12 @@
     "threePages": true,
     "publicPrivacy": true,
     "autoPublish": true,
-    "provider_status": "PENDING"
+    "provider_status": "PENDING",
+    "imported_jpeg_bytes_match_archive": true,
+    "imported_media_sha256": [
+      "cfe8114c35ee7c5a7229a145dcf188b7eaff0893c210d0b82840e6f7251c687a",
+      "084500a69408778fe07fc0bcb7005338be8d95689b9e98be6bd09916fccd8a00",
+      "63131bec1ea41320baf6548c5880c2102b6a7f4250e4d03c41a479709f64a7b5"
+    ]
   }
 }
