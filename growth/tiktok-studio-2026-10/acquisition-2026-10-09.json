@@ -29,11 +29,12 @@
   },
   "checks": {
     "future_planner": "one scheduled carousel 9oct10Rome; exact caption, 3pages, TikTok-only, UUID8803655331620995483 verified",
-    "native_tiktok_studio": "login_required",
+    "native_tiktok_studio": "initial_login_required; authentication_result_unknown_after_timeout",
     "recommendation_eligibility": "not_verified",
     "public_visibility": "not_verified_in_native_ui",
     "bio_link": "not_verified",
-    "creator_search_insights": "native_access_required"
+    "creator_search_insights": "native_access_required",
+    "browser_recovery": "automatic_review_denied_reopening_after_auth_timeout; no_further_browser_attempt"
   },
   "measurement": {
     "confirmed_metric_ids": {
@@ -46,7 +47,7 @@
     "telegram_attribution": "pending_admin_access"
   },
   "pending_actions": [
-    "Accesso TikTok Studio per avvisi Per Te, bio e Creator Search Insights.",
+    "Accesso sicuro TikTok Studio da riprendere dopo conferma dell'utente: autenticazione scaduta/esito incerto e controllo automatico ha bloccato la riapertura. Per Te, bio e Creator Search Insights non verificati.",
     "Accesso amministrativo Telegram per un invito dedicato reale e statistiche aggregate.",
     "Collaborazioni: ricerca preliminare archiviata, nessun partner gratuito ancora qualificato e nessun messaggio inviato."
   ],
@@ -66,7 +67,7 @@
       "scope": "contenuto educativo prezzo unitario"
     }
   ],
-  "updated_at": "2026-10-09T02:16:00+02:00",
+  "updated_at": "2026-10-09T00:44:28.186Z",
   "scheduled_post": {
     "id": 391641961,
     "uuid": "8803655331620995483",
@@ -76,5 +77,6 @@
     "publicUrl": null,
     "archive_commit": "31d1c77e0c6d28039935a28cefb05f99289e4515"
   },
-  "collaboration_research": "growth/tiktok-studio-2026-10/collaboration-2026-10-09.json"
+  "collaboration_research": "growth/tiktok-studio-2026-10/collaboration-2026-10-09.json",
+  "status": "applied_with_native_access_pending"
 }
