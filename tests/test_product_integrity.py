@@ -55,6 +55,31 @@ class ProductIntegrityTests(unittest.TestCase):
                              '<span class="a-price-whole">40,</span><span class="a-price-fraction">00</span>')
         self.assertEqual(extract_product(split, ASIN)['prezzo_precedente'], '40,00')
 
+    def test_visible_aria_hidden_reference_and_duplicate_ids(self):
+        page = HTML.replace('Prezzo consigliato', '<span aria-hidden="true">Prezzo consigliato</span>')
+        page = page.replace('class="basisPrice"', 'class="basisPrice" aria-hidden="true"')
+        page = '<div id="corePriceDisplay_desktop_feature_div"></div>' + page
+        p = extract_product(page, ASIN)
+        self.assertEqual((p['prezzo_precedente'], p['tipo_riferimento']), ('40,00', 'consigliato'))
+
+    def test_css_hidden_reference_is_not_a_discount(self):
+        for attr in ['class="basisPrice aok-hidden"', 'class="basisPrice" style="visibility:hidden"']:
+            page = HTML.replace('class="basisPrice"', attr)
+            self.assertIsNone(extract_product(page, ASIN)['prezzo_precedente'])
+
+    def test_mobile_price_block_supported(self):
+        page = HTML.replace('corePriceDisplay_desktop_feature_div', 'corePriceDisplay_mobile_feature_div')
+        self.assertEqual(extract_product(page, ASIN)['prezzo_precedente'], '40,00')
+
+    def test_amazon_apex_aria_hidden_rrp_19_99_is_23_percent(self):
+        page = HTML.replace('<span class="basisPrice">Prezzo consigliato: <span class="a-offscreen">40,00 €</span></span>',
+            '<span aria-hidden="true"><span class="apex-basisprice-label">Prezzo consigliato:</span>'
+            '<span class="a-price a-text-price apex-basisprice-value" data-a-strike="true">'
+            '<span class="a-offscreen">19,99€</span><span aria-hidden="true">19,99€</span></span></span>')
+        page = page.replace('20,', '15,').replace('>00</span>', '>44</span>', 1)
+        p = extract_product(page, ASIN)
+        self.assertEqual((p['prezzo_attuale'], p['prezzo_precedente'], p['sconto']), ('15,44', '19,99', 23))
+
     def test_unavailable_and_bad_identity_are_not_published(self):
         p = extract_product(HTML.replace('>Disponibile<', '>Non disponibile<'), ASIN)
         self.assertFalse(p['disponibile'])

@@ -25,6 +25,7 @@ from text_layout import disegna_testi
 from coupon_notice import estrai_coupon, avviso_coupon
 from coupon_pricing import leggi_coupon_amazon, prezzo_con_coupon
 from daily_dedup import DailyDedup
+from post_repairs import PostRepairs, register_routes as register_repair_routes
 from prime_event import PrimeCampaign
 from amazon_product import extract_product, normalizza_titolo
 from category_recaps import CategoryRecaps, register_routes as register_recap_routes
@@ -315,6 +316,9 @@ async def main():
                              os.getenv("DAILY_PREPARE_TIME", "18:00"))
     register_routes(app, pipeline)
     client = TelegramClient(StringSession(SESSION_STRING), TELEGRAM_API_ID, TELEGRAM_API_HASH)
+    repairs = PostRepairs(client, bot, CANALE_CHAT_ID, scarica_dettagli_amazon,
+                          crea_immagine, AMAZON_TAG, BASE_DIR / 'repairs/current.json')
+    register_repair_routes(app, repairs)
     connected = asyncio.Event()
     recaps = None
     if os.getenv('CATEGORY_RECAP_ENABLED', 'true') == 'true':
@@ -335,6 +339,14 @@ async def main():
         print(f'[ANTI DUPLICATI] Storico non disponibile: invii sospesi fino al recupero ({type(exc).__name__}).')
     connected.set()
     print('[DAILY] Client Telegram connesso')
+    # A bounded manifest is created only for a user-requested correction.
+    async def run_repairs():
+        try:
+            await repairs.run()
+        except Exception as exc:
+            repairs.status = 'error'
+            repairs.report(status='error', error_type=type(exc).__name__)
+    asyncio.create_task(run_repairs())
     campaign_task = None
     recap_task = None
     if os.getenv('PRIME_EVENT_ENABLED', 'true') == 'true':

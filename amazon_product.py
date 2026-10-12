@@ -10,7 +10,9 @@ from coupon_pricing import leggi_coupon_amazon
 from tarlo_daily import estrai_metriche
 
 PRICE_BLOCKS = ('corePriceDisplay_desktop_feature_div', 'corePrice_feature_div',
-                'corePrice_desktop', 'apex_desktop', 'unifiedPrice_feature_div')
+                'corePrice_desktop', 'apex_desktop', 'unifiedPrice_feature_div',
+                'corePriceDisplay_mobile_feature_div', 'corePrice_mobile_feature_div',
+                'apex_mobile')
 LABELS = {'consigliato': r'prezzo\s+consigliato|recommended\s+(?:retail\s+)?price',
           'mediano': r'prezzo\s+mediano|median\s+price',
           'piu_basso_30gg': r'prezzo\s+pi[ùu]\s+basso.{0,50}30',
@@ -48,8 +50,10 @@ def euros(value):
 
 
 def visible(node):
-    return not any(p.get('aria-hidden') == 'true' or p.has_attr('hidden') or
-                   re.search(r'display\s*:\s*none', p.get('style', ''), re.I)
+    # aria-hidden excludes duplicated text from screen readers, not from the
+    # visual page. Amazon uses it on visible RRP and whole/fraction spans.
+    return not any(p.has_attr('hidden') or 'aok-hidden' in p.get('class', []) or
+                   re.search(r'display\s*:\s*none|visibility\s*:\s*hidden', p.get('style', ''), re.I)
                    for p in [node, *node.parents] if hasattr(p, 'get'))
 
 
@@ -65,6 +69,13 @@ def unit_or_conditional(node):
     for parent in [node, *list(node.parents)[:3]]:
         ident = parent.get('id', '') if hasattr(parent, 'get') else ''
         if re.search(r'unitPrice|pricePerUnit|installment|sns|subscribe|usedPrice|shipping', ident, re.I):
+            return True
+    # Subscription containers may wrap several intermediate price elements.
+    for parent in node.parents:
+        if parent.get('id', '') in PRICE_BLOCKS:
+            break
+        if re.search(r'sns|subscription|subscribe|installment|usedPrice',
+                     parent.get('id', ''), re.I):
             return True
     parent = node.parent
     if parent and len(parent.select('.a-price')) <= 1:
@@ -97,7 +108,7 @@ def price_value(node):
 def reference(blocks, current):
     candidates = []
     for block in blocks:
-        for node in block.select('.basisPrice, .a-text-price, .a-text-strike, #listPrice'):
+        for node in block.select('.basisPrice, .a-text-price, .a-text-strike, #listPrice, [data-a-strike="true"]'):
             if not visible(node):
                 continue
             value = price_value(node)
@@ -140,7 +151,8 @@ def extract_product(page, asin):
     title = normalizza_titolo(title_node.get_text(' ', strip=True)) if title_node else ''
     if not title or title.casefold() in ('prodotto amazon', 'amazon.it', 'amazon'):
         return None
-    blocks = [soup.find(id=ident) for ident in PRICE_BLOCKS]
+    # Amazon accordion pages repeat IDs; the first occurrence may be empty.
+    blocks = [block for ident in PRICE_BLOCKS for block in soup.find_all(id=ident)]
     blocks = [b for b in blocks if b is not None and visible(b)]
     current = None
     for selector in ('.a-price[data-a-size="xl"]', '.a-price[data-a-size="l"]',

@@ -1,0 +1,17 @@
+{
+  "id": "20261012reference",
+  "start": "2026-10-12T00:00:00+02:00",
+  "end": "2026-10-12T18:49:00+02:00",
+  "expires": "2026-10-12T22:00:00+02:00",
+  "scope": "Only existing bot photo posts missing a price reference, requested by user on 12 October. Edit in place; never send/delete.",
+  "snapshots": {
+    "B0051GCRA4": {
+      "titolo": "Lotus Biscoff Biscotti | 300 Biscotti Confezionati Singolarmente (1,88 kg)",
+      "prezzo_attuale": "15,44",
+      "prezzo_precedente": "19,99",
+      "immagine_url": "https://m.media-amazon.com/images/I/819ckHOZeRL._AC_SL1500_.jpg",
+      "source_label": "12/10/2026 alle 18:48",
+      "coupon": null
+    }
+  }
+}
