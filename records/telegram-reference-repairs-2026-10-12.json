@@ -1,0 +1,345 @@
+{
+  "request": "user-requested price reference corrections 2026-10-12",
+  "status": "completed",
+  "bot_commit": "aa5bd683743033af0dead125e364dc435fa3a744",
+  "confirmed_at": "2026-10-12T19:10:00+02:00",
+  "method": "edit_message_media in place, no send/delete",
+  "scope": "2026-10-12T00:00:00+02:00 to 2026-10-12T18:49:00+02:00",
+  "results": [
+    {
+      "asin": "B0051GCRA4",
+      "current": "15,44",
+      "discount": 23,
+      "message_id": 2350,
+      "reference": "19,99",
+      "snapshot": true,
+      "status": "attempted"
+    },
+    {
+      "asin": "B0051GCRA4",
+      "current": "15,44",
+      "discount": 23,
+      "message_id": 2350,
+      "reference": "19,99",
+      "snapshot": true,
+      "status": "corrected"
+    },
+    {
+      "asin": "B082FT7L5B",
+      "message_id": 2349,
+      "status": "no_verified_reference"
+    },
+    {
+      "asin": "B0976YC7BM",
+      "message_id": 2348,
+      "status": "no_verified_reference"
+    },
+    {
+      "asin": "B00B0WA2XW",
+      "message_id": 2346,
+      "status": "no_verified_reference"
+    },
+    {
+      "asin": "B0B5H5GJCB",
+      "message_id": 2345,
+      "status": "no_verified_reference"
+    },
+    {
+      "asin": "B0014YDJ1S",
+      "current": "4,50",
+      "discount": 34,
+      "message_id": 2342,
+      "reference": "6,80",
+      "snapshot": false,
+      "status": "attempted"
+    },
+    {
+      "asin": "B0014YDJ1S",
+      "current": "4,50",
+      "discount": 34,
+      "message_id": 2342,
+      "reference": "6,80",
+      "snapshot": false,
+      "status": "corrected"
+    },
+    {
+      "asin": "B0HKK7HH8M",
+      "current": "47,99",
+      "discount": 79,
+      "message_id": 2340,
+      "reference": "224,97",
+      "snapshot": false,
+      "status": "attempted"
+    },
+    {
+      "asin": "B0HKK7HH8M",
+      "current": "47,99",
+      "discount": 79,
+      "message_id": 2340,
+      "reference": "224,97",
+      "snapshot": false,
+      "status": "corrected"
+    },
+    {
+      "asin": "B0CLS2GV8Y",
+      "current": "20,90",
+      "discount": 31,
+      "message_id": 2339,
+      "reference": "30,34",
+      "snapshot": false,
+      "status": "attempted"
+    },
+    {
+      "asin": "B0CLS2GV8Y",
+      "current": "20,90",
+      "discount": 31,
+      "message_id": 2339,
+      "reference": "30,34",
+      "snapshot": false,
+      "status": "corrected"
+    },
+    {
+      "asin": "B06WRT7F9S",
+      "message_id": 2337,
+      "status": "no_verified_reference"
+    },
+    {
+      "asin": "B0D21R1PPH",
+      "current": "99,00",
+      "discount": 45,
+      "message_id": 2336,
+      "reference": "179,00",
+      "snapshot": false,
+      "status": "attempted"
+    },
+    {
+      "asin": "B0D21R1PPH",
+      "current": "99,00",
+      "discount": 45,
+      "message_id": 2336,
+      "reference": "179,00",
+      "snapshot": false,
+      "status": "corrected"
+    },
+    {
+      "asin": "B08BS3HD3T",
+      "current": "1,99",
+      "discount": 33,
+      "message_id": 2334,
+      "reference": "2,99",
+      "snapshot": false,
+      "status": "attempted"
+    },
+    {
+      "asin": "B08BS3HD3T",
+      "current": "1,99",
+      "discount": 33,
+      "message_id": 2334,
+      "reference": "2,99",
+      "snapshot": false,
+      "status": "corrected"
+    },
+    {
+      "asin": "B0H2F5YPTN",
+      "current": "609,00",
+      "discount": 19,
+      "message_id": 2332,
+      "reference": "749,00",
+      "snapshot": false,
+      "status": "attempted"
+    },
+    {
+      "asin": "B0H2F5YPTN",
+      "current": "609,00",
+      "discount": 19,
+      "message_id": 2332,
+      "reference": "749,00",
+      "snapshot": false,
+      "status": "corrected"
+    },
+    {
+      "asin": "B074DZZCX9",
+      "current": "1,75",
+      "discount": 47,
+      "message_id": 2331,
+      "reference": "3,29",
+      "snapshot": false,
+      "status": "attempted"
+    },
+    {
+      "asin": "B074DZZCX9",
+      "current": "1,75",
+      "discount": 47,
+      "message_id": 2331,
+      "reference": "3,29",
+      "snapshot": false,
+      "status": "corrected"
+    },
+    {
+      "asin": "B0GR19ZS2Z",
+      "message_id": 2330,
+      "status": "no_verified_reference"
+    },
+    {
+      "asin": "B08T6G5F6P",
+      "message_id": 2328,
+      "status": "no_verified_reference"
+    },
+    {
+      "asin": "B0HF1XFXKV",
+      "current": "36,99",
+      "discount": 42,
+      "message_id": 2326,
+      "reference": "63,99",
+      "snapshot": false,
+      "status": "attempted"
+    },
+    {
+      "asin": "B0HF1XFXKV",
+      "current": "36,99",
+      "discount": 42,
+      "message_id": 2326,
+      "reference": "63,99",
+      "snapshot": false,
+      "status": "corrected"
+    },
+    {
+      "asin": "B0FVZ8D2LW",
+      "current": "11,71",
+      "discount": 37,
+      "message_id": 2323,
+      "reference": "18,48",
+      "snapshot": false,
+      "status": "attempted"
+    },
+    {
+      "asin": "B0FVZ8D2LW",
+      "current": "11,71",
+      "discount": 37,
+      "message_id": 2323,
+      "reference": "18,48",
+      "snapshot": false,
+      "status": "corrected"
+    },
+    {
+      "asin": "B0FD4XXV5J",
+      "current": "3,49",
+      "discount": 30,
+      "message_id": 2322,
+      "reference": "4,99",
+      "snapshot": false,
+      "status": "attempted"
+    },
+    {
+      "asin": "B0FD4XXV5J",
+      "current": "3,49",
+      "discount": 30,
+      "message_id": 2322,
+      "reference": "4,99",
+      "snapshot": false,
+      "status": "corrected"
+    },
+    {
+      "asin": "B082KM8LL2",
+      "message_id": 2321,
+      "status": "no_verified_reference"
+    },
+    {
+      "asin": "B0FC2WRKN6",
+      "current": "37,00",
+      "discount": 51,
+      "message_id": 2320,
+      "reference": "75,00",
+      "snapshot": false,
+      "status": "attempted"
+    },
+    {
+      "asin": "B0FC2WRKN6",
+      "current": "37,00",
+      "discount": 51,
+      "message_id": 2320,
+      "reference": "75,00",
+      "snapshot": false,
+      "status": "corrected"
+    },
+    {
+      "asin": "B0GVJWH6PV",
+      "current": "19,99",
+      "discount": 20,
+      "message_id": 2319,
+      "reference": "24,99",
+      "snapshot": false,
+      "status": "attempted"
+    },
+    {
+      "asin": "B0GVJWH6PV",
+      "current": "19,99",
+      "discount": 20,
+      "message_id": 2319,
+      "reference": "24,99",
+      "snapshot": false,
+      "status": "corrected"
+    },
+    {
+      "asin": "B0H2MTMZNN",
+      "current": "9,73",
+      "discount": 43,
+      "message_id": 2318,
+      "reference": "16,99",
+      "snapshot": false,
+      "status": "attempted"
+    },
+    {
+      "asin": "B0H2MTMZNN",
+      "current": "9,73",
+      "discount": 43,
+      "message_id": 2318,
+      "reference": "16,99",
+      "snapshot": false,
+      "status": "corrected"
+    },
+    {
+      "asin": "B0GSZVPW5C",
+      "current": "379,00",
+      "discount": 37,
+      "message_id": 2317,
+      "reference": "599,00",
+      "snapshot": false,
+      "status": "attempted"
+    },
+    {
+      "asin": "B0GSZVPW5C",
+      "current": "379,00",
+      "discount": 37,
+      "message_id": 2317,
+      "reference": "599,00",
+      "snapshot": false,
+      "status": "corrected"
+    },
+    {
+      "asin": "B0FZC8PC4Z",
+      "message_id": 2316,
+      "status": "no_verified_reference"
+    },
+    {
+      "asin": "B07LBLCQB2",
+      "message_id": 2315,
+      "status": "no_verified_reference"
+    }
+  ],
+  "counts": {
+    "corrected": 15,
+    "not_verifiable": 10,
+    "uncertain": 0
+  },
+  "lotus_evidence": {
+    "source": "user Amazon screenshot",
+    "observed_at": "2026-10-12T18:48:00+02:00",
+    "current": "15,44",
+    "reference": "19,99",
+    "discount": 23,
+    "live_verified": false,
+    "caption_notice": true
+  },
+  "validation": "72 existing tests passed; updated parser 17 tests and repair 3 tests passed; Render live deployment and confirmed Telegram edit IDs"
+}
