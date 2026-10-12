@@ -1,0 +1,95 @@
+{
+  "experiment_id": "tiktok-studio-2026-10",
+  "key": "studio-2026-10-12",
+  "day": "2026-10-12",
+  "format": "comparison_guide",
+  "title": "Detersivi: litri e lavaggi non sono la stessa cosa",
+  "status": "attempted",
+  "asin": null,
+  "asins": [],
+  "window_start": null,
+  "window_end": null,
+  "selection_scope": "editoriale, nessuna offerta",
+  "caption": "Detersivi: confronti litri o lavaggi? 🧺\nControlla le dosi e i lavaggi dichiarati: il confronto va fatto considerando quantità e condizioni d'uso analoghe. Se calcoli il costo per lavaggio, usa la dose indicata in etichetta per quel carico.\n👉 Offerte e recap per la casa: t.me/TarloDelRisparmio\nPrezzi e disponibilità possono variare. Nel canale usiamo link affiliati.\n#bucato #detersivi #risparmio #consiglipercasa #TarloStudio20261012",
+  "hashtags": [
+    "#bucato",
+    "#detersivi",
+    "#risparmio",
+    "#consiglipercasa",
+    "#TarloStudio20261012"
+  ],
+  "publication_date": "2026-10-12T18:25:00+02:00",
+  "created_at": "2026-10-12T18:21:00+02:00",
+  "assets": [
+    {
+      "path": "media/studio-2026-10-12-1.jpg",
+      "source_sha256": "1a72acd1d36179513a773a049fe8fcc82ead3a09a2d8364ce2da8fe6f1e5304b",
+      "derived_sha256": "1a72acd1d36179513a773a049fe8fcc82ead3a09a2d8364ce2da8fe6f1e5304b",
+      "jpeg_sha256": "1c97f7668dafe9ec32e266c5fc098e17b33ad0fbaa16314a546edcd025905a28",
+      "dimensions": [
+        810,
+        1080
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "media/studio-2026-10-12-2.jpg",
+      "source_sha256": "345a36a99245d760d0510cbe41904ed6be21000f20c1cdf4ba94bce4c4dc698b",
+      "derived_sha256": "345a36a99245d760d0510cbe41904ed6be21000f20c1cdf4ba94bce4c4dc698b",
+      "jpeg_sha256": "d6b8369767e81e5c38b1f16b750f459b39928216a1be5425c28c84463826378e",
+      "dimensions": [
+        810,
+        1080
+      ],
+      "mode": "RGB"
+    },
+    {
+      "path": "media/studio-2026-10-12-3.jpg",
+      "source_sha256": "4eebf2d1b8abfb51a242a2523bd56b9747a5dfe264d9649f243ec5ec86b09efc",
+      "derived_sha256": "4eebf2d1b8abfb51a242a2523bd56b9747a5dfe264d9649f243ec5ec86b09efc",
+      "jpeg_sha256": "4d3dc54c214a91bc03943ca099b10cca392055a1ffbc1bede32c47551cfb02bc",
+      "dimensions": [
+        810,
+        1080
+      ],
+      "mode": "RGB"
+    }
+  ],
+  "fonti": [
+    {
+      "url": "https://www.pgperte.it/casa/bucato/come-dosare-il-detersivo-richiedi-il-tuo-dosatore",
+      "accessed_at": "2026-10-12",
+      "scope": "dose indicata in confezione e fattori carico/sporco/durezza acqua"
+    },
+    {
+      "url": "https://www.miele.it/c/cura-della-biancheria-lavatrici-dosaggio-automatico-6621.htm",
+      "accessed_at": "2026-10-12",
+      "scope": "numero di cicli riferito a condizioni esplicite di carico e durezza acqua"
+    }
+  ],
+  "checks": {
+    "brand_verified": true,
+    "planner_period": "2026-10-05/2026-10-19",
+    "analytics_period": "ultime 72 ore",
+    "duplicate_marker_absent": true,
+    "record_absent_http_status": 404,
+    "visual_review_all_pages": true,
+    "jpeg_review": true,
+    "total_studio_posts_before": 1
+  },
+  "tracking": {
+    "created": false,
+    "cta": "t.me/TarloDelRisparmio",
+    "attribution_available": false
+  },
+  "generation": {
+    "tool": "imagegen included",
+    "cost_upgrade": false,
+    "brief": "Tre pagine: flacone anonimo illustrato, etichetta delle dosi astratta senza valori, confronto ragionato. Nessuna falsa confezione o prova personale.",
+    "cards": [
+      "DETERSIVI: GUARDA OLTRE I LITRI.",
+      "Controlla dosi e lavaggi dichiarati in etichetta.\nConfronta quantità e condizioni d'uso analoghe.",
+      "Se calcoli il costo per lavaggio, usa la dose indicata per quel carico.\nOfferte per la casa su Telegram: @TarloDelRisparmio"
+    ]
+  }
+}
