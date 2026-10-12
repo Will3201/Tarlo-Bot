@@ -4,7 +4,7 @@
   "day": "2026-10-12",
   "format": "comparison_guide",
   "title": "Detersivi: litri e lavaggi non sono la stessa cosa",
-  "status": "attempted",
+  "status": "scheduled",
   "asin": null,
   "asins": [],
   "window_start": null,
@@ -18,7 +18,7 @@
     "#consiglipercasa",
     "#TarloStudio20261012"
   ],
-  "publication_date": "2026-10-12T18:25:00+02:00",
+  "publication_date": "2026-10-12T18:28:00+02:00",
   "created_at": "2026-10-12T18:21:00+02:00",
   "assets": [
     {
@@ -91,5 +91,17 @@
       "Controlla dosi e lavaggi dichiarati in etichetta.\nConfronta quantità e condizioni d'uso analoghe.",
       "Se calcoli il costo per lavaggio, usa la dose indicata per quel carico.\nOfferte per la casa su Telegram: @TarloDelRisparmio"
     ]
+  },
+  "metricool_id": 394174759,
+  "uuid": "5421188152573248038",
+  "planner_url": "https://app.metricool.com/planner/calendar?blogId=6911341&openWithPostUuid=5421188152573248038",
+  "archive_commit": "ff4738595877d37edce1d09564aeaa3c20e7f7e0",
+  "scheduled_at": "2026-10-12T18:25:00+02:00",
+  "planner_verified": {
+    "destination": "tiktok",
+    "pages": 3,
+    "text": true,
+    "autoPublish": true,
+    "draft": false
   }
 }
