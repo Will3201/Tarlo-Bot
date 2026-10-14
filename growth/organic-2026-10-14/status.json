@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-14",
+  "timezone": "Europe/Rome",
+  "spend_eur": 0,
+  "method": "free_directory_listing",
+  "destination": "https://www.telegramdirectory.it/segnala-promuovi-canale-gruppo-bot-telegram/",
+  "channel": "https://t.me/TarloDelRisparmio",
+  "status": "submitted_confirmed_pending_review",
+  "submitted_at": "2026-10-14T17:50:00+02:00",
+  "category": "Shopping, Offerte, Coupon",
+  "submission_attempts": 1,
+  "publication_confirmed": false,
+  "tracking_invite_created": false,
+  "attributed_joins": null,
+  "private_data_supplied": false,
+  "collaboration_outreach_sent": 0,
+  "tiktok_new_posts_sent": 0,
+  "analytics": {
+    "source": "Metricool 2026-10-14",
+    "posts": 18,
+    "views": 149,
+    "median_views": 3.5,
+    "likes": 2,
+    "comments": 0,
+    "shares": 0,
+    "previous_sum_162_corrected": true,
+    "cumulative": true
+  },
+  "notes": [
+    "Do not resubmit while review is pending.",
+    "No source attribution for the join reported by the user.",
+    "Best-method priority is a hypothesis, not proven statistical superiority."
+  ]
+}
