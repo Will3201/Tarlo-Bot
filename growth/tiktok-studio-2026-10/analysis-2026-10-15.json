@@ -1,0 +1,247 @@
+{
+  "experiment_id": "tiktok-studio-2026-10",
+  "type": "intermediate",
+  "captured_at": "2026-10-15T21:23:43+02:00",
+  "timezone": "Europe/Rome",
+  "period": {
+    "from": "2026-10-09T00:00:00+02:00",
+    "to": "2026-10-15T21:23:43+02:00"
+  },
+  "repository": {
+    "branch": "tarlo-publishing",
+    "source_head": "e52532837b74d244f7681415142df4eee88f0199",
+    "files_read": [
+      "growth/tiktok-studio-2026-10/calendar.json",
+      "growth/tiktok-studio-2026-10/PROTOCOL.md",
+      "growth/tiktok-studio-2026-10/acquisition-2026-10-09.json",
+      "growth/tiktok-studio-2026-10/tracking.json",
+      "records/studio-2026-10-09.json",
+      "records/studio-2026-10-12.json"
+    ]
+  },
+  "brand": {
+    "id": "6911341",
+    "account": "@tarlodelrisparmio",
+    "verified": true,
+    "timezone": "Europe/Rome"
+  },
+  "metrics_catalog_reverified": true,
+  "post_metric_ids": [
+    "TKPO02",
+    "TKPO03",
+    "TKPO05",
+    "TKPO07",
+    "TKPO08",
+    "TKPO09",
+    "TKPO10",
+    "TKPO11",
+    "TKPO13",
+    "TKPO14",
+    "TKPO15",
+    "TKPO22"
+  ],
+  "account_metric_ids": [
+    "TKEV07",
+    "TKEV08",
+    "TKEV09",
+    "TKEV12"
+  ],
+  "posts": [
+    {
+      "key": "studio-2026-10-12",
+      "title": "Detersivi: guarda oltre i litri",
+      "status": "published",
+      "publicUrl": "https://www.tiktok.com/@tarlodelrisparmio/video/7695819070058368278",
+      "metricool_id": 394174759,
+      "uuid": "5421188152573248038",
+      "publication_evidence": {
+        "provider_status": "PUBLISHED",
+        "analytics_shareurl_matches": true,
+        "caption_marker_matches": true,
+        "pages": 3
+      },
+      "analytics_created_raw": "20261012162833",
+      "analytics_created_interpreted_utc": "2026-10-12T16:28:33Z",
+      "age_hours": 74.92,
+      "metrics": {
+        "views": 3,
+        "likes": 0,
+        "comments": 0,
+        "shares": 0,
+        "reach": null,
+        "completion_rate": null,
+        "total_watch_seconds": null,
+        "average_watch_seconds": null,
+        "saves": null,
+        "type": "PHOTO"
+      }
+    },
+    {
+      "key": "studio-2026-10-09",
+      "title": "La confezione grande conviene davvero?",
+      "status": "published",
+      "publicUrl": "https://www.tiktok.com/@tarlodelrisparmio/video/7694575836673903894",
+      "metricool_id": 391668720,
+      "uuid": "8803655331620995483",
+      "publication_evidence": {
+        "provider_status": "PUBLISHED",
+        "analytics_shareurl_matches": true,
+        "caption_marker_matches": true,
+        "pages": 3
+      },
+      "analytics_created_raw": "20261009080413",
+      "analytics_created_interpreted_utc": "2026-10-09T08:04:13Z",
+      "age_hours": 155.33,
+      "metrics": {
+        "views": 6,
+        "likes": 0,
+        "comments": 0,
+        "shares": 0,
+        "reach": null,
+        "completion_rate": null,
+        "total_watch_seconds": null,
+        "average_watch_seconds": null,
+        "saves": null,
+        "type": "PHOTO"
+      }
+    }
+  ],
+  "totals_for_test_posts": {
+    "confirmed_posts": 2,
+    "cumulative_views": 9,
+    "likes": 0,
+    "comments": 0,
+    "shares": 0,
+    "unique_viewers": null,
+    "saves": null
+  },
+  "account_daily_rows": [
+    {
+      "date": "2026-10-09",
+      "followers": 5,
+      "net_followers": null,
+      "profile_views": null,
+      "views_in_period": null
+    },
+    {
+      "date": "2026-10-10",
+      "followers": 5,
+      "net_followers": 0,
+      "profile_views": null,
+      "views_in_period": null
+    },
+    {
+      "date": "2026-10-11",
+      "followers": 5,
+      "net_followers": 0,
+      "profile_views": null,
+      "views_in_period": null
+    },
+    {
+      "date": "2026-10-12",
+      "followers": 5,
+      "net_followers": 0,
+      "profile_views": null,
+      "views_in_period": null
+    },
+    {
+      "date": "2026-10-13",
+      "followers": 5,
+      "net_followers": 0,
+      "profile_views": null,
+      "views_in_period": null
+    },
+    {
+      "date": "2026-10-14",
+      "followers": 5,
+      "net_followers": 0,
+      "profile_views": null,
+      "views_in_period": null
+    },
+    {
+      "date": "2026-10-15",
+      "followers": null,
+      "net_followers": null,
+      "profile_views": 0,
+      "views_in_period": 0
+    }
+  ],
+  "account_interpretation": {
+    "followers_last_available": 5,
+    "followers_last_date": "2026-10-14",
+    "followers_current": null,
+    "net_followers_full_period": null,
+    "profile_views_full_period": null,
+    "views_in_period_full_period": null,
+    "note": "Net follower values 0 for October10–14, missing October9 and15. Profile views and period views only October15 partial row returns0; preceding dates null. Do not sum incomplete coverage as full-period zero. Evolution and post views are different scopes. No freshness/refresh timestamp supplied by API."
+  },
+  "reconciliation": {
+    "planner_returned_published_despite_documentation_saying_scheduled_only": true,
+    "confirmed_matches": 2,
+    "unresolved_attempts_in_existing_studio_records": 0,
+    "october14": {
+      "record_http_status": 404,
+      "planner_match": false,
+      "analytics_match": false,
+      "status": "no_confirmed_publication",
+      "reason": "No record or matching published evidence; no recovery or resend."
+    },
+    "record_changes_required": false,
+    "no_resends": true
+  },
+  "age_comparison": {
+    "target_hours": [
+      48,
+      72
+    ],
+    "available_matched_age_snapshots": false,
+    "ranking_supported": false,
+    "note": "Current ages differ (~155h and~75h). These are cumulative readings, not observed48–72h snapshots;6 vs3 views is not evidence that the subject or format wins. Two posts and9views cannot support causal or reliable performance inference. October14 has no confirmed post to evaluate as young."
+  },
+  "baseline": {
+    "read_at": "2026-10-06",
+    "posts": 14,
+    "views": 127,
+    "likes": 0,
+    "comments": 0,
+    "shares": 0,
+    "telegram_members": 582,
+    "scope": "Pre-test cumulative account snapshot, not directly comparable to2testposts. Historical values not refreshed here."
+  },
+  "telegram": {
+    "current_members": null,
+    "current_count_source": "Public t.me page attempted but inaccessible; old PRIME_STATS not used as current.",
+    "tracked_invite_created": false,
+    "tracked_invite_stats_available": false,
+    "attributed_joins": null,
+    "net_growth": null
+  },
+  "commercial": {
+    "clicks": null,
+    "orders": null,
+    "commissions": null,
+    "attribution_available": false
+  },
+  "limitations": [
+    "All requested reach/watch/completion fields returned null for both PHOTO posts.",
+    "Saves metric not present in verified catalog.",
+    "Account evolution coverage incomplete and API refresh delay unknown.",
+    "Native TikTok Studio, recommendation eligibility, bio and Creator Search Insights not checked.",
+    "Views may repeat; unique viewers missing; no real Telegram attribution."
+  ],
+  "assessment": "No engagement or acquisition signal demonstrated yet; insufficient evidence to name a winning category, posting hour or format.",
+  "free_recommendations": [
+    "Within future already-authorized entries, keep a concrete problem on the first card and one clear Telegram CTA; keep topic-relevant hashtags.",
+    "Evaluate future posts at matched48–72h only when actual snapshots are available; do not manufacture backdated snapshots.",
+    "When legitimate channel admin access is available, use a real dedicated invite with aggregate statistics; until then keep public CTA and no attribution claims.",
+    "Keep the existing bounded test and final October24 review; no automatic extension."
+  ],
+  "actions": {
+    "new_posts": 0,
+    "post_edits": 0,
+    "spend": 0,
+    "automation_changes": 0,
+    "render_changes": 0,
+    "scope": "Evidence archive only"
+  }
+}
