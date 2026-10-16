@@ -4,7 +4,7 @@
   "day": "2026-10-16",
   "format": "educational_carousel",
   "title": "Un coupon non basta: controlla il totale",
-  "status": "attempted",
+  "status": "scheduled",
   "attempted_at": "2026-10-16T10:12:00+02:00",
   "publication_date": "2026-10-16T10:15:00+02:00",
   "timezone": "Europe/Rome",
@@ -136,5 +136,33 @@
       "visual_review": "passed: testo esatto e leggibile, illustrazioni astratte non schermate o prodotti reali",
       "git_blob_sha": "e712532a39ab2d09dac49f7b6bec201947fd977f"
     }
-  ]
+  ],
+  "scheduled_at": "2026-10-16T10:12:00+02:00",
+  "metricool_id": 397514997,
+  "uuid": "8649721155692678436",
+  "archive_commit": "d6909b14f073a170d3b5b2f3b23c9f9f7bafab57",
+  "planner_url": "https://app.metricool.com/planner/calendar?blogId=6911341&openWithPostUuid=8649721155692678436",
+  "publicUrl": null,
+  "published_at": null,
+  "planner_verification": {
+    "checked_at": "2026-10-16T10:13:00+02:00",
+    "one_match": true,
+    "exact_caption": true,
+    "only_tiktok": true,
+    "three_pages": true,
+    "publication_date": {
+      "dateTime": "2026-10-16T10:15:00",
+      "timezone": "Europe/Rome"
+    },
+    "autoPublish": true,
+    "draft": false,
+    "provider_status": "PENDING",
+    "commercial_disclosure": true,
+    "privacy": "PUBLIC_TO_EVERYONE",
+    "imported_media": [
+      "https://static.metricool.com/planner/202610/6911341-file-3926721008920987585.jpeg",
+      "https://static.metricool.com/planner/202610/6911341-file-15778099821215331452.jpeg",
+      "https://static.metricool.com/planner/202610/6911341-file-13789185058898583373.jpeg"
+    ]
+  }
 }
