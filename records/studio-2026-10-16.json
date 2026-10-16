@@ -1,0 +1,140 @@
+{
+  "experiment_id": "tiktok-studio-2026-10",
+  "key": "studio-2026-10-16",
+  "day": "2026-10-16",
+  "format": "educational_carousel",
+  "title": "Un coupon non basta: controlla il totale",
+  "status": "attempted",
+  "attempted_at": "2026-10-16T10:12:00+02:00",
+  "publication_date": "2026-10-16T10:15:00+02:00",
+  "timezone": "Europe/Rome",
+  "brand_id": "6911341",
+  "destination": "tiktok:@tarlodelrisparmio",
+  "asin": null,
+  "asins": [],
+  "window_start": null,
+  "window_end": null,
+  "selection_scope": "editoriale, nessuna offerta",
+  "caption": "Coupon visto, risparmio confermato? 🎟️\nLeggi le condizioni e ricontrolla prezzo finale e spedizione prima di pagare.\n👉 Cerca @TarloDelRisparmio su Telegram: t.me/TarloDelRisparmio\nPrezzi e disponibilità possono variare. Nel canale usiamo link affiliati.\n#coupon #acquistionline #risparmio #spesaintelligente #TarloStudio20261016",
+  "hashtags": [
+    "#coupon",
+    "#acquistionline",
+    "#risparmio",
+    "#spesaintelligente",
+    "#TarloStudio20261016"
+  ],
+  "cards": [
+    "Hai visto un coupon? Controlla il totale.",
+    "Leggi condizioni, quantità e varianti ammesse.",
+    "Prima di pagare, ricontrolla prezzo finale e spedizione."
+  ],
+  "spend": 0,
+  "publication_attempt_count": 1,
+  "source_head": "2378c2d347eb489e04fcb7470796f7ef4ad6ced7",
+  "checks": {
+    "brand_verified": true,
+    "record_absent_http_status": 404,
+    "planner_period": "2026-10-09/2026-10-23",
+    "no_duplicate_marker_in_planner": true,
+    "analytics_period": "2026-10-13T10:07:00+02:00/2026-10-16T10:08:00+02:00",
+    "analytics_rows": 0,
+    "analytics_note": "Nessuna riga non significa zero; planner e registri confermano due precedenti pubblicazioni Studio.",
+    "existing_studio_records": 2,
+    "visual_review_all_pages": true,
+    "jpeg_review": true,
+    "exact_card_text": true,
+    "no_daily_prepare": true
+  },
+  "tracking": {
+    "created": false,
+    "destination_verified": false,
+    "join_stats_available": false,
+    "cta": "t.me/TarloDelRisparmio",
+    "attribution_available": false
+  },
+  "fonti": [
+    {
+      "url": "https://sellercentral.amazon.it/seller-forums/discussions/t/a4fe6779-1286-4418-8715-8ddfedc0d17b",
+      "accessed_at": "2026-10-16",
+      "scope": "Comunicazione ufficiale News_Amazon: quantità ammesse dipendono dalle condizioni del coupon. Non vengono riportati limiti numerici nel carosello."
+    },
+    {
+      "url": "https://europa.eu/youreurope/citizens/consumers/shopping/contract-information/index_en.htm",
+      "accessed_at": "2026-10-16",
+      "scope": "Prezzo totale, caratteristiche e spese di consegna devono essere comunicati prima dell'acquisto."
+    }
+  ],
+  "research_note": "Contenuto educativo generale, nessun coupon o prezzo reale promesso; controllare le varianti ammesse è un invito alla verifica, non una dichiarazione di idoneità.",
+  "generation": {
+    "tool": "built-in imagegen included",
+    "design": "Percorso illustrato a tre tappe, stile taccuino crema con frecce arancio e verde. Nessuna falsa schermata Amazon.",
+    "prompts": [
+      "Use case: ads-marketing. Create ONE professional original vertical TikTok carousel page, portrait 3:4 aspect ratio, page 1 of 3 for Il Tarlo del Risparmio. Italian household shopping education. Cream notebook paper with subtle ruled texture, forest green bold editorial typography, orange and green hand-drawn arrows forming a three-step journey. Original editorial illustration, tasteful flat ink and pencil, NOT product photography or UI. Generous margins for TikTok overlays, very readable oversized text, minimal clean composition. Exact main text verbatim: \"Hai visto un coupon? Controlla il totale.\". Footer exact: \"@TarloDelRisparmio\". Small page number \"1/3\". Illustrate a blank orange coupon ticket with a percent symbol and an arrow toward an abstract total receipt, no numbers or prices. No Amazon logo, no fabricated Amazon screenshots, no products or invented prices, no claims of guaranteed savings, no additional text. This must be a single standalone page filling the image, not a collage or mockup.",
+      "Use case: ads-marketing. Create ONE professional original vertical TikTok carousel page, portrait 3:4 aspect ratio, page 2 of 3 for Il Tarlo del Risparmio. Italian household shopping education. Cream notebook paper with subtle ruled texture, forest green bold editorial typography, orange and green hand-drawn arrows forming a three-step journey. Original editorial illustration, tasteful flat ink and pencil, NOT product photography or UI. Generous margins for TikTok overlays, very readable oversized text, minimal clean composition. Exact main text verbatim: \"Leggi condizioni, quantità e varianti ammesse.\". Footer exact: \"@TarloDelRisparmio\". Small page number \"2/3\". Illustrate a magnifying glass beside three abstract boxes/checklist lines, with an orange path arrow. No fake brand labels or specific promotion. No Amazon logo, no fabricated Amazon screenshots, no products or invented prices, no claims of guaranteed savings, no additional text. This must be a single standalone page filling the image, not a collage or mockup.",
+      "Use case: ads-marketing. Create ONE professional original vertical TikTok carousel page, portrait 3:4 aspect ratio, page 3 of 3 for Il Tarlo del Risparmio. Italian household shopping education. Cream notebook paper with subtle ruled texture, forest green bold editorial typography, orange and green hand-drawn arrows forming a three-step journey. Original editorial illustration, tasteful flat ink and pencil, NOT product photography or UI. Generous margins for TikTok overlays, very readable oversized text, minimal clean composition. Exact main text verbatim: \"Prima di pagare, ricontrolla prezzo finale e spedizione.\". Footer exact: \"@TarloDelRisparmio\". Small page number \"3/3\". Illustrate an abstract shopping basket and parcel with a large green check mark, no money or prices. Add separate final call to action verbatim: \"Offerte e recap su Telegram\". No Amazon logo, no fabricated Amazon screenshots, no products or invented prices, no claims of guaranteed savings, no additional text. This must be a single standalone page filling the image, not a collage or mockup."
+    ],
+    "cost_upgrade": false
+  },
+  "assets": [
+    {
+      "page": 1,
+      "path": "media/studio-2026-10-16-1.jpg",
+      "original_sha256": "64036a4033551983009895d7a677f27b7b178229fbb9b5fffa6ab1c105c87952",
+      "derived_sha256": "64036a4033551983009895d7a677f27b7b178229fbb9b5fffa6ab1c105c87952",
+      "jpeg_sha256": "1ef242abaafbac6a52b165a5928114a0a61108d0eb8507bde43c3b8bdd5a33f4",
+      "source_dimensions": [
+        1086,
+        1448
+      ],
+      "dimensions": [
+        810,
+        1080
+      ],
+      "format": "JPEG",
+      "mode": "RGB",
+      "quality": 95,
+      "visual_review": "passed: testo esatto e leggibile, illustrazioni astratte non schermate o prodotti reali",
+      "git_blob_sha": "6ec6fea41561708a32f7d5ab89e6a7f06c10e0d5"
+    },
+    {
+      "page": 2,
+      "path": "media/studio-2026-10-16-2.jpg",
+      "original_sha256": "e9a1ca95192ed5fcfdb8b84151c31a46c8ca07621e90974596f32b06657d2db7",
+      "derived_sha256": "e9a1ca95192ed5fcfdb8b84151c31a46c8ca07621e90974596f32b06657d2db7",
+      "jpeg_sha256": "b2e8d102aef2e60014b8bfcc6bc375434a3827314e3b2a0ebcb3f3f69c198856",
+      "source_dimensions": [
+        1086,
+        1448
+      ],
+      "dimensions": [
+        810,
+        1080
+      ],
+      "format": "JPEG",
+      "mode": "RGB",
+      "quality": 95,
+      "visual_review": "passed: testo esatto e leggibile, illustrazioni astratte non schermate o prodotti reali",
+      "git_blob_sha": "fc6bebae9fa9fa1912ef34c4dffd49a4b2a28697"
+    },
+    {
+      "page": 3,
+      "path": "media/studio-2026-10-16-3.jpg",
+      "original_sha256": "51a10f42eb6af05745a6bb602cbc96f350131f1b62a6a245c00af7e901bfe47c",
+      "derived_sha256": "51a10f42eb6af05745a6bb602cbc96f350131f1b62a6a245c00af7e901bfe47c",
+      "jpeg_sha256": "5c61291a30bbdab7b86c45d9aeca7534e1d94018461241a0b270016211fb6ba8",
+      "source_dimensions": [
+        1086,
+        1448
+      ],
+      "dimensions": [
+        810,
+        1080
+      ],
+      "format": "JPEG",
+      "mode": "RGB",
+      "quality": 95,
+      "visual_review": "passed: testo esatto e leggibile, illustrazioni astratte non schermate o prodotti reali",
+      "git_blob_sha": "e712532a39ab2d09dac49f7b6bec201947fd977f"
+    }
+  ]
+}
