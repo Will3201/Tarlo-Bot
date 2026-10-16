@@ -4,7 +4,7 @@
   "day": "2026-10-16",
   "format": "educational_carousel",
   "title": "Un coupon non basta: controlla il totale",
-  "status": "scheduled",
+  "status": "published",
   "attempted_at": "2026-10-16T10:12:00+02:00",
   "publication_date": "2026-10-16T10:15:00+02:00",
   "timezone": "Europe/Rome",
@@ -142,10 +142,10 @@
   "uuid": "8649721155692678436",
   "archive_commit": "d6909b14f073a170d3b5b2f3b23c9f9f7bafab57",
   "planner_url": "https://app.metricool.com/planner/calendar?blogId=6911341&openWithPostUuid=8649721155692678436",
-  "publicUrl": null,
+  "publicUrl": "https://www.tiktok.com/@tarlodelrisparmio/video/7697176401530653974",
   "published_at": null,
   "planner_verification": {
-    "checked_at": "2026-10-16T10:13:00+02:00",
+    "checked_at": "2026-10-16T10:17:03+02:00",
     "one_match": true,
     "exact_caption": true,
     "only_tiktok": true,
@@ -156,13 +156,39 @@
     },
     "autoPublish": true,
     "draft": false,
-    "provider_status": "PENDING",
+    "provider_status": "PUBLISHED",
     "commercial_disclosure": true,
     "privacy": "PUBLIC_TO_EVERYONE",
     "imported_media": [
       "https://static.metricool.com/planner/202610/6911341-file-3926721008920987585.jpeg",
       "https://static.metricool.com/planner/202610/6911341-file-15778099821215331452.jpeg",
       "https://static.metricool.com/planner/202610/6911341-file-13789185058898583373.jpeg"
+    ],
+    "imported_jpeg_bytes_match_archive": true,
+    "imported_media_sha256": [
+      "1ef242abaafbac6a52b165a5928114a0a61108d0eb8507bde43c3b8bdd5a33f4",
+      "b2e8d102aef2e60014b8bfcc6bc375434a3827314e3b2a0ebcb3f3f69c198856",
+      "5c61291a30bbdab7b86c45d9aeca7534e1d94018461241a0b270016211fb6ba8"
     ]
+  },
+  "published_confirmed_at": "2026-10-16T10:17:03+02:00",
+  "tiktok_post_id": "7697176401530653974",
+  "publication_time_note": "10:15 è l'orario programmato; timestamp effettivo indipendente non fornito dal planner.",
+  "publication_evidence": {
+    "source": "Metricool getScheduledPosts",
+    "checked_at": "2026-10-16T10:17:03+02:00",
+    "metricool_id": 397514997,
+    "uuid": "8649721155692678436",
+    "provider_status": "PUBLISHED",
+    "tiktok_post_id": "7697176401530653974",
+    "publicUrl": "https://www.tiktok.com/@tarlodelrisparmio/video/7697176401530653974",
+    "only_tiktok": true,
+    "pages": 3,
+    "caption_matches": true
+  },
+  "analytics_verification": {
+    "checked_at": "2026-10-16T10:16:10+02:00",
+    "rows": 0,
+    "note": "Ritardo possibile: nessuna riga non significa zero."
   }
 }
